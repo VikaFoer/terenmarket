@@ -1,0 +1,519 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Container,
+  Typography,
+  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Grid,
+  AppBar,
+  Toolbar,
+  Button,
+  IconButton,
+  TextField,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Divider,
+  Chip,
+} from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import MenuIcon from '@mui/icons-material/Menu';
+import Badge from '@mui/material/Badge';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
+import Cart from '../components/Cart';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+const drawerWidth = 280;
+
+const ClientDashboard = () => {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [eurRate, setEurRate] = useState(null);
+  const [eurLoading, setEurLoading] = useState(true);
+  const { logout, user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+    // Load cart from localStorage
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      try {
+        setCartItems(JSON.parse(savedCart));
+      } catch (e) {
+        console.error('Error loading cart:', e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchEurRate = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/currency/rates/EUR`);
+        if (response.data && response.data.rate) {
+          setEurRate(response.data.rate);
+        }
+      } catch (error) {
+        console.error('Error fetching EUR rate:', error);
+        // Try to fetch again after 30 seconds if failed
+        setTimeout(fetchEurRate, 30000);
+      } finally {
+        setEurLoading(false);
+      }
+    };
+    fetchEurRate();
+    // Update every 5 minutes
+    const interval = setInterval(fetchEurRate, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // Save cart to localStorage
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/client/products`);
+      setProducts(response.data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/client/categories`);
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const addToCart = (product) => {
+    const existingItem = cartItems.find(item => item.id === product.id);
+    if (existingItem) {
+      setCartItems(cartItems.map(item =>
+        item.id === product.id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ));
+    } else {
+      setCartItems([...cartItems, {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        image_url: product.image_url
+      }]);
+    }
+  };
+
+  const updateQuantity = (productId, quantity) => {
+    setCartItems(cartItems.map(item =>
+      item.id === productId
+        ? { ...item, quantity }
+        : item
+    ));
+  };
+
+  const removeFromCart = (productId) => {
+    setCartItems(cartItems.filter(item => item.id !== productId));
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
+  const getCartItemQuantity = (productId) => {
+    const item = cartItems.find(item => item.id === productId);
+    return item ? item.quantity : 0;
+  };
+
+  const cartItemsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Filter products by selected category
+  const filteredProducts = selectedCategory
+    ? products.filter(p => p.category_id === selectedCategory)
+    : products;
+
+  const groupedProducts = filteredProducts.reduce((acc, product) => {
+    if (!acc[product.category_name]) {
+      acc[product.category_name] = [];
+    }
+    acc[product.category_name].push(product);
+    return acc;
+  }, {});
+
+  // Generate SVG image for product (завжди працює)
+  const getProductImage = (product) => {
+    const productName = product.name;
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3', '#FFD93D', '#6BCB77', '#4D96FF', '#9B59B6', '#E74C3C', '#3498DB', '#1ABC9C', '#E67E22'];
+    let hash = 0;
+    for (let i = 0; i < productName.length; i++) {
+      hash = productName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const colorIndex = Math.abs(hash) % colors.length;
+    const bgColor = colors[colorIndex];
+    
+    // Create SVG data URL - це завжди працює
+    const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="${bgColor}"/><text x="50%" y="50%" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text></svg>`;
+    
+    return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+  };
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const drawer = (
+    <Box>
+      <Toolbar sx={{ backgroundColor: '#2c3e50', color: 'white' }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          Категорії
+        </Typography>
+      </Toolbar>
+      <Divider />
+      <List>
+        <ListItem disablePadding>
+          <ListItemButton
+            selected={selectedCategory === null}
+            onClick={() => setSelectedCategory(null)}
+            sx={{
+              '&.Mui-selected': {
+                backgroundColor: '#e3f2fd',
+                '&:hover': {
+                  backgroundColor: '#bbdefb',
+                },
+              },
+            }}
+          >
+            <ListItemText 
+              primary="Всі товари" 
+              primaryTypographyProps={{
+                fontWeight: selectedCategory === null ? 600 : 400
+              }}
+            />
+            <Chip 
+              label={products.length} 
+              size="small" 
+              color="primary"
+              variant={selectedCategory === null ? "filled" : "outlined"}
+            />
+          </ListItemButton>
+        </ListItem>
+        <Divider />
+        {categories.map((category) => (
+          <ListItem key={category.id} disablePadding>
+            <ListItemButton
+              selected={selectedCategory === category.id}
+              onClick={() => setSelectedCategory(category.id)}
+              sx={{
+                '&.Mui-selected': {
+                  backgroundColor: '#e3f2fd',
+                  '&:hover': {
+                    backgroundColor: '#bbdefb',
+                  },
+                },
+              }}
+            >
+              <ListItemText 
+                primary={category.name}
+                primaryTypographyProps={{
+                  fontWeight: selectedCategory === category.id ? 600 : 400
+                }}
+              />
+              <Chip 
+                label={category.product_count || 0} 
+                size="small" 
+                color="primary"
+                variant={selectedCategory === category.id ? "filled" : "outlined"}
+              />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <AppBar
+        position="fixed"
+        sx={{
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+          backgroundColor: '#2c3e50',
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Box
+            component="img"
+            src="/logo.png"
+            alt="SmartMarket Logo"
+            sx={{
+              height: 28,
+              mr: 1.5,
+              objectFit: 'contain',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          />
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
+            SmartMarket
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {!eurLoading && eurRate && (
+              <Chip
+                label={`EUR: ${eurRate.toFixed(2)} ₴`}
+                size="small"
+                sx={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                  fontWeight: 600,
+                  '& .MuiChip-label': {
+                    px: 1.5,
+                  },
+                }}
+              />
+            )}
+            <Typography variant="body2" sx={{ opacity: 0.9, display: 'flex', alignItems: 'center' }}>
+              {user?.login}
+            </Typography>
+          </Box>
+          <IconButton color="inherit" onClick={() => setCartOpen(true)}>
+            <Badge badgeContent={cartItemsCount} color="error">
+              <ShoppingCartIcon />
+            </Badge>
+          </IconButton>
+          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />} sx={{ ml: 1 }}>
+            Вихід
+          </Button>
+        </Toolbar>
+      </AppBar>
+
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+      >
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true,
+          }}
+          sx={{
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+          }}
+        >
+          {drawer}
+        </Drawer>
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+          }}
+          open
+        >
+          {drawer}
+        </Drawer>
+      </Box>
+
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          mt: 8,
+        }}
+      >
+        <Container maxWidth="xl">
+          <Typography variant="h4" component="h1" gutterBottom>
+            {selectedCategory 
+              ? categories.find(c => c.id === selectedCategory)?.name || 'Каталог товарів'
+              : 'Каталог товарів'}
+          </Typography>
+          
+          {loading ? (
+            <Typography>Завантаження...</Typography>
+          ) : Object.keys(groupedProducts).length === 0 ? (
+            <Typography color="text.secondary">
+              Немає доступних товарів
+            </Typography>
+          ) : (
+            Object.entries(groupedProducts).map(([category, categoryProducts]) => (
+              <Box key={category} sx={{ mb: 4 }}>
+                {!selectedCategory && (
+                  <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 2 }}>
+                    {category}
+                  </Typography>
+                )}
+                <Grid container spacing={3}>
+                  {categoryProducts.map((product) => {
+                    const quantity = getCartItemQuantity(product.id);
+                    return (
+                      <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+                        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <Box
+                          sx={{
+                            width: '100%',
+                            height: 200,
+                            backgroundColor: '#f0f0f0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            overflow: 'hidden',
+                            position: 'relative'
+                          }}
+                        >
+                          <img
+                            src={getProductImage(product)}
+                            alt={product.name}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              display: 'block'
+                            }}
+                            loading="lazy"
+                            onError={(e) => {
+                              // Fallback SVG if external image fails
+                              const productName = product.name;
+                              const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181'];
+                              let hash = 0;
+                              for (let i = 0; i < productName.length; i++) {
+                                hash = productName.charCodeAt(i) + ((hash << 5) - hash);
+                              }
+                              const bgColor = colors[Math.abs(hash) % colors.length];
+                              const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="${bgColor}"/><text x="50%" y="50%" font-family="Arial" font-size="22" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text></svg>`;
+                              e.target.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+                            }}
+                          />
+                        </Box>
+                          <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                            <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600 }}>
+                              {product.name}
+                            </Typography>
+                            
+                            <Box sx={{ mt: 'auto', pt: 2 }}>
+                              <Box sx={{ 
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                mb: 2
+                              }}>
+                                <Typography variant="body2" color="text.secondary">
+                                  Ціна:
+                                </Typography>
+                                <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
+                                  {product.price.toFixed(2)} грн
+                                </Typography>
+                              </Box>
+
+                              {quantity > 0 ? (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => updateQuantity(product.id, quantity - 1)}
+                                    color="primary"
+                                  >
+                                    <RemoveIcon />
+                                  </IconButton>
+                                  <TextField
+                                    type="number"
+                                    size="small"
+                                    value={quantity}
+                                    onChange={(e) => {
+                                      const newQuantity = Math.max(0, parseInt(e.target.value) || 0);
+                                      if (newQuantity === 0) {
+                                        removeFromCart(product.id);
+                                      } else {
+                                        updateQuantity(product.id, newQuantity);
+                                      }
+                                    }}
+                                    inputProps={{ min: 0, style: { width: '50px', textAlign: 'center' } }}
+                                    sx={{ width: 70 }}
+                                  />
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => updateQuantity(product.id, quantity + 1)}
+                                    color="primary"
+                                  >
+                                    <AddIcon />
+                                  </IconButton>
+                                  <Typography variant="body2" sx={{ ml: 'auto', fontWeight: 600 }}>
+                                    {(product.price * quantity).toFixed(2)} грн
+                                  </Typography>
+                                </Box>
+                              ) : (
+                                <Button
+                                  variant="contained"
+                                  fullWidth
+                                  startIcon={<AddIcon />}
+                                  onClick={() => addToCart(product)}
+                                >
+                                  Додати до корзини
+                                </Button>
+                              )}
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </Box>
+            ))
+          )}
+        </Container>
+      </Box>
+
+      <Cart
+        open={cartOpen}
+        onClose={() => setCartOpen(false)}
+        cartItems={cartItems}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={removeFromCart}
+        onClearCart={clearCart}
+      />
+    </Box>
+  );
+};
+
+export default ClientDashboard;
