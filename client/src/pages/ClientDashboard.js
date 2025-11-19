@@ -191,11 +191,12 @@ const ClientDashboard = () => {
 
   const drawer = (
     <Box>
-      <Toolbar sx={{ backgroundColor: '#2c3e50', color: 'white' }}>
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+      <Toolbar />
+      <Box sx={{ px: 2, py: 1.5 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
           Категорії
         </Typography>
-      </Toolbar>
+      </Box>
       <Divider />
       <List>
         <ListItem disablePadding>
@@ -264,9 +265,9 @@ const ClientDashboard = () => {
       <AppBar
         position="fixed"
         sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
+          width: '100%',
           backgroundColor: '#2c3e50',
+          zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
         <Toolbar>
