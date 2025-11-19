@@ -7,7 +7,6 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "import": "node scripts/importExcel.js",
-    "add-images": "node scripts/addTestImages.js",
     "add-colourant-images": "node scripts/addColourantImages.js"
   },
   "dependencies": {

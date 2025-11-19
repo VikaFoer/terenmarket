@@ -1,8 +1,16 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
 
-const DB_PATH = path.join(__dirname, 'database.sqlite');
+// Use Railway volume path if available, otherwise use local path
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname);
+const DB_PATH = path.join(DATA_DIR, 'database.sqlite');
+
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
 
 let db = null;
 

@@ -5,7 +5,12 @@ server/node_modules/
 .DS_Store
 .env
 server/.env
+client/.env.local
+client/.env
 server/database.sqlite
 build/
 dist/
+clients_products_prices.xlsx
+imported_credentials.txt
+logo.png
 
