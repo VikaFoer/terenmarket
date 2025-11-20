@@ -7,22 +7,37 @@ const fs = require('fs');
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname);
 const DB_PATH = path.join(DATA_DIR, 'database.sqlite');
 
+// Log database path for debugging
+console.log('=== Database Configuration ===');
+console.log('DATA_DIR:', DATA_DIR);
+console.log('DB_PATH:', DB_PATH);
+console.log('DATA_DIR exists:', fs.existsSync(DATA_DIR));
+console.log('DB_PATH exists:', fs.existsSync(DB_PATH));
+console.log('=============================');
+
 // Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
+  console.log(`Creating DATA_DIR: ${DATA_DIR}`);
   fs.mkdirSync(DATA_DIR, { recursive: true });
+  console.log(`DATA_DIR created successfully`);
+} else {
+  console.log(`DATA_DIR already exists: ${DATA_DIR}`);
 }
 
 let db = null;
 
 const init = () => {
   return new Promise((resolve, reject) => {
+    console.log(`Attempting to open database at: ${DB_PATH}`);
     db = new sqlite3.Database(DB_PATH, (err) => {
       if (err) {
         console.error('Error opening database:', err);
+        console.error('Database path:', DB_PATH);
         reject(err);
         return;
       }
-      console.log('Connected to SQLite database');
+      console.log(`Connected to SQLite database at: ${DB_PATH}`);
+      console.log(`Database file exists: ${fs.existsSync(DB_PATH)}`);
       createTables().then(resolve).catch(reject);
     });
   });
