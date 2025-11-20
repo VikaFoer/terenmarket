@@ -41,28 +41,48 @@ const Login = () => {
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="sm" sx={{ px: { xs: 2, sm: 3 } }}>
       <Box
         sx={{
           minHeight: '100vh',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          py: { xs: 2, sm: 0 },
         }}
       >
-        <Paper elevation={3} sx={{ p: 4, width: '100%', borderRadius: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+        <Paper 
+          elevation={3} 
+          sx={{ 
+            p: { xs: 3, sm: 4 }, 
+            width: '100%', 
+            borderRadius: 3,
+            mx: { xs: 1, sm: 0 },
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 2, sm: 3 } }}>
             <Box
               component="img"
               src="/logo.png"
               alt="SmartMarket Logo"
               sx={{
-                height: 80,
+                height: { xs: 60, sm: 80 },
                 objectFit: 'contain',
               }}
             />
           </Box>
-          <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ mb: 3, fontWeight: 600, color: '#2c3e50' }}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            gutterBottom 
+            align="center" 
+            sx={{ 
+              mb: { xs: 2, sm: 3 }, 
+              fontWeight: 600, 
+              color: '#2c3e50',
+              fontSize: { xs: '1.75rem', sm: '2.125rem' },
+            }}
+          >
             SmartMarket
           </Typography>
           
@@ -95,7 +115,12 @@ const Login = () => {
               type="submit"
               fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ 
+                mt: { xs: 2, sm: 3 }, 
+                mb: 2,
+                py: { xs: 1.25, sm: 1 },
+                fontSize: { xs: '1rem', sm: '0.875rem' },
+              }}
               disabled={loading}
             >
               Увійти

@@ -93,10 +93,27 @@ const AdminDashboard = () => {
               objectFit: 'contain',
             }}
           />
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
-            SmartMarket - Адмін панель
+          <Typography 
+            variant="h6" 
+            noWrap 
+            component="div" 
+            sx={{ 
+              flexGrow: 1, 
+              fontWeight: 600, 
+              display: 'flex', 
+              alignItems: 'center',
+              fontSize: { xs: '0.9rem', sm: '1.25rem' },
+            }}
+          >
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>SmartMarket - Адмін панель</Box>
+            <Box sx={{ display: { xs: 'block', sm: 'none' } }}>Адмін</Box>
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: { xs: 0.5, sm: 2 },
+            flexWrap: { xs: 'wrap', sm: 'nowrap' },
+          }}>
             {!ratesLoading && (
               <>
                 {eurRate && (
@@ -109,12 +126,15 @@ const AdminDashboard = () => {
                       color: 'white',
                       fontWeight: 600,
                       cursor: 'pointer',
+                      fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                      height: { xs: 24, sm: 28 },
                       '&:hover': {
                         backgroundColor: 'rgba(255, 255, 255, 0.2)',
                       },
                       '& .MuiChip-label': {
-                        px: 1.5,
+                        px: { xs: 1, sm: 1.5 },
                       },
+                      display: { xs: 'none', sm: 'flex' },
                     }}
                   />
                 )}
@@ -128,18 +148,29 @@ const AdminDashboard = () => {
                       color: 'white',
                       fontWeight: 600,
                       cursor: 'pointer',
+                      fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                      height: { xs: 24, sm: 28 },
                       '&:hover': {
                         backgroundColor: 'rgba(255, 255, 255, 0.2)',
                       },
                       '& .MuiChip-label': {
-                        px: 1.5,
+                        px: { xs: 1, sm: 1.5 },
                       },
+                      display: { xs: 'none', sm: 'flex' },
                     }}
                   />
                 )}
               </>
             )}
-            <Typography variant="body2" sx={{ opacity: 0.9, display: 'flex', alignItems: 'center' }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                opacity: 0.9, 
+                display: { xs: 'none', sm: 'flex' },
+                alignItems: 'center',
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+              }}
+            >
               {user?.login}
             </Typography>
           </Box>

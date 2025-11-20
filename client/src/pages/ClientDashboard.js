@@ -302,7 +302,12 @@ const ClientDashboard = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600, display: 'flex', alignItems: 'center' }}>
             SmartMarket
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: { xs: 0.5, sm: 2 },
+            flexWrap: { xs: 'wrap', sm: 'nowrap' },
+          }}>
             {!ratesLoading && (
               <>
                 {eurRate && (
@@ -315,12 +320,15 @@ const ClientDashboard = () => {
                       color: 'white',
                       fontWeight: 600,
                       cursor: 'pointer',
+                      fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                      height: { xs: 24, sm: 28 },
                       '&:hover': {
                         backgroundColor: 'rgba(255, 255, 255, 0.2)',
                       },
                       '& .MuiChip-label': {
-                        px: 1.5,
+                        px: { xs: 1, sm: 1.5 },
                       },
+                      display: { xs: 'none', sm: 'flex' },
                     }}
                   />
                 )}
@@ -334,29 +342,66 @@ const ClientDashboard = () => {
                       color: 'white',
                       fontWeight: 600,
                       cursor: 'pointer',
+                      fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                      height: { xs: 24, sm: 28 },
                       '&:hover': {
                         backgroundColor: 'rgba(255, 255, 255, 0.2)',
                       },
                       '& .MuiChip-label': {
-                        px: 1.5,
+                        px: { xs: 1, sm: 1.5 },
                       },
+                      display: { xs: 'none', sm: 'flex' },
                     }}
                   />
                 )}
               </>
             )}
-            <Typography variant="body2" sx={{ opacity: 0.9, display: 'flex', alignItems: 'center' }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                opacity: 0.9, 
+                display: { xs: 'none', sm: 'flex' },
+                alignItems: 'center',
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+              }}
+            >
               {user?.login}
             </Typography>
           </Box>
-          <IconButton color="inherit" onClick={() => setCartOpen(true)}>
+          <IconButton 
+            color="inherit" 
+            onClick={() => setCartOpen(true)}
+            sx={{ 
+              p: { xs: 0.75, sm: 1 },
+            }}
+          >
             <Badge badgeContent={cartItemsCount} color="error">
-              <ShoppingCartIcon />
+              <ShoppingCartIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
             </Badge>
           </IconButton>
-          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />} sx={{ ml: 1 }}>
+          <Button 
+            color="inherit" 
+            onClick={handleLogout} 
+            startIcon={<LogoutIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />} 
+            sx={{ 
+              ml: { xs: 0.5, sm: 1 },
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+              px: { xs: 1, sm: 1.5 },
+              display: { xs: 'none', sm: 'flex' },
+            }}
+          >
             Вихід
           </Button>
+          <IconButton 
+            color="inherit" 
+            onClick={handleLogout}
+            sx={{ 
+              display: { xs: 'flex', sm: 'none' },
+              p: { xs: 0.75, sm: 1 },
+            }}
+          >
+            <LogoutIcon sx={{ fontSize: 20 }} />
+          </IconButton>
         </Toolbar>
       </AppBar>
 
@@ -394,13 +439,21 @@ const ClientDashboard = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: { xs: 2, sm: 3 },
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          mt: 8,
+          mt: { xs: 7, sm: 8 },
         }}
       >
-        <Container maxWidth="xl">
-          <Typography variant="h4" component="h1" gutterBottom>
+        <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 3 } }}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            gutterBottom
+            sx={{ 
+              fontSize: { xs: '1.5rem', sm: '2.125rem' },
+              mb: { xs: 2, sm: 3 },
+            }}
+          >
             {selectedCategory 
               ? categories.find(c => c.id === selectedCategory)?.name || 'Каталог товарів'
               : 'Каталог товарів'}
@@ -420,16 +473,25 @@ const ClientDashboard = () => {
                     {category}
                   </Typography>
                 )}
-                <Grid container spacing={3}>
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
                   {categoryProducts.map((product) => {
                     const quantity = getCartItemQuantity(product.id);
                     return (
                       <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
-                        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <Card sx={{ 
+                          height: '100%', 
+                          display: 'flex', 
+                          flexDirection: 'column',
+                          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                          '&:hover': {
+                            transform: { xs: 'none', sm: 'translateY(-4px)' },
+                            boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.08)', sm: '0 8px 16px rgba(0,0,0,0.15)' },
+                          },
+                        }}>
                         <Box
                           sx={{
                             width: '100%',
-                            height: 200,
+                            height: { xs: 180, sm: 200 },
                             backgroundColor: '#f0f0f0',
                             display: 'flex',
                             alignItems: 'center',
