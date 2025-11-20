@@ -1,0 +1,3202 @@
+{
+  "clients": [
+    {
+      "id": 1,
+      "login": "admin",
+      "password": "$2a$10$8t2ClN0olMO5X8pkK4sly.7NWK3MjPHtVkDsF9b/0T0mseigCbdwO",
+      "location": null,
+      "phone": null,
+      "email": "admin@smartmarket.com",
+      "created_at": "2025-11-18 14:48:56",
+      "updated_at": "2025-11-18 14:48:56"
+    },
+    {
+      "id": 2,
+      "login": "obshchyy",
+      "password": "$2a$10$.gBItTklb8XoaePvp9out.jIq34akT/1c2gQ1eoUGRzGB.iOJ6KoG",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:56",
+      "updated_at": "2025-11-18 14:48:56"
+    },
+    {
+      "id": 3,
+      "login": "askona",
+      "password": "$2a$10$x1OH5bb5IHLT.vojkAXXUOI.WRzVSV7u8OYIhMivCltz7v4h5K2O6",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:56",
+      "updated_at": "2025-11-18 14:48:56"
+    },
+    {
+      "id": 4,
+      "login": "faydal",
+      "password": "$2a$10$BEO0YnxnJDeKkjcIAWuB3uWSG1Am8tvGiG3bahxuumWViZEX6UV22",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:56",
+      "updated_at": "2025-11-18 14:48:56"
+    },
+    {
+      "id": 5,
+      "login": "skantreyd_ukrayina",
+      "password": "$2a$10$shPdtynzAMl4vQ6enyolzujKxFu7hN0H7xGsUAb/X.4C/YzN6YzhS",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:56",
+      "updated_at": "2025-11-18 14:48:56"
+    },
+    {
+      "id": 6,
+      "login": "bta",
+      "password": "$2a$10$S.8/bX36gM6yG.z4s2jN0.V85P/IVNAi8CSNeyW6yGt4Shuftz6AO",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:56",
+      "updated_at": "2025-11-18 14:48:56"
+    },
+    {
+      "id": 7,
+      "login": "atero",
+      "password": "$2a$10$oYmXlzTNkmqr9eUHaSSmQu3NjNpLna.ByctuQDnxjl52xIVmg9IXi",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:56",
+      "updated_at": "2025-11-18 14:48:56"
+    },
+    {
+      "id": 8,
+      "login": "bud_dvir_yunit_bi",
+      "password": "$2a$10$5jJ8YAXqQ7ki8YoFURQr7OuBG.Jr9V11FriK8Za39inorVPUW0Ll2",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:56",
+      "updated_at": "2025-11-18 14:48:56"
+    },
+    {
+      "id": 9,
+      "login": "mva",
+      "password": "$2a$10$5mnQYMFUZIqq/WR5pbD4SOFkCQciFnRh2JviTWp5R5AvVA8XJdHri",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:56",
+      "updated_at": "2025-11-18 14:48:56"
+    },
+    {
+      "id": 10,
+      "login": "tsen_polysan",
+      "password": "$2a$10$wEmCUbSjmoGIUDYebbIUfeGSZ6WpdUHBtf2Kic.nkktT53X6FhzQe",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:56",
+      "updated_at": "2025-11-18 14:48:56"
+    },
+    {
+      "id": 11,
+      "login": "sakma_2020",
+      "password": "$2a$10$KwYsSR9a7be3co89PV5qWe0i4iuBYX/d9TTJea8tz3Y48HgyWL78W",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:57",
+      "updated_at": "2025-11-18 14:48:57"
+    },
+    {
+      "id": 12,
+      "login": "element_ukrayina",
+      "password": "$2a$10$p2hOPAJ/ZCJqAEc0jsknvO7td2ApAvMZQZ7gCawzaWvMLsPriS8ju",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:57",
+      "updated_at": "2025-11-18 15:19:13"
+    },
+    {
+      "id": 13,
+      "login": "termobravo",
+      "password": "$2a$10$Lg7OBVtOD0WNprvTqKP5OONrck1iHvg3se6ja4xTOPKLw9AyueF7C",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:57",
+      "updated_at": "2025-11-18 14:48:57"
+    },
+    {
+      "id": 14,
+      "login": "barvys",
+      "password": "$2a$10$CGjIfHYEIrD4/DCW..xnie3bGZNnJfDiWAedHUg98aKhT5dlARMxy",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:57",
+      "updated_at": "2025-11-18 14:48:57"
+    },
+    {
+      "id": 15,
+      "login": "zhylvest",
+      "password": "$2a$10$.RVb1e30JVk6dveaQT1T4uAXzi/ISB5tJoDZCHT4B2Mhzgohii4o2",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:57",
+      "updated_at": "2025-11-18 14:48:57"
+    },
+    {
+      "id": 16,
+      "login": "bud_manezh_ko_ff",
+      "password": "$2a$10$a1rzxJU/7Z0XAHQ8hZBzBOOlXHWmo.2mnakviOq2U5/srPQHr9CGS",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:57",
+      "updated_at": "2025-11-18 14:48:57"
+    },
+    {
+      "id": 17,
+      "login": "galyka",
+      "password": "$2a$10$BnC5IqBYG5EEMg3nK/ZPFeqUxuyF/FNk3x1MfOkLhlxeSBKes31Zy",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:57",
+      "updated_at": "2025-11-18 14:48:57"
+    },
+    {
+      "id": 18,
+      "login": "arsenalbudpostach",
+      "password": "$2a$10$Ve./sUqsGZ8v2bCO0B4KBuebsz9bG93eH/0/hhSQHoYQpnkNQ7M5m",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:57",
+      "updated_at": "2025-11-18 14:48:57"
+    },
+    {
+      "id": 19,
+      "login": "kravchuk_fop",
+      "password": "$2a$10$48J2eXI8j4tRIqvfW7YFQOtovYCWRL7FfqpbGNASjHsDyxArAdM7m",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:57",
+      "updated_at": "2025-11-18 14:48:57"
+    },
+    {
+      "id": 20,
+      "login": "shurubar_fop",
+      "password": "$2a$10$Qx0QeZ3oa9coqGA0If38FuAxHhCCSiDOxlKy1V9.qiTrCcv5OuIEW",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:57",
+      "updated_at": "2025-11-18 14:48:57"
+    },
+    {
+      "id": 21,
+      "login": "yurkevych_fop",
+      "password": "$2a$10$v/bybeqAM2izugNz0nxQjujWgR58g6O56gQTWdZJ0Vy.upUgPUfSu",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:57",
+      "updated_at": "2025-11-18 14:48:57"
+    },
+    {
+      "id": 22,
+      "login": "koef",
+      "password": "$2a$10$dkD6.6eHdMeC01ihH0URWunlS7iE6z8ztJI6eG7i7tlB4X7l/s30e",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:57",
+      "updated_at": "2025-11-18 14:48:57"
+    },
+    {
+      "id": 23,
+      "login": "t_kompani",
+      "password": "$2a$10$Ihh04Ce/zAxhYPjkhEr2neaK/GZjU7PAZHLrYLXLBtlOWgISSzddW",
+      "location": null,
+      "phone": null,
+      "email": null,
+      "created_at": "2025-11-18 14:48:58",
+      "updated_at": "2025-11-19 11:51:02"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "KX",
+      "category_id": 1,
+      "cost_price": 9.3,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=1"
+    },
+    {
+      "id": 2,
+      "name": "V",
+      "category_id": 1,
+      "cost_price": 15.7,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=2"
+    },
+    {
+      "id": 3,
+      "name": "R",
+      "category_id": 1,
+      "cost_price": 18.1,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=3"
+    },
+    {
+      "id": 4,
+      "name": "F",
+      "category_id": 1,
+      "cost_price": 9.65,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=4"
+    },
+    {
+      "id": 5,
+      "name": "I",
+      "category_id": 1,
+      "cost_price": 6.95,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=5"
+    },
+    {
+      "id": 6,
+      "name": "C",
+      "category_id": 1,
+      "cost_price": 7.3,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=6"
+    },
+    {
+      "id": 7,
+      "name": "L",
+      "category_id": 1,
+      "cost_price": 5.95,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=7"
+    },
+    {
+      "id": 8,
+      "name": "T",
+      "category_id": 1,
+      "cost_price": 15.4,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=8"
+    },
+    {
+      "id": 9,
+      "name": "AXX",
+      "category_id": 1,
+      "cost_price": 10.2,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=9"
+    },
+    {
+      "id": 10,
+      "name": "D",
+      "category_id": 1,
+      "cost_price": 8.35,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=10"
+    },
+    {
+      "id": 11,
+      "name": "E",
+      "category_id": 1,
+      "cost_price": 8.45,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=11"
+    },
+    {
+      "id": 12,
+      "name": "B ",
+      "category_id": 1,
+      "cost_price": 5.85,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=12"
+    },
+    {
+      "id": 13,
+      "name": "AN",
+      "category_id": 1,
+      "cost_price": 26.65,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=13"
+    },
+    {
+      "id": 14,
+      "name": "RN",
+      "category_id": 1,
+      "cost_price": 24,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=14"
+    },
+    {
+      "id": 15,
+      "name": "ВХ",
+      "category_id": 1,
+      "cost_price": 7.56,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=15"
+    },
+    {
+      "id": 16,
+      "name": "A3-R",
+      "category_id": 1,
+      "cost_price": 21.85,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=16"
+    },
+    {
+      "id": 17,
+      "name": "Средний %",
+      "category_id": 1,
+      "cost_price": 0,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=17"
+    },
+    {
+      "id": 18,
+      "name": "Повышение 2019",
+      "category_id": 1,
+      "cost_price": 0,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=18"
+    },
+    {
+      "id": 19,
+      "name": "Поддержка лабы",
+      "category_id": 1,
+      "cost_price": 0,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=19"
+    },
+    {
+      "id": 20,
+      "name": "К-во колорантов/год",
+      "category_id": 1,
+      "cost_price": 0,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06",
+      "image_url": "https://picsum.photos/400/300?random=20"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Сировина+колір. пасти"
+    },
+    {
+      "id": 2,
+      "name": "Брукер Оптікс (БІЧ)"
+    },
+    {
+      "id": 3,
+      "name": "Колірувальне обладнання"
+    },
+    {
+      "id": 4,
+      "name": "Фільтри"
+    },
+    {
+      "id": 5,
+      "name": "Брукер АХС"
+    },
+    {
+      "id": 6,
+      "name": "Лабораторка"
+    },
+    {
+      "id": 7,
+      "name": "Роботи/автоматизація"
+    }
+  ],
+  "client_categories": [
+    {
+      "id": 1,
+      "client_id": 2,
+      "category_id": 1
+    },
+    {
+      "id": 2,
+      "client_id": 3,
+      "category_id": 1
+    },
+    {
+      "id": 3,
+      "client_id": 4,
+      "category_id": 1
+    },
+    {
+      "id": 4,
+      "client_id": 5,
+      "category_id": 1
+    },
+    {
+      "id": 5,
+      "client_id": 6,
+      "category_id": 1
+    },
+    {
+      "id": 6,
+      "client_id": 7,
+      "category_id": 1
+    },
+    {
+      "id": 7,
+      "client_id": 8,
+      "category_id": 1
+    },
+    {
+      "id": 8,
+      "client_id": 9,
+      "category_id": 1
+    },
+    {
+      "id": 9,
+      "client_id": 10,
+      "category_id": 1
+    },
+    {
+      "id": 10,
+      "client_id": 11,
+      "category_id": 1
+    },
+    {
+      "id": 12,
+      "client_id": 13,
+      "category_id": 1
+    },
+    {
+      "id": 13,
+      "client_id": 14,
+      "category_id": 1
+    },
+    {
+      "id": 14,
+      "client_id": 15,
+      "category_id": 1
+    },
+    {
+      "id": 15,
+      "client_id": 16,
+      "category_id": 1
+    },
+    {
+      "id": 16,
+      "client_id": 17,
+      "category_id": 1
+    },
+    {
+      "id": 17,
+      "client_id": 18,
+      "category_id": 1
+    },
+    {
+      "id": 18,
+      "client_id": 19,
+      "category_id": 1
+    },
+    {
+      "id": 19,
+      "client_id": 20,
+      "category_id": 1
+    },
+    {
+      "id": 20,
+      "client_id": 21,
+      "category_id": 1
+    },
+    {
+      "id": 21,
+      "client_id": 22,
+      "category_id": 1
+    },
+    {
+      "id": 23,
+      "client_id": 12,
+      "category_id": 1
+    },
+    {
+      "id": 24,
+      "client_id": 23,
+      "category_id": 1
+    },
+    {
+      "id": 25,
+      "client_id": 23,
+      "category_id": 7
+    },
+    {
+      "id": 26,
+      "client_id": 23,
+      "category_id": 6
+    }
+  ],
+  "client_product_coefficients": [
+    {
+      "id": 1,
+      "client_id": 2,
+      "product_id": 1,
+      "coefficient": 3.72,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-19 07:32:38"
+    },
+    {
+      "id": 2,
+      "client_id": 2,
+      "product_id": 2,
+      "coefficient": 3.220693223,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 3,
+      "client_id": 2,
+      "product_id": 3,
+      "coefficient": 4.26499384,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 4,
+      "client_id": 2,
+      "product_id": 4,
+      "coefficient": 3.798134715,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 5,
+      "client_id": 2,
+      "product_id": 5,
+      "coefficient": 4.045467626,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 6,
+      "client_id": 2,
+      "product_id": 6,
+      "coefficient": 3.375342466,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 7,
+      "client_id": 2,
+      "product_id": 7,
+      "coefficient": 4.021008403,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 8,
+      "client_id": 2,
+      "product_id": 8,
+      "coefficient": 3.537857143,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 9,
+      "client_id": 2,
+      "product_id": 9,
+      "coefficient": 4.610294118,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 10,
+      "client_id": 2,
+      "product_id": 10,
+      "coefficient": 3.816407186,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 11,
+      "client_id": 2,
+      "product_id": 11,
+      "coefficient": 2.990177515,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 12,
+      "client_id": 2,
+      "product_id": 12,
+      "coefficient": 3.405299145,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 13,
+      "client_id": 2,
+      "product_id": 13,
+      "coefficient": 4.038011257,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 14,
+      "client_id": 2,
+      "product_id": 14,
+      "coefficient": 3.216583333,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 15,
+      "client_id": 2,
+      "product_id": 15,
+      "coefficient": 2.859126984,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 16,
+      "client_id": 3,
+      "product_id": 1,
+      "coefficient": 1.919891129,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 17,
+      "client_id": 3,
+      "product_id": 2,
+      "coefficient": 1.712937564,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 18,
+      "client_id": 3,
+      "product_id": 3,
+      "coefficient": 1,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 19,
+      "client_id": 3,
+      "product_id": 4,
+      "coefficient": 1.879344404,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 20,
+      "client_id": 3,
+      "product_id": 5,
+      "coefficient": 1.912163309,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 21,
+      "client_id": 3,
+      "product_id": 6,
+      "coefficient": 1.795715753,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 22,
+      "client_id": 3,
+      "product_id": 7,
+      "coefficient": 1.922055882,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 23,
+      "client_id": 3,
+      "product_id": 8,
+      "coefficient": 1.794681818,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 24,
+      "client_id": 3,
+      "product_id": 9,
+      "coefficient": 1,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 25,
+      "client_id": 3,
+      "product_id": 10,
+      "coefficient": 1.916369461,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 26,
+      "client_id": 3,
+      "product_id": 11,
+      "coefficient": 1.738557692,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 27,
+      "client_id": 3,
+      "product_id": 12,
+      "coefficient": 1.794577885,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 28,
+      "client_id": 3,
+      "product_id": 13,
+      "coefficient": 1.882294615,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 29,
+      "client_id": 3,
+      "product_id": 14,
+      "coefficient": 1.710380984,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 30,
+      "client_id": 3,
+      "product_id": 18,
+      "coefficient": 1,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 31,
+      "client_id": 3,
+      "product_id": 19,
+      "coefficient": 1,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 32,
+      "client_id": 3,
+      "product_id": 20,
+      "coefficient": 1,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 33,
+      "client_id": 4,
+      "product_id": 1,
+      "coefficient": 1.929516129,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 34,
+      "client_id": 4,
+      "product_id": 2,
+      "coefficient": 1.667961783,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 35,
+      "client_id": 4,
+      "product_id": 3,
+      "coefficient": 1.882458564,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 36,
+      "client_id": 4,
+      "product_id": 4,
+      "coefficient": 1.967253886,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 37,
+      "client_id": 4,
+      "product_id": 5,
+      "coefficient": 2.095467626,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 38,
+      "client_id": 4,
+      "product_id": 6,
+      "coefficient": 1.750479452,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 39,
+      "client_id": 4,
+      "product_id": 7,
+      "coefficient": 2.082352941,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 40,
+      "client_id": 4,
+      "product_id": 8,
+      "coefficient": 1.875,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 41,
+      "client_id": 4,
+      "product_id": 9,
+      "coefficient": 2.313088235,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 42,
+      "client_id": 4,
+      "product_id": 10,
+      "coefficient": 1.921437126,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 43,
+      "client_id": 4,
+      "product_id": 11,
+      "coefficient": 1.549526627,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 44,
+      "client_id": 4,
+      "product_id": 12,
+      "coefficient": 1.715897436,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 45,
+      "client_id": 4,
+      "product_id": 13,
+      "coefficient": 2.220168856,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 46,
+      "client_id": 4,
+      "product_id": 14,
+      "coefficient": 1.6655625,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 47,
+      "client_id": 4,
+      "product_id": 15,
+      "coefficient": 1.748611111,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 48,
+      "client_id": 4,
+      "product_id": 16,
+      "coefficient": 1.900091533,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 49,
+      "client_id": 5,
+      "product_id": 1,
+      "coefficient": 2.355913978,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 50,
+      "client_id": 5,
+      "product_id": 2,
+      "coefficient": 2.308280255,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 51,
+      "client_id": 5,
+      "product_id": 3,
+      "coefficient": 2.305524862,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 52,
+      "client_id": 5,
+      "product_id": 4,
+      "coefficient": 2.306735751,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 53,
+      "client_id": 5,
+      "product_id": 5,
+      "coefficient": 2.585611511,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 54,
+      "client_id": 5,
+      "product_id": 6,
+      "coefficient": 2.294520548,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 55,
+      "client_id": 5,
+      "product_id": 7,
+      "coefficient": 2.571428571,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 56,
+      "client_id": 5,
+      "product_id": 8,
+      "coefficient": 2.246753247,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 57,
+      "client_id": 5,
+      "product_id": 9,
+      "coefficient": 2.85,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 58,
+      "client_id": 5,
+      "product_id": 10,
+      "coefficient": 2.42994012,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 59,
+      "client_id": 5,
+      "product_id": 11,
+      "coefficient": 2.417751479,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 60,
+      "client_id": 5,
+      "product_id": 12,
+      "coefficient": 2.447863248,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 61,
+      "client_id": 5,
+      "product_id": 13,
+      "coefficient": 2.716697936,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 62,
+      "client_id": 5,
+      "product_id": 14,
+      "coefficient": 2.237083333,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 63,
+      "client_id": 5,
+      "product_id": 15,
+      "coefficient": 2.273809524,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 64,
+      "client_id": 5,
+      "product_id": 16,
+      "coefficient": 2.616933638,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 65,
+      "client_id": 6,
+      "product_id": 1,
+      "coefficient": 2.618193548,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 66,
+      "client_id": 6,
+      "product_id": 2,
+      "coefficient": 2.275184713,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 67,
+      "client_id": 6,
+      "product_id": 3,
+      "coefficient": 2.271121547,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 68,
+      "client_id": 6,
+      "product_id": 4,
+      "coefficient": 2.617160622,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 69,
+      "client_id": 6,
+      "product_id": 5,
+      "coefficient": 2.941798561,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 70,
+      "client_id": 6,
+      "product_id": 6,
+      "coefficient": 2.377465753,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 71,
+      "client_id": 6,
+      "product_id": 7,
+      "coefficient": 2.619142857,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 72,
+      "client_id": 6,
+      "product_id": 8,
+      "coefficient": 2.654590909,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 73,
+      "client_id": 6,
+      "product_id": 9,
+      "coefficient": 3.182901961,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 74,
+      "client_id": 6,
+      "product_id": 10,
+      "coefficient": 2.50160479,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 75,
+      "client_id": 6,
+      "product_id": 11,
+      "coefficient": 2.209928994,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 76,
+      "client_id": 6,
+      "product_id": 12,
+      "coefficient": 2.447350427,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 77,
+      "client_id": 6,
+      "product_id": 13,
+      "coefficient": 2.938108818,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 78,
+      "client_id": 6,
+      "product_id": 14,
+      "coefficient": 2.2763,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 79,
+      "client_id": 6,
+      "product_id": 15,
+      "coefficient": 2.290251323,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 80,
+      "client_id": 6,
+      "product_id": 16,
+      "coefficient": 2.489913043,
+      "created_at": "2025-11-18 14:49:06",
+      "updated_at": "2025-11-18 14:49:06"
+    },
+    {
+      "id": 81,
+      "client_id": 7,
+      "product_id": 1,
+      "coefficient": 2.366451613,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 82,
+      "client_id": 7,
+      "product_id": 2,
+      "coefficient": 2.318025478,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 83,
+      "client_id": 7,
+      "product_id": 3,
+      "coefficient": 2.315220994,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 84,
+      "client_id": 7,
+      "product_id": 4,
+      "coefficient": 2.316528497,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 85,
+      "client_id": 7,
+      "product_id": 5,
+      "coefficient": 2.633309353,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 86,
+      "client_id": 7,
+      "product_id": 6,
+      "coefficient": 2.304246575,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 87,
+      "client_id": 7,
+      "product_id": 7,
+      "coefficient": 2.583529412,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 88,
+      "client_id": 7,
+      "product_id": 8,
+      "coefficient": 2.165454545,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 89,
+      "client_id": 7,
+      "product_id": 9,
+      "coefficient": 2.882352941,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 90,
+      "client_id": 7,
+      "product_id": 10,
+      "coefficient": 2.439520958,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 91,
+      "client_id": 7,
+      "product_id": 11,
+      "coefficient": 2.428047337,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 92,
+      "client_id": 7,
+      "product_id": 12,
+      "coefficient": 2.457179487,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 93,
+      "client_id": 7,
+      "product_id": 13,
+      "coefficient": 2.710694184,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 94,
+      "client_id": 7,
+      "product_id": 14,
+      "coefficient": 2.247,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 95,
+      "client_id": 7,
+      "product_id": 15,
+      "coefficient": 2.416666667,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 96,
+      "client_id": 8,
+      "product_id": 1,
+      "coefficient": 2.597395161,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 97,
+      "client_id": 8,
+      "product_id": 2,
+      "coefficient": 2.54558121,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 98,
+      "client_id": 8,
+      "product_id": 3,
+      "coefficient": 2.54184116,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 99,
+      "client_id": 8,
+      "product_id": 4,
+      "coefficient": 2.544318653,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 100,
+      "client_id": 8,
+      "product_id": 5,
+      "coefficient": 2.852223022,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 101,
+      "client_id": 8,
+      "product_id": 6,
+      "coefficient": 2.529708904,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 102,
+      "client_id": 8,
+      "product_id": 7,
+      "coefficient": 2.836852941,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 103,
+      "client_id": 8,
+      "product_id": 8,
+      "coefficient": 2.475613636,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 104,
+      "client_id": 8,
+      "product_id": 9,
+      "coefficient": 3.146448529,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 105,
+      "client_id": 8,
+      "product_id": 10,
+      "coefficient": 2.679008982,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 106,
+      "client_id": 8,
+      "product_id": 11,
+      "coefficient": 2.664266272,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 107,
+      "client_id": 8,
+      "product_id": 12,
+      "coefficient": 2.698769231,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 108,
+      "client_id": 8,
+      "product_id": 13,
+      "coefficient": 2.992263602,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 109,
+      "client_id": 8,
+      "product_id": 14,
+      "coefficient": 2.46684375,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 110,
+      "client_id": 8,
+      "product_id": 15,
+      "coefficient": 2.385833333,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 111,
+      "client_id": 8,
+      "product_id": 16,
+      "coefficient": 2.680815789,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 112,
+      "client_id": 9,
+      "product_id": 1,
+      "coefficient": 2.490827957,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 113,
+      "client_id": 9,
+      "product_id": 2,
+      "coefficient": 1.983242038,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 114,
+      "client_id": 9,
+      "product_id": 3,
+      "coefficient": 2.55280663,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 115,
+      "client_id": 9,
+      "product_id": 4,
+      "coefficient": 2.338580311,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 116,
+      "client_id": 9,
+      "product_id": 5,
+      "coefficient": 2.489784173,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 117,
+      "client_id": 9,
+      "product_id": 6,
+      "coefficient": 2.350657534,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 118,
+      "client_id": 9,
+      "product_id": 7,
+      "coefficient": 2.492773109,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 119,
+      "client_id": 9,
+      "product_id": 8,
+      "coefficient": 2.329538961,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 120,
+      "client_id": 9,
+      "product_id": 9,
+      "coefficient": 3.041529412,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 121,
+      "client_id": 9,
+      "product_id": 10,
+      "coefficient": 2.485568862,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 122,
+      "client_id": 9,
+      "product_id": 11,
+      "coefficient": 2.114852071,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 123,
+      "client_id": 9,
+      "product_id": 12,
+      "coefficient": 2.081128205,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 124,
+      "client_id": 9,
+      "product_id": 13,
+      "coefficient": 2.484754221,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 125,
+      "client_id": 9,
+      "product_id": 14,
+      "coefficient": 2.238104167,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 126,
+      "client_id": 9,
+      "product_id": 15,
+      "coefficient": 1.852910053,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 127,
+      "client_id": 10,
+      "product_id": 1,
+      "coefficient": 2.184802851,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 128,
+      "client_id": 10,
+      "product_id": 2,
+      "coefficient": 1.896742966,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 129,
+      "client_id": 10,
+      "product_id": 3,
+      "coefficient": 2.383490364,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 130,
+      "client_id": 10,
+      "product_id": 4,
+      "coefficient": 1.940551757,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 131,
+      "client_id": 10,
+      "product_id": 5,
+      "coefficient": 1.992608119,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 132,
+      "client_id": 10,
+      "product_id": 6,
+      "coefficient": 1.844088576,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 133,
+      "client_id": 10,
+      "product_id": 7,
+      "coefficient": 2.054188922,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 134,
+      "client_id": 10,
+      "product_id": 8,
+      "coefficient": 2.06572364,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 135,
+      "client_id": 10,
+      "product_id": 9,
+      "coefficient": 2.48626703,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 136,
+      "client_id": 10,
+      "product_id": 10,
+      "coefficient": 2.047183994,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 137,
+      "client_id": 10,
+      "product_id": 11,
+      "coefficient": 1.699024597,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 138,
+      "client_id": 10,
+      "product_id": 12,
+      "coefficient": 1.853817683,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 139,
+      "client_id": 10,
+      "product_id": 13,
+      "coefficient": 2.077677969,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 140,
+      "client_id": 10,
+      "product_id": 14,
+      "coefficient": 1.859190596,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 141,
+      "client_id": 10,
+      "product_id": 15,
+      "coefficient": 2.224773177,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 142,
+      "client_id": 10,
+      "product_id": 16,
+      "coefficient": 2.309284012,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 143,
+      "client_id": 11,
+      "product_id": 1,
+      "coefficient": 2.969193548,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 144,
+      "client_id": 11,
+      "product_id": 2,
+      "coefficient": 2.565764331,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 145,
+      "client_id": 11,
+      "product_id": 3,
+      "coefficient": 2.894350829,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 146,
+      "client_id": 11,
+      "product_id": 4,
+      "coefficient": 3.026139896,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 147,
+      "client_id": 11,
+      "product_id": 5,
+      "coefficient": 3.222482014,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 148,
+      "client_id": 11,
+      "product_id": 6,
+      "coefficient": 2.690273973,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 149,
+      "client_id": 11,
+      "product_id": 7,
+      "coefficient": 3.202478992,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 150,
+      "client_id": 11,
+      "product_id": 8,
+      "coefficient": 2.622402597,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 151,
+      "client_id": 11,
+      "product_id": 9,
+      "coefficient": 3.234779412,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 152,
+      "client_id": 11,
+      "product_id": 10,
+      "coefficient": 2.952245509,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 153,
+      "client_id": 11,
+      "product_id": 11,
+      "coefficient": 2.382366864,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 154,
+      "client_id": 11,
+      "product_id": 12,
+      "coefficient": 2.635213675,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 155,
+      "client_id": 11,
+      "product_id": 13,
+      "coefficient": 3.103461538,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 156,
+      "client_id": 11,
+      "product_id": 14,
+      "coefficient": 2.5625,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 157,
+      "client_id": 11,
+      "product_id": 15,
+      "coefficient": 2.345568783,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 158,
+      "client_id": 11,
+      "product_id": 18,
+      "coefficient": 1,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 159,
+      "client_id": 12,
+      "product_id": 1,
+      "coefficient": 2.216129032,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 160,
+      "client_id": 12,
+      "product_id": 2,
+      "coefficient": 1.914649682,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 161,
+      "client_id": 12,
+      "product_id": 3,
+      "coefficient": 2.160220994,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 162,
+      "client_id": 12,
+      "product_id": 4,
+      "coefficient": 2.258031088,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 163,
+      "client_id": 12,
+      "product_id": 5,
+      "coefficient": 2.405755396,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 164,
+      "client_id": 12,
+      "product_id": 6,
+      "coefficient": 2.006849315,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 165,
+      "client_id": 12,
+      "product_id": 7,
+      "coefficient": 2.389915966,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 166,
+      "client_id": 12,
+      "product_id": 8,
+      "coefficient": 2.064318182,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 167,
+      "client_id": 12,
+      "product_id": 9,
+      "coefficient": 2.692823529,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 168,
+      "client_id": 12,
+      "product_id": 10,
+      "coefficient": 2.203592814,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 169,
+      "client_id": 12,
+      "product_id": 11,
+      "coefficient": 1.778698225,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 170,
+      "client_id": 12,
+      "product_id": 12,
+      "coefficient": 1.967521368,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 171,
+      "client_id": 12,
+      "product_id": 13,
+      "coefficient": 2.360885553,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 172,
+      "client_id": 12,
+      "product_id": 14,
+      "coefficient": 1.9125,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 173,
+      "client_id": 12,
+      "product_id": 15,
+      "coefficient": 1.964285714,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 174,
+      "client_id": 12,
+      "product_id": 17,
+      "coefficient": 1,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 175,
+      "client_id": 12,
+      "product_id": 20,
+      "coefficient": 1,
+      "created_at": "2025-11-18 14:49:07",
+      "updated_at": "2025-11-18 14:49:07"
+    },
+    {
+      "id": 176,
+      "client_id": 13,
+      "product_id": 1,
+      "coefficient": 2.263817204,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 177,
+      "client_id": 13,
+      "product_id": 2,
+      "coefficient": 1.71638535,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 178,
+      "client_id": 13,
+      "product_id": 3,
+      "coefficient": 2.343342541,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 179,
+      "client_id": 13,
+      "product_id": 4,
+      "coefficient": 2.031943005,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 180,
+      "client_id": 13,
+      "product_id": 5,
+      "coefficient": 2.181258993,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 181,
+      "client_id": 13,
+      "product_id": 6,
+      "coefficient": 1.873082192,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 182,
+      "client_id": 13,
+      "product_id": 7,
+      "coefficient": 2.18092437,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 183,
+      "client_id": 13,
+      "product_id": 8,
+      "coefficient": 2.070779221,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 184,
+      "client_id": 13,
+      "product_id": 9,
+      "coefficient": 2.72745098,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 185,
+      "client_id": 13,
+      "product_id": 10,
+      "coefficient": 2.139610778,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 186,
+      "client_id": 13,
+      "product_id": 11,
+      "coefficient": 1.739467456,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 187,
+      "client_id": 13,
+      "product_id": 12,
+      "coefficient": 1.804700855,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 188,
+      "client_id": 13,
+      "product_id": 13,
+      "coefficient": 2.013508443,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 189,
+      "client_id": 13,
+      "product_id": 14,
+      "coefficient": 1.773677083,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 190,
+      "client_id": 14,
+      "product_id": 1,
+      "coefficient": 2.714596774,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 191,
+      "client_id": 14,
+      "product_id": 2,
+      "coefficient": 1.931178344,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 192,
+      "client_id": 14,
+      "product_id": 3,
+      "coefficient": 2.906809392,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 193,
+      "client_id": 14,
+      "product_id": 4,
+      "coefficient": 2.520544041,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 194,
+      "client_id": 14,
+      "product_id": 5,
+      "coefficient": 2.762338129,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 195,
+      "client_id": 14,
+      "product_id": 6,
+      "coefficient": 2.32380137,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 196,
+      "client_id": 14,
+      "product_id": 7,
+      "coefficient": 2.70289916,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 197,
+      "client_id": 14,
+      "product_id": 8,
+      "coefficient": 2.612337662,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 198,
+      "client_id": 14,
+      "product_id": 9,
+      "coefficient": 3.454901961,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 199,
+      "client_id": 14,
+      "product_id": 10,
+      "coefficient": 2.707964072,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 200,
+      "client_id": 14,
+      "product_id": 11,
+      "coefficient": 1.982071006,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 201,
+      "client_id": 14,
+      "product_id": 12,
+      "coefficient": 2.230470085,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 202,
+      "client_id": 14,
+      "product_id": 13,
+      "coefficient": 2.555722326,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 203,
+      "client_id": 14,
+      "product_id": 14,
+      "coefficient": 2.24603125,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 204,
+      "client_id": 15,
+      "product_id": 1,
+      "coefficient": 2.852688172,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 205,
+      "client_id": 15,
+      "product_id": 2,
+      "coefficient": 2.465605096,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 206,
+      "client_id": 15,
+      "product_id": 3,
+      "coefficient": 2.78121547,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 207,
+      "client_id": 15,
+      "product_id": 4,
+      "coefficient": 2.907772021,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 208,
+      "client_id": 15,
+      "product_id": 5,
+      "coefficient": 3.097841727,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 209,
+      "client_id": 15,
+      "product_id": 6,
+      "coefficient": 2.58630137,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 210,
+      "client_id": 15,
+      "product_id": 7,
+      "coefficient": 3.077310924,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 211,
+      "client_id": 15,
+      "product_id": 8,
+      "coefficient": 2.52012987,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 212,
+      "client_id": 15,
+      "product_id": 9,
+      "coefficient": 3.109803922,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 213,
+      "client_id": 15,
+      "product_id": 10,
+      "coefficient": 2.837125749,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 214,
+      "client_id": 15,
+      "product_id": 11,
+      "coefficient": 2.288757396,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 215,
+      "client_id": 15,
+      "product_id": 12,
+      "coefficient": 2.533333333,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 216,
+      "client_id": 15,
+      "product_id": 13,
+      "coefficient": 2.982363977,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 217,
+      "client_id": 15,
+      "product_id": 14,
+      "coefficient": 2.4625,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 218,
+      "client_id": 16,
+      "product_id": 1,
+      "coefficient": 0.3138879958,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 219,
+      "client_id": 16,
+      "product_id": 2,
+      "coefficient": 0.1608457996,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 220,
+      "client_id": 16,
+      "product_id": 3,
+      "coefficient": 0.1575247107,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 221,
+      "client_id": 16,
+      "product_id": 4,
+      "coefficient": 0.3089967028,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 222,
+      "client_id": 16,
+      "product_id": 5,
+      "coefficient": 0.4577766358,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 223,
+      "client_id": 16,
+      "product_id": 6,
+      "coefficient": 0.3648427771,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 224,
+      "client_id": 16,
+      "product_id": 7,
+      "coefficient": 0.5289174493,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 225,
+      "client_id": 16,
+      "product_id": 8,
+      "coefficient": 0.1806094339,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 226,
+      "client_id": 16,
+      "product_id": 9,
+      "coefficient": 0.3541554236,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 227,
+      "client_id": 16,
+      "product_id": 10,
+      "coefficient": 0.3588373315,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 228,
+      "client_id": 16,
+      "product_id": 11,
+      "coefficient": 0.2777235913,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 229,
+      "client_id": 16,
+      "product_id": 12,
+      "coefficient": 0.457046383,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 230,
+      "client_id": 16,
+      "product_id": 13,
+      "coefficient": 0.1190378378,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 231,
+      "client_id": 16,
+      "product_id": 14,
+      "coefficient": 0.1051698194,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 232,
+      "client_id": 16,
+      "product_id": 17,
+      "coefficient": 1,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 233,
+      "client_id": 17,
+      "product_id": 1,
+      "coefficient": 2.821505376,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 234,
+      "client_id": 17,
+      "product_id": 2,
+      "coefficient": 2.437802548,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 235,
+      "client_id": 17,
+      "product_id": 3,
+      "coefficient": 2.749378453,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 236,
+      "client_id": 17,
+      "product_id": 4,
+      "coefficient": 2.875310881,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 237,
+      "client_id": 17,
+      "product_id": 5,
+      "coefficient": 3.061726619,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 238,
+      "client_id": 17,
+      "product_id": 6,
+      "coefficient": 2.556883562,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 239,
+      "client_id": 17,
+      "product_id": 7,
+      "coefficient": 3.137016807,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 240,
+      "client_id": 17,
+      "product_id": 8,
+      "coefficient": 2.613636364,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 241,
+      "client_id": 17,
+      "product_id": 9,
+      "coefficient": 3.404901961,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 242,
+      "client_id": 17,
+      "product_id": 10,
+      "coefficient": 2.806167665,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 243,
+      "client_id": 17,
+      "product_id": 11,
+      "coefficient": 2.263491124,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 244,
+      "client_id": 17,
+      "product_id": 12,
+      "coefficient": 2.507307692,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 245,
+      "client_id": 17,
+      "product_id": 13,
+      "coefficient": 2.982363977,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 246,
+      "client_id": 17,
+      "product_id": 14,
+      "coefficient": 2.409604167,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 247,
+      "client_id": 17,
+      "product_id": 15,
+      "coefficient": 2.157109788,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 248,
+      "client_id": 18,
+      "product_id": 1,
+      "coefficient": 3.289247312,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 249,
+      "client_id": 18,
+      "product_id": 2,
+      "coefficient": 2.842675159,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 250,
+      "client_id": 18,
+      "product_id": 3,
+      "coefficient": 3.764088398,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 251,
+      "client_id": 18,
+      "product_id": 4,
+      "coefficient": 3.352331606,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 252,
+      "client_id": 18,
+      "product_id": 5,
+      "coefficient": 3.571223022,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 253,
+      "client_id": 18,
+      "product_id": 6,
+      "coefficient": 2.979452055,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 254,
+      "client_id": 18,
+      "product_id": 7,
+      "coefficient": 3.54789916,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 255,
+      "client_id": 18,
+      "product_id": 8,
+      "coefficient": 3.122727273,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 256,
+      "client_id": 18,
+      "product_id": 9,
+      "coefficient": 4.069607843,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 257,
+      "client_id": 18,
+      "product_id": 10,
+      "coefficient": 3.367664671,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 258,
+      "client_id": 18,
+      "product_id": 11,
+      "coefficient": 2.639053254,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 259,
+      "client_id": 18,
+      "product_id": 12,
+      "coefficient": 3.005128205,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 260,
+      "client_id": 18,
+      "product_id": 13,
+      "coefficient": 3.563977486,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 261,
+      "client_id": 18,
+      "product_id": 14,
+      "coefficient": 2.83875,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 262,
+      "client_id": 18,
+      "product_id": 15,
+      "coefficient": 2.522486772,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 263,
+      "client_id": 18,
+      "product_id": 16,
+      "coefficient": 2.150114416,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 264,
+      "client_id": 18,
+      "product_id": 19,
+      "coefficient": 1,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 265,
+      "client_id": 18,
+      "product_id": 20,
+      "coefficient": 1,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 266,
+      "client_id": 19,
+      "product_id": 1,
+      "coefficient": 3.289247312,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 267,
+      "client_id": 19,
+      "product_id": 2,
+      "coefficient": 2.842675159,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 268,
+      "client_id": 19,
+      "product_id": 3,
+      "coefficient": 3.764088398,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 269,
+      "client_id": 19,
+      "product_id": 4,
+      "coefficient": 3.352331606,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 270,
+      "client_id": 19,
+      "product_id": 5,
+      "coefficient": 3.571223022,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 271,
+      "client_id": 19,
+      "product_id": 6,
+      "coefficient": 2.979452055,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 272,
+      "client_id": 19,
+      "product_id": 7,
+      "coefficient": 3.54789916,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 273,
+      "client_id": 19,
+      "product_id": 8,
+      "coefficient": 3.122727273,
+      "created_at": "2025-11-18 14:49:08",
+      "updated_at": "2025-11-18 14:49:08"
+    },
+    {
+      "id": 274,
+      "client_id": 19,
+      "product_id": 9,
+      "coefficient": 4.069607843,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 275,
+      "client_id": 19,
+      "product_id": 10,
+      "coefficient": 3.367664671,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 276,
+      "client_id": 19,
+      "product_id": 11,
+      "coefficient": 2.639053254,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 277,
+      "client_id": 19,
+      "product_id": 12,
+      "coefficient": 3.005128205,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 278,
+      "client_id": 19,
+      "product_id": 13,
+      "coefficient": 3.563977486,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 279,
+      "client_id": 19,
+      "product_id": 14,
+      "coefficient": 2.83875,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 280,
+      "client_id": 19,
+      "product_id": 15,
+      "coefficient": 2.522486772,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 281,
+      "client_id": 19,
+      "product_id": 16,
+      "coefficient": 2.150114416,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 282,
+      "client_id": 19,
+      "product_id": 19,
+      "coefficient": 1,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 283,
+      "client_id": 20,
+      "product_id": 1,
+      "coefficient": 3.289247312,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 284,
+      "client_id": 20,
+      "product_id": 2,
+      "coefficient": 2.842675159,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 285,
+      "client_id": 20,
+      "product_id": 3,
+      "coefficient": 3.764088398,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 286,
+      "client_id": 20,
+      "product_id": 4,
+      "coefficient": 3.352331606,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 287,
+      "client_id": 20,
+      "product_id": 5,
+      "coefficient": 3.571223022,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 288,
+      "client_id": 20,
+      "product_id": 6,
+      "coefficient": 2.979452055,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 289,
+      "client_id": 20,
+      "product_id": 7,
+      "coefficient": 3.54789916,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 290,
+      "client_id": 20,
+      "product_id": 8,
+      "coefficient": 3.122727273,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 291,
+      "client_id": 20,
+      "product_id": 9,
+      "coefficient": 4.069607843,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 292,
+      "client_id": 20,
+      "product_id": 10,
+      "coefficient": 3.367664671,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 293,
+      "client_id": 20,
+      "product_id": 11,
+      "coefficient": 2.639053254,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 294,
+      "client_id": 20,
+      "product_id": 12,
+      "coefficient": 3.005128205,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 295,
+      "client_id": 20,
+      "product_id": 13,
+      "coefficient": 3.563977486,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 296,
+      "client_id": 20,
+      "product_id": 14,
+      "coefficient": 2.83875,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 297,
+      "client_id": 20,
+      "product_id": 15,
+      "coefficient": 2.522486772,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 298,
+      "client_id": 20,
+      "product_id": 16,
+      "coefficient": 2.150114416,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 299,
+      "client_id": 21,
+      "product_id": 1,
+      "coefficient": 2.466666667,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 300,
+      "client_id": 21,
+      "product_id": 2,
+      "coefficient": 2.021656051,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 301,
+      "client_id": 21,
+      "product_id": 3,
+      "coefficient": 2.478453039,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 302,
+      "client_id": 21,
+      "product_id": 4,
+      "coefficient": 2.316062176,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 303,
+      "client_id": 21,
+      "product_id": 5,
+      "coefficient": 3.571223022,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 304,
+      "client_id": 21,
+      "product_id": 6,
+      "coefficient": 2.282191781,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 305,
+      "client_id": 21,
+      "product_id": 7,
+      "coefficient": 3.54789916,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 306,
+      "client_id": 21,
+      "product_id": 8,
+      "coefficient": 3.122727273,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 307,
+      "client_id": 21,
+      "product_id": 9,
+      "coefficient": 3.100980392,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 308,
+      "client_id": 21,
+      "product_id": 10,
+      "coefficient": 2.534131737,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 309,
+      "client_id": 21,
+      "product_id": 11,
+      "coefficient": 2.156213018,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 310,
+      "client_id": 21,
+      "product_id": 12,
+      "coefficient": 2.121367521,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 311,
+      "client_id": 21,
+      "product_id": 13,
+      "coefficient": 2.412382739,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 312,
+      "client_id": 21,
+      "product_id": 14,
+      "coefficient": 2.172916667,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 313,
+      "client_id": 21,
+      "product_id": 15,
+      "coefficient": 2.007936508,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 314,
+      "client_id": 21,
+      "product_id": 16,
+      "coefficient": 2.083295195,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 315,
+      "client_id": 22,
+      "product_id": 1,
+      "coefficient": 0.353798127,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 316,
+      "client_id": 22,
+      "product_id": 2,
+      "coefficient": 0.1810621121,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 317,
+      "client_id": 22,
+      "product_id": 3,
+      "coefficient": 0.1771313452,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 318,
+      "client_id": 22,
+      "product_id": 4,
+      "coefficient": 0.3473918763,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 319,
+      "client_id": 22,
+      "product_id": 5,
+      "coefficient": 0.5138450391,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 320,
+      "client_id": 22,
+      "product_id": 6,
+      "coefficient": 0.4083317696,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 321,
+      "client_id": 22,
+      "product_id": 7,
+      "coefficient": 0.596568039,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 322,
+      "client_id": 22,
+      "product_id": 8,
+      "coefficient": 0.2027744982,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 323,
+      "client_id": 22,
+      "product_id": 9,
+      "coefficient": 0.3989811611,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 324,
+      "client_id": 22,
+      "product_id": 10,
+      "coefficient": 0.4034565599,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 325,
+      "client_id": 22,
+      "product_id": 11,
+      "coefficient": 0.3123139946,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 326,
+      "client_id": 22,
+      "product_id": 12,
+      "coefficient": 0.5139893345,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 327,
+      "client_id": 22,
+      "product_id": 13,
+      "coefficient": 0.1337327387,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 328,
+      "client_id": 22,
+      "product_id": 14,
+      "coefficient": 0.11828125,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    },
+    {
+      "id": 329,
+      "client_id": 23,
+      "product_id": 15,
+      "coefficient": 2.522486772,
+      "created_at": "2025-11-18 14:49:09",
+      "updated_at": "2025-11-18 14:49:09"
+    }
+  ]
+}

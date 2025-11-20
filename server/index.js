@@ -39,6 +39,95 @@ db.init()
       res.json({ status: 'ok' });
     });
 
+    // Database restore endpoint - upload and import database export file
+    app.post('/api/db-restore', express.json({ limit: '10mb' }), async (req, res) => {
+      try {
+        const exportData = req.body;
+        
+        if (!exportData || !exportData.clients || !exportData.products) {
+          return res.status(400).json({ error: 'Invalid export data format' });
+        }
+        
+        const db = require('./database');
+        const database = db.getDb();
+        
+        let imported = {
+          clients: 0,
+          products: 0,
+          client_categories: 0,
+          coefficients: 0
+        };
+        
+        // Import clients (skip admin)
+        const clientsToImport = exportData.clients.filter(c => c.login !== 'admin');
+        for (const client of clientsToImport) {
+          await new Promise((resolve) => {
+            database.run(
+              `INSERT OR REPLACE INTO clients (id, login, password, location, phone, email, created_at, updated_at) 
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+              [client.id, client.login, client.password, client.location, client.phone, client.email, client.created_at, client.updated_at],
+              () => {
+                imported.clients++;
+                resolve();
+              }
+            );
+          });
+        }
+        
+        // Import products
+        for (const product of exportData.products) {
+          await new Promise((resolve) => {
+            database.run(
+              `INSERT OR REPLACE INTO products (id, name, category_id, cost_price, image_url, created_at, updated_at) 
+               VALUES (?, ?, ?, ?, ?, ?, ?)`,
+              [product.id, product.name, product.category_id, product.cost_price, product.image_url || null, product.created_at, product.updated_at],
+              () => {
+                imported.products++;
+                resolve();
+              }
+            );
+          });
+        }
+        
+        // Import client_categories
+        for (const cc of exportData.client_categories || []) {
+          await new Promise((resolve) => {
+            database.run(
+              `INSERT OR IGNORE INTO client_categories (client_id, category_id) VALUES (?, ?)`,
+              [cc.client_id, cc.category_id],
+              () => resolve()
+            );
+          });
+          imported.client_categories++;
+        }
+        
+        // Import coefficients
+        for (const cpc of exportData.client_product_coefficients || []) {
+          await new Promise((resolve) => {
+            database.run(
+              `INSERT OR REPLACE INTO client_product_coefficients (id, client_id, product_id, coefficient, created_at, updated_at) 
+               VALUES (?, ?, ?, ?, ?, ?)`,
+              [cpc.id, cpc.client_id, cpc.product_id, cpc.coefficient, cpc.created_at, cpc.updated_at],
+              () => resolve()
+            );
+          });
+          imported.coefficients++;
+        }
+        
+        res.json({
+          success: true,
+          message: 'Database restored successfully',
+          imported: imported
+        });
+      } catch (error) {
+        console.error('Error restoring database:', error);
+        res.status(500).json({
+          error: 'Failed to restore database',
+          message: error.message
+        });
+      }
+    });
+
     // Database info endpoint - check if database is in Volume
     app.get('/api/db-info', async (req, res) => {
       const db = require('./database');
