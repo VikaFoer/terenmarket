@@ -3,6 +3,24 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
+// Setup axios interceptor to handle 401 errors globally
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      // Token expired or invalid
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      delete axios.defaults.headers.common['Authorization'];
+      // Only redirect if not already on login page
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -19,16 +37,38 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setIsAuthenticated(true);
-      const userData = localStorage.getItem('user');
-      if (userData) {
-        setUser(JSON.parse(userData));
+    const checkAuth = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        // Always verify token with server to ensure it's still valid
+        try {
+          const response = await axios.get(`${API_URL}/auth/me`);
+          if (response.data) {
+            // Token is valid, update user data
+            localStorage.setItem('user', JSON.stringify(response.data));
+            setUser(response.data);
+            setIsAuthenticated(true);
+          }
+        } catch (error) {
+          // Token invalid or expired, clear it
+          console.error('Token verification failed:', error);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          delete axios.defaults.headers.common['Authorization'];
+          setIsAuthenticated(false);
+          setUser(null);
+        }
+      } else {
+        // No token, ensure clean state
+        setIsAuthenticated(false);
+        setUser(null);
       }
-    }
-    setLoading(false);
+      setLoading(false);
+    };
+    
+    checkAuth();
   }, []);
 
   const login = async (login, password) => {
