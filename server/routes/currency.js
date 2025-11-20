@@ -1,6 +1,12 @@
 const express = require('express');
 const axios = require('axios');
+const https = require('https');
 const router = express.Router();
+
+// Create HTTPS agent that doesn't reject unauthorized certificates
+const httpsAgent = new https.Agent({
+  rejectUnauthorized: false
+});
 
 // Parse HTML to extract exchange rates from udinform.com
 const parseUdinformRates = (html) => {
