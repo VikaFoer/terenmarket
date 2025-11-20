@@ -44,10 +44,12 @@
    - Mount Path: `/app/server/data`
    - Size: 5 GB
 
-4. **Додайте змінну середовища**
+4. **Додайте змінні середовища**
    - Settings → Variables
    - Name: `DATA_DIR`
-   - Value: `/app/server/data`
+     - Value: `/app/server/data`
+   - Name: `FRONTEND_URL`
+     - Value: `https://your-frontend.railway.app` (замініть на ваш frontend URL після деплою frontend)
 
 5. **Railway автоматично**:
    - Використає `nixpacks.toml` або `Procfile` для збірки

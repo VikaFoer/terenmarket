@@ -34,6 +34,7 @@ db.init()
     });
 
     // Root path - redirect to frontend or show API info
+    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
     app.get('/', (req, res) => {
       res.json({
         message: 'SmartMarket API Server',
@@ -44,8 +45,8 @@ db.init()
           admin: '/api/admin/*',
           client: '/api/client/*'
         },
-        frontend: 'http://localhost:3000',
-        note: 'This is an API server. Please use the frontend application at http://localhost:3000'
+        frontend: FRONTEND_URL,
+        note: `This is an API server. Please use the frontend application at ${FRONTEND_URL}`
       });
     });
 

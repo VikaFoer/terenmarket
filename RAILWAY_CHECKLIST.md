@@ -7,6 +7,7 @@
 - [ ] **Root Directory**: ПОРОЖНЄ (не `/client/src/components`, не `/server`)
 - [ ] **Volume створений**: Name `database-storage`, Mount Path `/app/server/data`
 - [ ] **Змінна DATA_DIR**: Значення `/app/server/data`
+- [ ] **Змінна FRONTEND_URL**: Значення `https://your-frontend.railway.app` (після деплою frontend)
 - [ ] **Build Command**: Залишити порожнім (Railway використає nixpacks.toml)
 - [ ] **Start Command**: Залишити порожнім (Railway використає nixpacks.toml)
 

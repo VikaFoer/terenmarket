@@ -34,10 +34,14 @@ API працює (показує JSON відповідь), але можуть �
 
 1. Відкрийте ваш Backend сервіс
 2. Відкрийте **Settings** → **Variables**
-3. Додайте змінну:
+3. Додайте змінні:
    - **Name**: `DATA_DIR`
-   - **Value**: `/app/server/data`
-   - Натисніть **"Add"**
+     - **Value**: `/app/server/data`
+     - Натисніть **"Add"**
+   - **Name**: `FRONTEND_URL`
+     - **Value**: `https://your-frontend.railway.app` (замініть на ваш frontend URL після деплою frontend)
+     - Натисніть **"Add"**
+     - ⚠️ **Примітка**: Можна додати після деплою frontend, або залишити порожнім для локальної розробки
 
 #### 2.4. Перевірка Build налаштувань
 
@@ -145,7 +149,8 @@ Railway Project: smartmart
 ├── smartmart (Backend Service)
 │   ├── Root Directory: (порожнє)
 │   ├── Variables:
-│   │   └── DATA_DIR = /app/server/data
+│   │   ├── DATA_DIR = /app/server/data
+│   │   └── FRONTEND_URL = https://smartmart-frontend.up.railway.app
 │   ├── Volume: database-storage
 │   │   └── Mount Path: /app/server/data
 │   └── URL: https://smartmart-production.up.railway.app
