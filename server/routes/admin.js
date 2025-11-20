@@ -1,7 +1,14 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const db = require('../database');
-const { authenticate } = require('../middleware/auth');
+const authMiddleware = require('../middleware/auth');
+
+// Handle both old and new export formats
+const authenticate = authMiddleware.authenticate || authMiddleware;
+
+if (typeof authenticate !== 'function') {
+  throw new Error('authenticate middleware is not a function. Got: ' + typeof authenticate);
+}
 
 const router = express.Router();
 
