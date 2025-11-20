@@ -30,7 +30,6 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import Cart from '../components/Cart';
 
-// In production (monolithic deploy), use relative path since frontend and backend are on same domain
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
 
 const drawerWidth = 280;
