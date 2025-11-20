@@ -39,6 +39,27 @@ db.init()
       res.json({ status: 'ok' });
     });
 
+    // Database info endpoint - check if database is in Volume
+    app.get('/api/db-info', (req, res) => {
+      const db = require('./database');
+      const dbInfo = db.getDbInfo ? db.getDbInfo() : null;
+      
+      res.json({
+        status: 'ok',
+        database: {
+          dataDir: process.env.DATA_DIR || 'not set',
+          dbPath: dbInfo?.dbPath || 'unknown',
+          dbExists: dbInfo?.dbExists || false,
+          dataDirExists: dbInfo?.dataDirExists || false,
+          isInVolume: process.env.DATA_DIR === '/app/server/data',
+          volumeMountPath: '/app/server/data',
+          note: process.env.DATA_DIR === '/app/server/data' 
+            ? '✅ Database is configured to use Railway Volume' 
+            : '⚠️ Database may not be in Volume. Check DATA_DIR variable.'
+        }
+      });
+    });
+
     // Serve static files from React app in production
     if (process.env.NODE_ENV === 'production') {
       const buildPath = path.join(__dirname, '..', 'client', 'build');

@@ -228,8 +228,19 @@ const getDb = () => {
   return db;
 };
 
+const getDbInfo = () => {
+  return {
+    dataDir: DATA_DIR,
+    dbPath: DB_PATH,
+    dbExists: fs.existsSync(DB_PATH),
+    dataDirExists: fs.existsSync(DATA_DIR),
+    isInVolume: DATA_DIR === '/app/server/data'
+  };
+};
+
 module.exports = {
   init,
-  getDb
+  getDb,
+  getDbInfo
 };
 
