@@ -33,22 +33,35 @@ db.init()
       res.json({ status: 'ok' });
     });
 
-    // Root path - redirect to frontend or show API info
-    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
-    app.get('/', (req, res) => {
-      res.json({
-        message: 'SmartMarket API Server',
-        version: '1.0.0',
-        endpoints: {
-          health: '/api/health',
-          auth: '/api/auth/login',
-          admin: '/api/admin/*',
-          client: '/api/client/*'
-        },
-        frontend: FRONTEND_URL,
-        note: `This is an API server. Please use the frontend application at ${FRONTEND_URL}`
+    // Serve static files from React app in production
+    if (process.env.NODE_ENV === 'production') {
+      const buildPath = path.join(__dirname, '..', 'client', 'build');
+      app.use(express.static(buildPath));
+      
+      // Serve React app for all non-API routes
+      app.get('*', (req, res) => {
+        // Don't serve React app for API routes
+        if (req.path.startsWith('/api')) {
+          return res.status(404).json({ error: 'API endpoint not found' });
+        }
+        res.sendFile(path.join(buildPath, 'index.html'));
       });
-    });
+    } else {
+      // Development mode - show API info
+      app.get('/', (req, res) => {
+        res.json({
+          message: 'SmartMarket API Server',
+          version: '1.0.0',
+          endpoints: {
+            health: '/api/health',
+            auth: '/api/auth/login',
+            admin: '/api/admin/*',
+            client: '/api/client/*'
+          },
+          note: 'This is an API server. In production, React app is served from root path.'
+        });
+      });
+    }
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server is running on port ${PORT}`);

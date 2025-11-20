@@ -1,2 +1,2 @@
-web: cd server && node index.js
+web: cd server && NODE_ENV=production node index.js
 
