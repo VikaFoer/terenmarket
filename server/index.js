@@ -40,24 +40,102 @@ db.init()
     });
 
     // Database info endpoint - check if database is in Volume
-    app.get('/api/db-info', (req, res) => {
+    app.get('/api/db-info', async (req, res) => {
       const db = require('./database');
       const dbInfo = db.getDbInfo ? db.getDbInfo() : null;
+      const database = db.getDb();
       
-      res.json({
-        status: 'ok',
-        database: {
-          dataDir: process.env.DATA_DIR || 'not set',
-          dbPath: dbInfo?.dbPath || 'unknown',
-          dbExists: dbInfo?.dbExists || false,
-          dataDirExists: dbInfo?.dataDirExists || false,
-          isInVolume: process.env.DATA_DIR === '/app/server/data',
-          volumeMountPath: '/app/server/data',
-          note: process.env.DATA_DIR === '/app/server/data' 
-            ? '✅ Database is configured to use Railway Volume' 
-            : '⚠️ Database may not be in Volume. Check DATA_DIR variable.'
-        }
-      });
+      try {
+        // Get counts from database
+        const counts = await new Promise((resolve, reject) => {
+          const results = {};
+          let completed = 0;
+          const total = 4;
+          
+          const checkComplete = () => {
+            completed++;
+            if (completed === total) {
+              resolve(results);
+            }
+          };
+          
+          database.get('SELECT COUNT(*) as count FROM clients', (err, row) => {
+            if (err) {
+              results.clients = { error: err.message };
+            } else {
+              results.clients = row.count;
+            }
+            checkComplete();
+          });
+          
+          database.get('SELECT COUNT(*) as count FROM products', (err, row) => {
+            if (err) {
+              results.products = { error: err.message };
+            } else {
+              results.products = row.count;
+            }
+            checkComplete();
+          });
+          
+          database.get('SELECT COUNT(*) as count FROM categories', (err, row) => {
+            if (err) {
+              results.categories = { error: err.message };
+            } else {
+              results.categories = row.count;
+            }
+            checkComplete();
+          });
+          
+          database.get('SELECT COUNT(*) as count FROM client_product_coefficients', (err, row) => {
+            if (err) {
+              results.coefficients = { error: err.message };
+            } else {
+              results.coefficients = row.count;
+            }
+            checkComplete();
+          });
+        });
+        
+        // Get sample data
+        const sampleData = await new Promise((resolve, reject) => {
+          const samples = {};
+          
+          database.all('SELECT id, login, email FROM clients LIMIT 5', (err, rows) => {
+            if (!err) samples.clients = rows;
+            
+            database.all('SELECT id, name, category_id FROM products LIMIT 5', (err, rows) => {
+              if (!err) samples.products = rows;
+              
+              database.all('SELECT id, name FROM categories', (err, rows) => {
+                if (!err) samples.categories = rows;
+                resolve(samples);
+              });
+            });
+          });
+        });
+        
+        res.json({
+          status: 'ok',
+          database: {
+            dataDir: process.env.DATA_DIR || 'not set',
+            dbPath: dbInfo?.dbPath || 'unknown',
+            dbExists: dbInfo?.dbExists || false,
+            dataDirExists: dbInfo?.dataDirExists || false,
+            isInVolume: process.env.DATA_DIR === '/app/server/data',
+            volumeMountPath: '/app/server/data',
+            note: process.env.DATA_DIR === '/app/server/data' 
+              ? '✅ Database is configured to use Railway Volume' 
+              : '⚠️ Database may not be in Volume. Check DATA_DIR variable.'
+          },
+          counts: counts,
+          sampleData: sampleData
+        });
+      } catch (error) {
+        res.status(500).json({
+          error: 'Failed to query database',
+          message: error.message
+        });
+      }
     });
 
     // Serve static files from React app in production
