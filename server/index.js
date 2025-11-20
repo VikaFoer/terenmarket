@@ -28,6 +28,12 @@ db.init()
   .then(() => {
     console.log('✅ Database initialization completed successfully');
     
+    // Log all API requests for debugging
+    app.use('/api', (req, res, next) => {
+      console.log(`[API Request] ${req.method} ${req.path}`);
+      next();
+    });
+    
     // Routes - MUST be registered before static file serving
     console.log('Registering API routes...');
     app.use('/api/auth', authRoutes);
