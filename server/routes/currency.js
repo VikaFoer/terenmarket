@@ -2,43 +2,118 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 
-// Get exchange rates from NBU API
+// Parse HTML to extract exchange rates from udinform.com
+const parseUdinformRates = (html) => {
+  const rates = {};
+  
+  // Remove script and style tags to avoid false matches
+  const cleanHtml = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '').replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+  
+  // Try multiple patterns to find rates
+  // Pattern 1: Look for table rows with currency codes
+  const tableRowPattern = /<tr[^>]*>[\s\S]*?(EUR|USD|євро|долар)[\s\S]*?<\/tr>/gi;
+  let match;
+  while ((match = tableRowPattern.exec(cleanHtml)) !== null) {
+    const row = match[0];
+    const currencyCode = match[1].toUpperCase();
+    const code = currencyCode.includes('EUR') || currencyCode.includes('ЄВРО') ? 'EUR' : 
+                 currencyCode.includes('USD') || currencyCode.includes('ДОЛАР') ? 'USD' : null;
+    
+    if (code) {
+      // Find all numbers in the row
+      const numbers = row.match(/\d+[.,]\d{2,4}/g);
+      if (numbers && numbers.length > 0) {
+        // Take the largest number (usually the rate)
+        const rateValues = numbers.map(n => parseFloat(n.replace(',', '.')));
+        const maxRate = Math.max(...rateValues);
+        // Filter out unrealistic values (rates should be between 20 and 100 for UAH)
+        if (maxRate >= 20 && maxRate <= 100) {
+          rates[code] = maxRate;
+        }
+      }
+    }
+  }
+  
+  // Pattern 2: Look for specific currency patterns with numbers nearby
+  const eurPatterns = [
+    /EUR[^<]*?(\d+[.,]\d{2,4})/i,
+    /євро[^<]*?(\d+[.,]\d{2,4})/i,
+    /(\d+[.,]\d{2,4})[^<]*?EUR/i,
+    /(\d+[.,]\d{2,4})[^<]*?євро/i
+  ];
+  
+  const usdPatterns = [
+    /USD[^<]*?(\d+[.,]\d{2,4})/i,
+    /долар[^<]*?(\d+[.,]\d{2,4})/i,
+    /(\d+[.,]\d{2,4})[^<]*?USD/i,
+    /(\d+[.,]\d{2,4})[^<]*?долар/i
+  ];
+  
+  // Try EUR patterns
+  if (!rates.EUR) {
+    for (const pattern of eurPatterns) {
+      const match = cleanHtml.match(pattern);
+      if (match) {
+        const rate = parseFloat(match[1].replace(',', '.'));
+        if (rate >= 20 && rate <= 100) {
+          rates.EUR = rate;
+          break;
+        }
+      }
+    }
+  }
+  
+  // Try USD patterns
+  if (!rates.USD) {
+    for (const pattern of usdPatterns) {
+      const match = cleanHtml.match(pattern);
+      if (match) {
+        const rate = parseFloat(match[1].replace(',', '.'));
+        if (rate >= 20 && rate <= 100) {
+          rates.USD = rate;
+          break;
+        }
+      }
+    }
+  }
+  
+  return rates;
+};
+
+// Get exchange rates from udinform.com
 router.get('/rates', async (req, res) => {
   try {
-    // Get current date in format yyyymmdd
-    const today = new Date();
-    const dateStr = today.getFullYear() + 
-                   String(today.getMonth() + 1).padStart(2, '0') + 
-                   String(today.getDate()).padStart(2, '0');
+    const response = await axios.get('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', {
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
     
-    // Try to get today's rates
-    let response;
-    try {
-      response = await axios.get(`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${dateStr}&json`, {
-        timeout: 5000
-      });
-    } catch (error) {
-      // If today's rates are not available, try previous day
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const prevDateStr = yesterday.getFullYear() + 
-                         String(yesterday.getMonth() + 1).padStart(2, '0') + 
-                         String(yesterday.getDate()).padStart(2, '0');
-      
-      response = await axios.get(`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${prevDateStr}&json`, {
-        timeout: 5000
+    const rates = parseUdinformRates(response.data);
+    
+    const result = {
+      date: new Date().toISOString().split('T')[0],
+      rates: []
+    };
+    
+    if (rates.EUR) {
+      result.rates.push({
+        code: 'EUR',
+        name: 'Євро',
+        rate: rates.EUR
       });
     }
     
-    res.json({
-      date: response.data[0]?.exchangedate || dateStr,
-      rates: response.data.map(rate => ({
-        code: rate.cc,
-        name: rate.txt,
-        rate: rate.rate,
-        units: rate.r030
-      }))
-    });
+    if (rates.USD) {
+      result.rates.push({
+        code: 'USD',
+        name: 'Долар США',
+        rate: rates.USD
+      });
+    }
+    
+    res.json(result);
   } catch (error) {
     console.error('Error fetching exchange rates:', error.message);
     res.status(500).json({ 
@@ -48,46 +123,35 @@ router.get('/rates', async (req, res) => {
   }
 });
 
-// Get exchange rate for specific currency
+// Get exchange rate for specific currency (EUR or USD)
 router.get('/rates/:currencyCode', async (req, res) => {
   try {
     const { currencyCode } = req.params;
-    const today = new Date();
-    const dateStr = today.getFullYear() + 
-                   String(today.getMonth() + 1).padStart(2, '0') + 
-                   String(today.getDate()).padStart(2, '0');
+    const code = currencyCode.toUpperCase();
     
-    let response;
-    try {
-      response = await axios.get(`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${dateStr}&json`, {
-        timeout: 5000
-      });
-    } catch (error) {
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const prevDateStr = yesterday.getFullYear() + 
-                         String(yesterday.getMonth() + 1).padStart(2, '0') + 
-                         String(yesterday.getDate()).padStart(2, '0');
-      
-      response = await axios.get(`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${prevDateStr}&json`, {
-        timeout: 5000
-      });
+    if (code !== 'EUR' && code !== 'USD') {
+      return res.status(400).json({ error: 'Підтримуються тільки EUR та USD' });
     }
     
-    const currency = response.data.find(rate => 
-      rate.cc.toLowerCase() === currencyCode.toLowerCase()
-    );
+    const response = await axios.get('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', {
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
     
-    if (!currency) {
-      return res.status(404).json({ error: 'Валюта не знайдена' });
+    const rates = parseUdinformRates(response.data);
+    const rate = rates[code];
+    
+    if (!rate) {
+      return res.status(404).json({ error: `Курс ${code} не знайдено` });
     }
     
     res.json({
-      code: currency.cc,
-      name: currency.txt,
-      rate: currency.rate,
-      units: currency.r030,
-      date: currency.exchangedate
+      code: code,
+      name: code === 'EUR' ? 'Євро' : 'Долар США',
+      rate: rate,
+      date: new Date().toISOString().split('T')[0]
     });
   } catch (error) {
     console.error('Error fetching exchange rate:', error.message);

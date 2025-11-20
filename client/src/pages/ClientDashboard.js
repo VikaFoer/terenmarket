@@ -43,7 +43,8 @@ const ClientDashboard = () => {
   const [cartItems, setCartItems] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [eurRate, setEurRate] = useState(null);
-  const [eurLoading, setEurLoading] = useState(true);
+  const [usdRate, setUsdRate] = useState(null);
+  const [ratesLoading, setRatesLoading] = useState(true);
   const { logout, user } = useAuth();
   const navigate = useNavigate();
 
@@ -62,23 +63,30 @@ const ClientDashboard = () => {
   }, []);
 
   useEffect(() => {
-    const fetchEurRate = async () => {
+    const fetchRates = async () => {
       try {
-        const response = await axios.get(`${API_URL}/currency/rates/EUR`);
-        if (response.data && response.data.rate) {
-          setEurRate(response.data.rate);
+        // Fetch EUR rate
+        const eurResponse = await axios.get(`${API_URL}/currency/rates/EUR`);
+        if (eurResponse.data && eurResponse.data.rate) {
+          setEurRate(eurResponse.data.rate);
+        }
+        
+        // Fetch USD rate
+        const usdResponse = await axios.get(`${API_URL}/currency/rates/USD`);
+        if (usdResponse.data && usdResponse.data.rate) {
+          setUsdRate(usdResponse.data.rate);
         }
       } catch (error) {
-        console.error('Error fetching EUR rate:', error);
+        console.error('Error fetching currency rates:', error);
         // Try to fetch again after 30 seconds if failed
-        setTimeout(fetchEurRate, 30000);
+        setTimeout(fetchRates, 30000);
       } finally {
-        setEurLoading(false);
+        setRatesLoading(false);
       }
     };
-    fetchEurRate();
+    fetchRates();
     // Update every 5 minutes
-    const interval = setInterval(fetchEurRate, 5 * 60 * 1000);
+    const interval = setInterval(fetchRates, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -295,19 +303,37 @@ const ClientDashboard = () => {
             SmartMarket
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {!eurLoading && eurRate && (
-              <Chip
-                label={`EUR: ${eurRate.toFixed(2)} ₴`}
-                size="small"
-                sx={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  color: 'white',
-                  fontWeight: 600,
-                  '& .MuiChip-label': {
-                    px: 1.5,
-                  },
-                }}
-              />
+            {!ratesLoading && (
+              <>
+                {eurRate && (
+                  <Chip
+                    label={`EUR: ${eurRate.toFixed(2)} ₴`}
+                    size="small"
+                    sx={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                      fontWeight: 600,
+                      '& .MuiChip-label': {
+                        px: 1.5,
+                      },
+                    }}
+                  />
+                )}
+                {usdRate && (
+                  <Chip
+                    label={`USD: ${usdRate.toFixed(2)} ₴`}
+                    size="small"
+                    sx={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                      fontWeight: 600,
+                      '& .MuiChip-label': {
+                        px: 1.5,
+                      },
+                    }}
+                  />
+                )}
+              </>
             )}
             <Typography variant="body2" sx={{ opacity: 0.9, display: 'flex', alignItems: 'center' }}>
               {user?.login}
