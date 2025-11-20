@@ -309,10 +309,15 @@ const ClientDashboard = () => {
                   <Chip
                     label={`EUR: ${eurRate.toFixed(2)} ₴`}
                     size="small"
+                    onClick={() => window.open('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', '_blank')}
                     sx={{
                       backgroundColor: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontWeight: 600,
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      },
                       '& .MuiChip-label': {
                         px: 1.5,
                       },
@@ -323,10 +328,15 @@ const ClientDashboard = () => {
                   <Chip
                     label={`USD: ${usdRate.toFixed(2)} ₴`}
                     size="small"
+                    onClick={() => window.open('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', '_blank')}
                     sx={{
                       backgroundColor: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontWeight: 600,
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      },
                       '& .MuiChip-label': {
                         px: 1.5,
                       },
