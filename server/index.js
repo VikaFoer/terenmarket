@@ -227,31 +227,32 @@ db.init()
       }
     });
 
-    // Serve static files from React app in production
-    if (process.env.NODE_ENV === 'production') {
-      const buildPath = path.join(__dirname, '..', 'client', 'build');
-      
-      // Check if build directory exists
-      if (!fs.existsSync(buildPath)) {
-        console.warn(`Warning: Build directory not found at ${buildPath}. Make sure to build the frontend before starting the server.`);
-      } else {
-        app.use(express.static(buildPath));
-        
-        // Serve React app for all non-API routes
-        app.get('*', (req, res) => {
-          // Don't serve React app for API routes
-          if (req.path.startsWith('/api')) {
-            return res.status(404).json({ error: 'API endpoint not found' });
-          }
-          res.sendFile(path.join(buildPath, 'index.html'), (err) => {
-            if (err) {
-              console.error('Error serving index.html:', err);
-              res.status(500).json({ error: 'Failed to serve frontend' });
+          // Serve static files from React app in production
+          if (process.env.NODE_ENV === 'production') {
+            const buildPath = path.join(__dirname, '..', 'client', 'build');
+            
+            // Check if build directory exists
+            if (!fs.existsSync(buildPath)) {
+              console.warn(`Warning: Build directory not found at ${buildPath}. Make sure to build the frontend before starting the server.`);
+            } else {
+              // Serve static files (CSS, JS, images, etc.)
+              app.use(express.static(buildPath));
+              
+              // Serve React app for all non-API routes (MUST be last)
+              app.get('*', (req, res, next) => {
+                // Don't serve React app for API routes
+                if (req.path.startsWith('/api')) {
+                  return res.status(404).json({ error: 'API endpoint not found', path: req.path });
+                }
+                res.sendFile(path.join(buildPath, 'index.html'), (err) => {
+                  if (err) {
+                    console.error('Error serving index.html:', err);
+                    res.status(500).json({ error: 'Failed to serve frontend' });
+                  }
+                });
+              });
             }
-          });
-        });
-      }
-    } else {
+          } else {
       // Development mode - show API info
       app.get('/', (req, res) => {
         res.json({
