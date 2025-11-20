@@ -180,9 +180,10 @@ const parseUdinformRates = (html) => {
 };
 
 // Get exchange rates from udinform.com
+// IMPORTANT: This route must be registered BEFORE /rates/:currencyCode
 router.get('/rates', async (req, res) => {
   try {
-    console.log('Fetching rates from udinform.com...');
+    console.log('[Currency API] GET /rates - fetching all rates from udinform.com...');
     const response = await axios.get('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', {
       timeout: 10000,
       headers: {
@@ -229,12 +230,13 @@ router.get('/rates', async (req, res) => {
 });
 
 // Get exchange rate for specific currency (EUR or USD)
+// IMPORTANT: This route must be registered AFTER /rates route
 router.get('/rates/:currencyCode', async (req, res) => {
   try {
     const { currencyCode } = req.params;
     const code = currencyCode.toUpperCase();
     
-    console.log(`Fetching rate for ${code}...`);
+    console.log(`[Currency API] Fetching rate for ${code}, path: ${req.path}, params:`, req.params);
     
     if (code !== 'EUR' && code !== 'USD') {
       return res.status(400).json({ error: 'Підтримуються тільки EUR та USD' });

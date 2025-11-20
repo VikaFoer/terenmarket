@@ -28,11 +28,13 @@ db.init()
   .then(() => {
     console.log('✅ Database initialization completed successfully');
     
-    // Routes
+    // Routes - MUST be registered before static file serving
+    console.log('Registering API routes...');
     app.use('/api/auth', authRoutes);
     app.use('/api/admin', adminRoutes);
     app.use('/api/client', clientRoutes);
     app.use('/api/currency', currencyRoutes);
+    console.log('✅ API routes registered');
 
     // Health check
     app.get('/api/health', (req, res) => {
