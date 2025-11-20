@@ -23,9 +23,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Initialize database and start server
+console.log('Starting database initialization...');
 db.init()
   .then(() => {
-    console.log('Database initialized successfully');
+    console.log('✅ Database initialization completed successfully');
     
     // Routes
     app.use('/api/auth', authRoutes);
@@ -84,7 +85,9 @@ db.init()
     });
   })
   .catch((err) => {
-    console.error('Failed to initialize database:', err);
+    console.error('❌ Failed to initialize database:', err);
+    console.error('Error details:', err.message);
+    console.error('Stack trace:', err.stack);
     process.exit(1);
   });
 

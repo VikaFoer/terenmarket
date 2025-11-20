@@ -45,6 +45,7 @@ const init = () => {
 
 const createTables = () => {
   return new Promise((resolve, reject) => {
+    console.log('Starting table creation...');
     db.serialize(() => {
       // Categories table
       db.run(`CREATE TABLE IF NOT EXISTS categories (
@@ -56,6 +57,7 @@ const createTables = () => {
           reject(err);
           return;
         }
+        console.log('Categories table created/verified');
         
         // Insert default categories
         const categories = [
@@ -68,9 +70,24 @@ const createTables = () => {
           'Роботи/автоматизація'
         ];
         
+        console.log('Inserting default categories...');
         const stmt = db.prepare('INSERT OR IGNORE INTO categories (name) VALUES (?)');
-        categories.forEach(cat => stmt.run(cat));
-        stmt.finalize();
+        categories.forEach(cat => {
+          stmt.run(cat, (err) => {
+            if (err) {
+              console.error(`Error inserting category ${cat}:`, err);
+            } else {
+              console.log(`Category inserted: ${cat}`);
+            }
+          });
+        });
+        stmt.finalize((err) => {
+          if (err) {
+            console.error('Error finalizing categories statement:', err);
+          } else {
+            console.log('Categories insertion completed');
+          }
+        });
       });
 
       // Products table
@@ -88,9 +105,13 @@ const createTables = () => {
           console.error('Error creating products table:', err);
           reject(err);
         } else {
+          console.log('Products table created/verified');
           // Add image_url column if it doesn't exist (for existing databases)
           db.run(`ALTER TABLE products ADD COLUMN image_url TEXT`, (alterErr) => {
             // Ignore error if column already exists
+            if (alterErr && !alterErr.message.includes('duplicate column')) {
+              console.error('Error adding image_url column:', alterErr);
+            }
           });
         }
       });
@@ -109,6 +130,8 @@ const createTables = () => {
         if (err) {
           console.error('Error creating clients table:', err);
           reject(err);
+        } else {
+          console.log('Clients table created/verified');
         }
       });
 
@@ -127,6 +150,8 @@ const createTables = () => {
         if (err) {
           console.error('Error creating client_product_coefficients table:', err);
           reject(err);
+        } else {
+          console.log('ClientProductCoefficients table created/verified');
         }
       });
 
@@ -142,13 +167,21 @@ const createTables = () => {
         if (err) {
           console.error('Error creating client_categories table:', err);
           reject(err);
+          return;
         }
+        console.log('ClientCategories table created/verified');
+        console.log('All tables created successfully');
         
         // Create default admin user
+        console.log('Creating default admin user...');
         createDefaultAdmin().then(() => {
+          console.log('Default admin user created successfully');
           console.log('Database initialized successfully');
           resolve();
-        }).catch(reject);
+        }).catch((adminErr) => {
+          console.error('Error creating default admin:', adminErr);
+          reject(adminErr);
+        });
       });
     });
   });
@@ -159,19 +192,27 @@ const createDefaultAdmin = async () => {
     const adminLogin = 'admin';
     const adminPassword = 'admin123';
     
+    console.log('Hashing admin password...');
     bcrypt.hash(adminPassword, 10, (err, hash) => {
       if (err) {
+        console.error('Error hashing password:', err);
         reject(err);
         return;
       }
+      console.log('Password hashed, inserting admin user...');
       
       db.run(`INSERT OR IGNORE INTO clients (login, password, email) VALUES (?, ?, ?)`,
         [adminLogin, hash, 'admin@smartmarket.com'],
-        (err) => {
+        function(err) {
           if (err) {
             console.error('Error creating default admin:', err);
             reject(err);
           } else {
+            if (this.changes > 0) {
+              console.log('Admin user created successfully');
+            } else {
+              console.log('Admin user already exists');
+            }
             resolve();
           }
         }
