@@ -7,12 +7,17 @@ const fs = require('fs');
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname);
 const DB_PATH = path.join(DATA_DIR, 'database.sqlite');
 
+// Old database path (before Volume was configured)
+const OLD_DB_PATH = path.join(__dirname, 'database.sqlite');
+
 // Log database path for debugging
 console.log('=== Database Configuration ===');
 console.log('DATA_DIR:', DATA_DIR);
 console.log('DB_PATH:', DB_PATH);
+console.log('OLD_DB_PATH:', OLD_DB_PATH);
 console.log('DATA_DIR exists:', fs.existsSync(DATA_DIR));
 console.log('DB_PATH exists:', fs.existsSync(DB_PATH));
+console.log('OLD_DB_PATH exists:', fs.existsSync(OLD_DB_PATH));
 console.log('=============================');
 
 // Ensure data directory exists
@@ -23,6 +28,49 @@ if (!fs.existsSync(DATA_DIR)) {
 } else {
   console.log(`DATA_DIR already exists: ${DATA_DIR}`);
 }
+
+// Migrate database from old location to new location if needed
+const migrateDatabase = () => {
+  // Only migrate if new DB doesn't exist but old one does
+  if (!fs.existsSync(DB_PATH) && fs.existsSync(OLD_DB_PATH)) {
+    console.log('⚠️ Old database found, migrating to Volume location...');
+    try {
+      // Copy old database to new location
+      fs.copyFileSync(OLD_DB_PATH, DB_PATH);
+      console.log(`✅ Database migrated from ${OLD_DB_PATH} to ${DB_PATH}`);
+      
+      // Verify the copy
+      if (fs.existsSync(DB_PATH)) {
+        const oldStats = fs.statSync(OLD_DB_PATH);
+        const newStats = fs.statSync(DB_PATH);
+        console.log(`Old DB size: ${oldStats.size} bytes`);
+        console.log(`New DB size: ${newStats.size} bytes`);
+        
+        if (newStats.size === oldStats.size && newStats.size > 0) {
+          console.log('✅ Migration successful! Database copied correctly.');
+          // Optionally backup old database
+          const backupPath = path.join(__dirname, 'database.sqlite.backup');
+          fs.copyFileSync(OLD_DB_PATH, backupPath);
+          console.log(`Old database backed up to: ${backupPath}`);
+        } else {
+          console.error('❌ Migration failed: File sizes do not match');
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error migrating database:', error);
+      console.error('Will create new database instead');
+    }
+  } else if (fs.existsSync(DB_PATH)) {
+    console.log('✅ Database already exists in Volume location');
+  } else if (fs.existsSync(OLD_DB_PATH)) {
+    console.log('⚠️ Old database exists but migration not needed (new DB will be created)');
+  } else {
+    console.log('ℹ️ No existing database found, will create new one');
+  }
+};
+
+// Run migration before initialization
+migrateDatabase();
 
 let db = null;
 
