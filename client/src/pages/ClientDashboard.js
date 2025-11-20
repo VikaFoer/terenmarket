@@ -65,19 +65,29 @@ const ClientDashboard = () => {
   useEffect(() => {
     const fetchRates = async () => {
       try {
+        console.log('Fetching currency rates from:', `${API_URL}/currency/rates/EUR`);
         // Fetch EUR rate
         const eurResponse = await axios.get(`${API_URL}/currency/rates/EUR`);
+        console.log('EUR response:', eurResponse.data);
         if (eurResponse.data && eurResponse.data.rate) {
           setEurRate(eurResponse.data.rate);
+          console.log('EUR rate set to:', eurResponse.data.rate);
+        } else {
+          console.warn('EUR rate not found in response:', eurResponse.data);
         }
         
         // Fetch USD rate
         const usdResponse = await axios.get(`${API_URL}/currency/rates/USD`);
+        console.log('USD response:', usdResponse.data);
         if (usdResponse.data && usdResponse.data.rate) {
           setUsdRate(usdResponse.data.rate);
+          console.log('USD rate set to:', usdResponse.data.rate);
+        } else {
+          console.warn('USD rate not found in response:', usdResponse.data);
         }
       } catch (error) {
         console.error('Error fetching currency rates:', error);
+        console.error('Error details:', error.response?.data || error.message);
         // Try to fetch again after 30 seconds if failed
         setTimeout(fetchRates, 30000);
       } finally {

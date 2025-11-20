@@ -89,6 +89,7 @@ const parseUdinformRates = (html) => {
 // Get exchange rates from udinform.com
 router.get('/rates', async (req, res) => {
   try {
+    console.log('Fetching rates from udinform.com...');
     const response = await axios.get('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', {
       timeout: 10000,
       headers: {
@@ -97,7 +98,9 @@ router.get('/rates', async (req, res) => {
       httpsAgent: httpsAgent
     });
     
+    console.log('Response received, HTML length:', response.data?.length || 0);
     const rates = parseUdinformRates(response.data);
+    console.log('Parsed rates:', rates);
     
     const result = {
       date: new Date().toISOString().split('T')[0],
@@ -120,9 +123,11 @@ router.get('/rates', async (req, res) => {
       });
     }
     
+    console.log('Sending result:', result);
     res.json(result);
   } catch (error) {
     console.error('Error fetching exchange rates:', error.message);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ 
       error: 'Не вдалося отримати курси валют',
       details: error.message 
@@ -136,6 +141,8 @@ router.get('/rates/:currencyCode', async (req, res) => {
     const { currencyCode } = req.params;
     const code = currencyCode.toUpperCase();
     
+    console.log(`Fetching rate for ${code}...`);
+    
     if (code !== 'EUR' && code !== 'USD') {
       return res.status(400).json({ error: 'Підтримуються тільки EUR та USD' });
     }
@@ -148,21 +155,32 @@ router.get('/rates/:currencyCode', async (req, res) => {
       httpsAgent: httpsAgent
     });
     
+    console.log(`Response received for ${code}, HTML length:`, response.data?.length || 0);
     const rates = parseUdinformRates(response.data);
+    console.log(`Parsed rates for ${code}:`, rates);
     const rate = rates[code];
     
     if (!rate) {
-      return res.status(404).json({ error: `Курс ${code} не знайдено` });
+      console.warn(`Rate ${code} not found. Available rates:`, Object.keys(rates));
+      return res.status(404).json({ 
+        error: `Курс ${code} не знайдено`,
+        availableRates: Object.keys(rates),
+        parsedRates: rates
+      });
     }
     
-    res.json({
+    const result = {
       code: code,
       name: code === 'EUR' ? 'Євро' : 'Долар США',
       rate: rate,
       date: new Date().toISOString().split('T')[0]
-    });
+    };
+    
+    console.log(`Sending result for ${code}:`, result);
+    res.json(result);
   } catch (error) {
-    console.error('Error fetching exchange rate:', error.message);
+    console.error(`Error fetching exchange rate for ${req.params.currencyCode}:`, error.message);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ 
       error: 'Не вдалося отримати курс валюти',
       details: error.message 
