@@ -5,7 +5,6 @@ import {
   Box,
   Card,
   CardContent,
-  CardMedia,
   Grid,
   AppBar,
   Toolbar,
