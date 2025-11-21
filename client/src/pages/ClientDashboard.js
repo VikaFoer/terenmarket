@@ -650,7 +650,7 @@ const ClientDashboard = () => {
                                     Ціна в євро:
                                   </Typography>
                                   <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                                    {product.cost_price_eur ? product.cost_price_eur.toFixed(2) : product.cost_price?.toFixed(2) || '0.00'} €
+                                    {((product.cost_price_eur || product.cost_price || 0) * (product.coefficient || 1.0)).toFixed(2)} €
                                   </Typography>
                                 </Box>
                                 <Box sx={{ 
