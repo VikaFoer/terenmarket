@@ -62,7 +62,8 @@ INSERT OR IGNORE INTO categories (name) VALUES
     ('Фільтри'),
     ('Брукер АХС'),
     ('Лабораторка'),
-    ('Роботи/автоматизація');
+    ('Роботи/автоматизація'),
+    ('Каталоги кольору');
 
 -- Insert default admin user (password: admin123)
 -- Password hash generated with bcrypt (salt rounds: 10)
