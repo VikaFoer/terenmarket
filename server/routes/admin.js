@@ -59,9 +59,9 @@ router.get('/clients/:id', (req, res) => {
   });
 });
 
-// Create new client
+  Create new client
 router.post('/clients', async (req, res) => {
-  const { login, password, email, phone, location, category_ids } = req.body;
+  const { login, password, email, phone, location, company_name, category_ids } = req.body;
   
   if (!login || !password) {
     return res.status(400).json({ error: 'Login and password are required' });
@@ -73,8 +73,8 @@ router.post('/clients', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     
     database.run(
-      'INSERT INTO clients (login, password, email, phone, location) VALUES (?, ?, ?, ?, ?)',
-      [login, hashedPassword, email || null, phone || null, location || null],
+      'INSERT INTO clients (login, password, email, phone, location, company_name) VALUES (?, ?, ?, ?, ?, ?)',
+      [login, hashedPassword, email || null, phone || null, location || null, company_name || null],
       function(err) {
         if (err) {
           if (err.message.includes('UNIQUE constraint')) {
@@ -104,19 +104,19 @@ router.post('/clients', async (req, res) => {
 
 // Update client
 router.put('/clients/:id', async (req, res) => {
-  const { login, password, email, phone, location, category_ids } = req.body;
+  const { login, password, email, phone, location, company_name, category_ids } = req.body;
   const clientId = req.params.id;
   
   const database = db.getDb();
   
   try {
-    let updateQuery = 'UPDATE clients SET login = ?, email = ?, phone = ?, location = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
-    let params = [login, email || null, phone || null, location || null, clientId];
+    let updateQuery = 'UPDATE clients SET login = ?, email = ?, phone = ?, location = ?, company_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
+    let params = [login, email || null, phone || null, location || null, company_name || null, clientId];
     
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
-      updateQuery = 'UPDATE clients SET login = ?, password = ?, email = ?, phone = ?, location = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
-      params = [login, hashedPassword, email || null, phone || null, location || null, clientId];
+      updateQuery = 'UPDATE clients SET login = ?, password = ?, email = ?, phone = ?, location = ?, company_name = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
+      params = [login, hashedPassword, email || null, phone || null, location || null, company_name || null, clientId];
     }
     
     database.run(updateQuery, params, function(err) {

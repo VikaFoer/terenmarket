@@ -169,7 +169,9 @@ const createTables = () => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         login TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
+        company_name TEXT,
         location TEXT,
+        phone TEXT,
         phone TEXT,
         email TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -180,6 +182,15 @@ const createTables = () => {
           reject(err);
         } else {
           console.log('Clients table created/verified');
+          // Add company_name column if it doesn't exist (for existing databases)
+          db.run(`ALTER TABLE clients ADD COLUMN company_name TEXT`, (alterErr) => {
+            // Ignore error if column already exists
+            if (alterErr && !alterErr.message.includes('duplicate column')) {
+              console.error('Error adding company_name column:', alterErr);
+            } else {
+              console.log('company_name column added/verified');
+            }
+          });
         }
       });
 

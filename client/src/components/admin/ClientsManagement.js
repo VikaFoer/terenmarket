@@ -46,6 +46,7 @@ const ClientsManagement = () => {
   const [formData, setFormData] = useState({
     login: '',
     password: '',
+    company_name: '',
     email: '',
     phone: '',
     location: '',
@@ -109,6 +110,7 @@ const ClientsManagement = () => {
       setFormData({
         login: client.login,
         password: '',
+        company_name: client.company_name || '',
         email: client.email || '',
         phone: client.phone || '',
         location: client.location || '',
@@ -119,6 +121,7 @@ const ClientsManagement = () => {
       setFormData({
         login: '',
         password: '',
+        company_name: '',
         email: '',
         phone: '',
         location: '',
@@ -136,6 +139,7 @@ const ClientsManagement = () => {
     setFormData({
       login: '',
       password: '',
+      company_name: '',
       email: '',
       phone: '',
       location: '',
@@ -275,6 +279,7 @@ const ClientsManagement = () => {
             <TableRow>
               <TableCell>ID</TableCell>
               <TableCell>Логін</TableCell>
+              <TableCell>Назва підприємства</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Телефон</TableCell>
               <TableCell>Локація</TableCell>
@@ -287,6 +292,7 @@ const ClientsManagement = () => {
               <TableRow key={client.id}>
                 <TableCell>{client.id}</TableCell>
                 <TableCell>{client.login}</TableCell>
+                <TableCell>{client.company_name || '-'}</TableCell>
                 <TableCell>{client.email || '-'}</TableCell>
                 <TableCell>{client.phone || '-'}</TableCell>
                 <TableCell>{client.location || '-'}</TableCell>
@@ -346,6 +352,15 @@ const ClientsManagement = () => {
             }
             margin="normal"
             required
+          />
+          <TextField
+            fullWidth
+            label="Назва підприємства"
+            value={formData.company_name}
+            onChange={(e) =>
+              setFormData({ ...formData, company_name: e.target.value })
+            }
+            margin="normal"
           />
           <TextField
             fullWidth
