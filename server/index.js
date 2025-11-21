@@ -237,13 +237,14 @@ db.init()
 
           // Serve static files from React app in production
           if (process.env.NODE_ENV === 'production') {
-            // Try multiple possible build paths
+            // Determine build path - server runs from /app/server, so build is at /app/client/build
+            const rootDir = process.cwd(); // Should be /app when running from server/
             const possiblePaths = [
-              path.join(process.cwd(), 'client', 'build'),    // From root (most common)
-              path.join(__dirname, '..', 'client', 'build'),  // Relative from server/
-              path.join('/app', 'client', 'build'),           // Absolute Railway path
-              path.join(process.cwd(), 'build'),               // If build is in root
-              path.join('/app', 'build')                      // Absolute build in root
+              path.join(rootDir, '..', 'client', 'build'),  // /app/client/build (from /app/server)
+              path.join(rootDir, 'client', 'build'),        // If cwd is /app
+              path.join(__dirname, '..', 'client', 'build'), // Relative from server/
+              path.join('/app', 'client', 'build'),         // Absolute Railway path
+              path.join(process.cwd(), 'build')             // If build is in root
             ];
             
             let buildPath = null;
@@ -252,16 +253,28 @@ db.init()
             console.log(`[Production Mode] NODE_ENV: ${process.env.NODE_ENV}`);
             console.log(`[Production Mode] __dirname: ${__dirname}`);
             console.log(`[Production Mode] process.cwd(): ${process.cwd()}`);
+            console.log(`[Production Mode] rootDir: ${rootDir}`);
             
             // Find the correct build path
             for (const testPath of possiblePaths) {
               const testIndexPath = path.join(testPath, 'index.html');
               console.log(`[Production Mode] Checking: ${testPath}`);
-              if (fs.existsSync(testPath) && fs.existsSync(testIndexPath)) {
-                buildPath = testPath;
-                indexPath = testIndexPath;
-                console.log(`✅ Found build directory at: ${buildPath}`);
-                break;
+              try {
+                if (fs.existsSync(testPath)) {
+                  console.log(`  → Directory exists`);
+                  if (fs.existsSync(testIndexPath)) {
+                    buildPath = testPath;
+                    indexPath = testIndexPath;
+                    console.log(`✅ Found build directory at: ${buildPath}`);
+                    break;
+                  } else {
+                    console.log(`  → But index.html missing`);
+                  }
+                } else {
+                  console.log(`  → Directory does not exist`);
+                }
+              } catch (e) {
+                console.log(`  → Error checking: ${e.message}`);
               }
             }
             
