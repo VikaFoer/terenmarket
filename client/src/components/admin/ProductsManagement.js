@@ -60,6 +60,7 @@ const ProductsManagement = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [addingTestProducts, setAddingTestProducts] = useState(false);
+  const [syncingDatabase, setSyncingDatabase] = useState(false);
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
@@ -331,6 +332,47 @@ const ProductsManagement = () => {
     }
   };
 
+  const handleSyncDatabase = async () => {
+    // Створюємо input для вибору файлу
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!window.confirm('Синхронізувати базу даних? Це замінить всі товари, клієнтів та коефіцієнти на Railway.')) {
+        return;
+      }
+
+      setSyncingDatabase(true);
+      setError('');
+      setSuccess('');
+
+      try {
+        const fileContent = await file.text();
+        const exportData = JSON.parse(fileContent);
+
+        const response = await axios.post(`${API_URL}/db-restore`, exportData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        setSuccess(`База даних синхронізована! Імпортовано: ${response.data.imported.products} товарів, ${response.data.imported.clients} клієнтів`);
+        
+        // Оновлюємо список товарів та клієнтів
+        fetchProducts();
+        window.location.reload(); // Перезавантажуємо сторінку для оновлення всіх даних
+      } catch (error) {
+        setError(error.response?.data?.error || error.response?.data?.message || 'Помилка синхронізації бази даних');
+      } finally {
+        setSyncingDatabase(false);
+      }
+    };
+    input.click();
+  };
+
   const getProductPriceForClient = (product, clientId) => {
     const coefficient = productCoefficients.find(
       (c) => c.client_id === clientId && c.product_id === product.id
@@ -342,7 +384,16 @@ const ProductsManagement = () => {
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Typography variant="h4">Управління продуктами</Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          <Button
+            variant="outlined"
+            color="info"
+            onClick={handleSyncDatabase}
+            disabled={syncingDatabase}
+            startIcon={<CloudUploadIcon />}
+          >
+            {syncingDatabase ? 'Синхронізація...' : 'Синхронізувати БД'}
+          </Button>
           <Button
             variant="outlined"
             color="secondary"

@@ -146,6 +146,66 @@ db.init()
       }
     });
 
+    // Database export endpoint - export database to JSON
+    app.get('/api/db-export', async (req, res) => {
+      try {
+        const db = require('./database');
+        const database = db.getDb();
+        
+        const exportData = {
+          clients: [],
+          products: [],
+          categories: [],
+          client_categories: [],
+          client_product_coefficients: []
+        };
+        
+        // Export all data
+        exportData.clients = await new Promise((resolve, reject) => {
+          database.all('SELECT * FROM clients', (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+          });
+        });
+        
+        exportData.products = await new Promise((resolve, reject) => {
+          database.all('SELECT * FROM products', (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+          });
+        });
+        
+        exportData.categories = await new Promise((resolve, reject) => {
+          database.all('SELECT * FROM categories', (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+          });
+        });
+        
+        exportData.client_categories = await new Promise((resolve, reject) => {
+          database.all('SELECT * FROM client_categories', (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+          });
+        });
+        
+        exportData.client_product_coefficients = await new Promise((resolve, reject) => {
+          database.all('SELECT * FROM client_product_coefficients', (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows);
+          });
+        });
+        
+        res.json(exportData);
+      } catch (error) {
+        console.error('Error exporting database:', error);
+        res.status(500).json({
+          error: 'Failed to export database',
+          message: error.message
+        });
+      }
+    });
+
     // Database info endpoint - check if database is in Volume
     app.get('/api/db-info', async (req, res) => {
       const db = require('./database');
