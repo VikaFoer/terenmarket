@@ -7,6 +7,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "import": "node scripts/importExcel.js",
+    "update-company-names": "node scripts/updateCompanyNames.js",
     "add-colourant-images": "node scripts/addColourantImages.js",
     "export-db": "node scripts/exportDatabase.js",
     "import-db": "node scripts/importDatabase.js"

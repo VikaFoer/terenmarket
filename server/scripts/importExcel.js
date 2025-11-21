@@ -280,8 +280,8 @@ const importData = async () => {
         // Оновлюємо дані існуючого клієнта
         await new Promise((resolve, reject) => {
           database.run(
-            'UPDATE clients SET password = ?, email = ?, phone = ?, location = ? WHERE id = ?',
-            [hashedPassword, clientData.email, clientData.phone, clientData.location, clientId],
+            'UPDATE clients SET password = ?, email = ?, phone = ?, location = ?, company_name = ? WHERE id = ?',
+            [hashedPassword, clientData.email, clientData.phone, clientData.location, clientName, clientId],
             function(err) {
               if (err) reject(err);
               else resolve();
@@ -292,8 +292,8 @@ const importData = async () => {
         // Створюємо нового клієнта
         clientId = await new Promise((resolve, reject) => {
           database.run(
-            'INSERT INTO clients (login, password, email, phone, location) VALUES (?, ?, ?, ?, ?)',
-            [login, hashedPassword, clientData.email, clientData.phone, clientData.location],
+            'INSERT INTO clients (login, password, email, phone, location, company_name) VALUES (?, ?, ?, ?, ?, ?)',
+            [login, hashedPassword, clientData.email, clientData.phone, clientData.location, clientName],
             function(err) {
               if (err) {
                 reject(err);
