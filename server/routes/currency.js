@@ -349,35 +349,62 @@ const getRateFromMinfin = async (code) => {
     });
     
     console.log(`[Minfin API] Response status: ${minfinResponse.status}`);
+    console.log(`[Minfin API] Response headers:`, JSON.stringify(minfinResponse.headers));
+    console.log(`[Minfin API] Full response data:`, JSON.stringify(minfinResponse.data, null, 2));
     
     if (minfinResponse.data) {
       const data = minfinResponse.data;
+      console.log(`[Minfin API] Data type: ${Array.isArray(data) ? 'Array' : typeof data}`);
+      console.log(`[Minfin API] Data length/size: ${Array.isArray(data) ? data.length : Object.keys(data).length}`);
+      
       let rate = null;
       
       // Minfin API returns data in format: { id, pointDate, date, ask, bid, currency }
       // We need to filter by currency and calculate average rate
       if (Array.isArray(data)) {
+        console.log(`[Minfin API] Processing array with ${data.length} items`);
+        console.log(`[Minfin API] First item sample:`, JSON.stringify(data[0], null, 2));
+        
         // Find rate for specific currency
         const currencyRate = data.find(r => r.currency === currency);
+        console.log(`[Minfin API] Found currency rate for ${currency}:`, JSON.stringify(currencyRate, null, 2));
+        
         if (currencyRate) {
           // Use average of ask and bid for interbank rate
           if (currencyRate.ask && currencyRate.bid) {
             rate = (parseFloat(currencyRate.ask) + parseFloat(currencyRate.bid)) / 2;
+            console.log(`[Minfin API] Calculated average rate: ask=${currencyRate.ask}, bid=${currencyRate.bid}, avg=${rate}`);
           } else if (currencyRate.ask) {
             rate = parseFloat(currencyRate.ask);
+            console.log(`[Minfin API] Using ask rate: ${rate}`);
           } else if (currencyRate.bid) {
             rate = parseFloat(currencyRate.bid);
+            console.log(`[Minfin API] Using bid rate: ${rate}`);
           }
+        } else {
+          console.warn(`[Minfin API] Currency ${currency} not found in response. Available currencies:`, 
+            data.map(r => r.currency).filter(Boolean));
         }
-      } else if (data.currency === currency) {
-        // Single object response
-        if (data.ask && data.bid) {
-          rate = (parseFloat(data.ask) + parseFloat(data.bid)) / 2;
-        } else if (data.ask) {
-          rate = parseFloat(data.ask);
-        } else if (data.bid) {
-          rate = parseFloat(data.bid);
+      } else if (typeof data === 'object') {
+        console.log(`[Minfin API] Processing single object:`, JSON.stringify(data, null, 2));
+        
+        if (data.currency === currency) {
+          // Single object response
+          if (data.ask && data.bid) {
+            rate = (parseFloat(data.ask) + parseFloat(data.bid)) / 2;
+            console.log(`[Minfin API] Calculated average rate: ask=${data.ask}, bid=${data.bid}, avg=${rate}`);
+          } else if (data.ask) {
+            rate = parseFloat(data.ask);
+            console.log(`[Minfin API] Using ask rate: ${rate}`);
+          } else if (data.bid) {
+            rate = parseFloat(data.bid);
+            console.log(`[Minfin API] Using bid rate: ${rate}`);
+          }
+        } else {
+          console.warn(`[Minfin API] Currency mismatch. Expected: ${currency}, Got: ${data.currency}`);
         }
+      } else {
+        console.warn(`[Minfin API] Unexpected data format:`, typeof data);
       }
       
       if (rate && rate >= 20 && rate <= 100) {
