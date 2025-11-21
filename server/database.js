@@ -172,7 +172,6 @@ const createTables = () => {
         company_name TEXT,
         location TEXT,
         phone TEXT,
-        phone TEXT,
         email TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
