@@ -1,7 +1,10 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const path = require('path');
+const fs = require('fs');
 const db = require('../database');
 const authMiddleware = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
 // Handle both old and new export formats
 const authenticate = authMiddleware.authenticate || authMiddleware;
@@ -380,6 +383,84 @@ router.get('/categories', (req, res) => {
     }
     res.json(categories);
   });
+});
+
+// Upload product image
+router.post('/products/:id/upload-image', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const productId = req.params.id;
+  const database = db.getDb();
+  
+  // Формуємо URL для зображення
+  // В production це буде /api/uploads/images/filename
+  // В development це буде http://localhost:5000/api/uploads/images/filename
+  const imageUrl = `/api/uploads/images/${req.file.filename}`;
+  
+  // Оновлюємо image_url в базі даних
+  database.run(
+    'UPDATE products SET image_url = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+    [imageUrl, productId],
+    function(err) {
+      if (err) {
+        // Видаляємо завантажений файл у разі помилки
+        fs.unlinkSync(req.file.path);
+        return res.status(500).json({ error: err.message });
+      }
+      
+      res.json({
+        message: 'Image uploaded successfully',
+        image_url: imageUrl,
+        filename: req.file.filename
+      });
+    }
+  );
+});
+
+// Delete product image
+router.delete('/products/:id/image', (req, res) => {
+  const productId = req.params.id;
+  const database = db.getDb();
+  
+  // Отримуємо поточне image_url
+  database.get(
+    'SELECT image_url FROM products WHERE id = ?',
+    [productId],
+    function(err, product) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      
+      if (!product) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      
+      // Видаляємо файл з диску, якщо він існує
+      if (product.image_url && product.image_url.startsWith('/api/uploads/images/')) {
+        const filename = path.basename(product.image_url);
+        const filePath = path.join(__dirname, '../uploads/images', filename);
+        
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+      
+      // Оновлюємо image_url на null
+      database.run(
+        'UPDATE products SET image_url = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [productId],
+        function(updateErr) {
+          if (updateErr) {
+            return res.status(500).json({ error: updateErr.message });
+          }
+          
+          res.json({ message: 'Image deleted successfully' });
+        }
+      );
+    }
+  );
 });
 
 module.exports = router;

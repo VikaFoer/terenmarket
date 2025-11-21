@@ -29,6 +29,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
@@ -48,6 +50,9 @@ const ProductsManagement = () => {
     cost_price: '',
     image_url: '',
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [coefficientForm, setCoefficientForm] = useState({
     client_id: '',
     coefficient: '',
@@ -110,6 +115,8 @@ const ProductsManagement = () => {
         cost_price: product.cost_price,
         image_url: product.image_url || '',
       });
+      setImagePreview(product.image_url || null);
+      setSelectedImageFile(null);
     } else {
       setEditingProduct(null);
       setFormData({
@@ -118,6 +125,8 @@ const ProductsManagement = () => {
         cost_price: '',
         image_url: '',
       });
+      setImagePreview(null);
+      setSelectedImageFile(null);
     }
     setOpen(true);
     setError('');
@@ -133,6 +142,8 @@ const ProductsManagement = () => {
       cost_price: '',
       image_url: '',
     });
+    setImagePreview(null);
+    setSelectedImageFile(null);
     setError('');
     setSuccess('');
   };
@@ -155,6 +166,72 @@ const ProductsManagement = () => {
       client_id: '',
       coefficient: '',
     });
+  };
+
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImageFile(file);
+      // Створюємо preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageUpload = async () => {
+    if (!selectedImageFile || !editingProduct) {
+      setError('Виберіть файл та продукт для завантаження');
+      return;
+    }
+
+    setUploadingImage(true);
+    setError('');
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('image', selectedImageFile);
+
+      const response = await axios.post(
+        `${API_URL}/admin/products/${editingProduct.id}/upload-image`,
+        formDataUpload,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      setSuccess('Зображення завантажено успішно');
+      setFormData({ ...formData, image_url: response.data.image_url });
+      setImagePreview(response.data.image_url);
+      setSelectedImageFile(null);
+      fetchProducts();
+    } catch (error) {
+      setError(error.response?.data?.error || 'Помилка завантаження зображення');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleImageDelete = async () => {
+    if (!editingProduct) {
+      setError('Виберіть продукт для видалення зображення');
+      return;
+    }
+
+    try {
+      await axios.delete(`${API_URL}/admin/products/${editingProduct.id}/image`);
+      setSuccess('Зображення видалено успішно');
+      setFormData({ ...formData, image_url: '' });
+      setImagePreview(null);
+      setSelectedImageFile(null);
+      fetchProducts();
+    } catch (error) {
+      setError(error.response?.data?.error || 'Помилка видалення зображення');
+    }
   };
 
   const handleSubmit = async () => {
@@ -351,17 +428,96 @@ const ProductsManagement = () => {
             margin="normal"
             inputProps={{ step: '0.01', min: '0' }}
           />
-          <TextField
-            fullWidth
-            label="URL картинки"
-            value={formData.image_url}
-            onChange={(e) =>
-              setFormData({ ...formData, image_url: e.target.value })
-            }
-            margin="normal"
-            placeholder="https://example.com/image.jpg або залиште порожнім для placeholder"
-            helperText="Якщо порожнє, буде використано placeholder на основі назви товару"
-          />
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <Typography variant="subtitle2" gutterBottom>
+              Зображення товару
+            </Typography>
+            
+            {/* Preview зображення */}
+            {(imagePreview || formData.image_url) && (
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+                <img
+                  src={imagePreview || formData.image_url}
+                  alt="Preview"
+                  style={{
+                    maxWidth: '200px',
+                    maxHeight: '200px',
+                    objectFit: 'contain',
+                    border: '1px solid #ddd',
+                    borderRadius: '4px',
+                    padding: '4px'
+                  }}
+                  onError={(e) => {
+                    e.target.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23ddd' width='200' height='200'/%3E%3Ctext fill='%23999' font-family='sans-serif' font-size='14' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3EЗображення не знайдено%3C/text%3E%3C/svg%3E`;
+                  }}
+                />
+                {editingProduct && formData.image_url && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    startIcon={<DeleteForeverIcon />}
+                    onClick={handleImageDelete}
+                  >
+                    Видалити
+                  </Button>
+                )}
+              </Box>
+            )}
+            
+            {/* Завантаження файлу */}
+            {editingProduct && (
+              <Box sx={{ mb: 2 }}>
+                <input
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  id="image-upload"
+                  type="file"
+                  onChange={handleImageSelect}
+                />
+                <label htmlFor="image-upload">
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    startIcon={<CloudUploadIcon />}
+                    disabled={uploadingImage}
+                    sx={{ mr: 1 }}
+                  >
+                    {uploadingImage ? 'Завантаження...' : 'Вибрати файл'}
+                  </Button>
+                </label>
+                {selectedImageFile && (
+                  <Button
+                    variant="contained"
+                    onClick={handleImageUpload}
+                    disabled={uploadingImage}
+                    sx={{ ml: 1 }}
+                  >
+                    Завантажити
+                  </Button>
+                )}
+                {selectedImageFile && (
+                  <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                    Вибрано: {selectedImageFile.name}
+                  </Typography>
+                )}
+              </Box>
+            )}
+            
+            {/* URL картинки (для ручного введення) */}
+            <TextField
+              fullWidth
+              label="URL картинки"
+              value={formData.image_url}
+              onChange={(e) => {
+                setFormData({ ...formData, image_url: e.target.value });
+                setImagePreview(e.target.value || null);
+              }}
+              margin="normal"
+              placeholder="https://example.com/image.jpg або залиште порожнім для placeholder"
+              helperText="Можна ввести URL вручну або завантажити файл (тільки для існуючих товарів)"
+            />
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Скасувати</Button>

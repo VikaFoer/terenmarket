@@ -40,6 +40,14 @@ db.init()
     app.use('/api/admin', adminRoutes);
     app.use('/api/client', clientRoutes);
     app.use('/api/currency', currencyRoutes);
+    
+    // Serve uploaded images
+    const uploadsPath = path.join(__dirname, 'uploads', 'images');
+    if (fs.existsSync(uploadsPath)) {
+      app.use('/api/uploads/images', express.static(uploadsPath));
+      console.log('✅ Uploaded images served from:', uploadsPath);
+    }
+    
     console.log('✅ API routes registered');
 
     // Health check
