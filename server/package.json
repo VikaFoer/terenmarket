@@ -9,6 +9,7 @@
     "import": "node scripts/importExcel.js",
     "update-company-names": "node scripts/updateCompanyNames.js",
     "add-colourant-images": "node scripts/addColourantImages.js",
+    "add-test-products": "node scripts/addTestProducts.js",
     "export-db": "node scripts/exportDatabase.js",
     "import-db": "node scripts/importDatabase.js"
   },
