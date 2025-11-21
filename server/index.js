@@ -237,18 +237,46 @@ db.init()
 
           // Serve static files from React app in production
           if (process.env.NODE_ENV === 'production') {
-            const buildPath = path.join(__dirname, '..', 'client', 'build');
-            const indexPath = path.join(buildPath, 'index.html');
+            // Try multiple possible build paths
+            const possiblePaths = [
+              path.join(__dirname, '..', 'client', 'build'),  // Relative from server/
+              path.join(process.cwd(), 'client', 'build'),    // From root
+              path.join('/app', 'client', 'build'),           // Absolute Railway path
+              path.join(process.cwd(), 'build')               // If build is in root
+            ];
             
-            console.log(`[Production Mode] Checking build directory at: ${buildPath}`);
+            let buildPath = null;
+            let indexPath = null;
+            
             console.log(`[Production Mode] NODE_ENV: ${process.env.NODE_ENV}`);
             console.log(`[Production Mode] __dirname: ${__dirname}`);
+            console.log(`[Production Mode] process.cwd(): ${process.cwd()}`);
+            
+            // Find the correct build path
+            for (const testPath of possiblePaths) {
+              const testIndexPath = path.join(testPath, 'index.html');
+              console.log(`[Production Mode] Checking: ${testPath}`);
+              if (fs.existsSync(testPath) && fs.existsSync(testIndexPath)) {
+                buildPath = testPath;
+                indexPath = testIndexPath;
+                console.log(`✅ Found build directory at: ${buildPath}`);
+                break;
+              }
+            }
             
             // Check if build directory exists
-            if (!fs.existsSync(buildPath)) {
-              console.error(`❌ ERROR: Build directory not found at ${buildPath}`);
+            if (!buildPath || !fs.existsSync(buildPath)) {
+              console.error(`❌ ERROR: Build directory not found in any of the checked locations`);
+              console.error(`Checked paths:`, possiblePaths);
               console.error(`Current working directory: ${process.cwd()}`);
-              console.error(`Directory contents:`, fs.readdirSync(path.join(__dirname, '..')).join(', '));
+              try {
+                console.error(`Root directory contents:`, fs.readdirSync(process.cwd()).join(', '));
+                if (fs.existsSync(path.join(process.cwd(), 'client'))) {
+                  console.error(`Client directory contents:`, fs.readdirSync(path.join(process.cwd(), 'client')).join(', '));
+                }
+              } catch (e) {
+                console.error(`Error reading directories:`, e.message);
+              }
               
               // Still serve a helpful error page instead of crashing
               app.get('*', (req, res) => {
@@ -257,10 +285,11 @@ db.init()
                 }
                 res.status(500).json({ 
                   error: 'Frontend build not found',
-                  message: `Build directory missing at ${buildPath}. Please ensure the frontend is built before deployment.`,
-                  buildPath: buildPath,
+                  message: 'Build directory missing. Please ensure the frontend is built before deployment.',
+                  checkedPaths: possiblePaths,
                   cwd: process.cwd(),
-                  nodeEnv: process.env.NODE_ENV
+                  nodeEnv: process.env.NODE_ENV,
+                  __dirname: __dirname
                 });
               });
             } else {
