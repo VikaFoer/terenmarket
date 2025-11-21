@@ -59,6 +59,7 @@ const ProductsManagement = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [addingTestProducts, setAddingTestProducts] = useState(false);
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
@@ -310,6 +311,26 @@ const ProductsManagement = () => {
     }
   };
 
+  const handleAddTestProducts = async () => {
+    if (!window.confirm('Додати тестові товари для всіх категорій? Це додасть близько 37 товарів.')) {
+      return;
+    }
+
+    setAddingTestProducts(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await axios.post(`${API_URL}/admin/products/add-test-products`);
+      setSuccess(response.data.message || `Додано ${response.data.added} товарів`);
+      fetchProducts();
+    } catch (error) {
+      setError(error.response?.data?.error || 'Помилка додавання тестових товарів');
+    } finally {
+      setAddingTestProducts(false);
+    }
+  };
+
   const getProductPriceForClient = (product, clientId) => {
     const coefficient = productCoefficients.find(
       (c) => c.client_id === clientId && c.product_id === product.id
@@ -319,15 +340,25 @@ const ProductsManagement = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Typography variant="h4">Управління продуктами</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpen()}
-        >
-          Додати продукт
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleAddTestProducts}
+            disabled={addingTestProducts}
+          >
+            {addingTestProducts ? 'Додавання...' : 'Додати тестові товари'}
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpen()}
+          >
+            Додати продукт
+          </Button>
+        </Box>
       </Box>
 
       {error && (
