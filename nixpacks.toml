@@ -9,7 +9,7 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "cd client && CI=false npm run build || (echo 'Build failed but continuing...' && exit 0)"
+  "cd client && CI=false GENERATE_SOURCEMAP=false npm run build"
 ]
 
 [start]

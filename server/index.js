@@ -238,27 +238,93 @@ db.init()
           // Serve static files from React app in production
           if (process.env.NODE_ENV === 'production') {
             const buildPath = path.join(__dirname, '..', 'client', 'build');
+            const indexPath = path.join(buildPath, 'index.html');
+            
+            console.log(`[Production Mode] Checking build directory at: ${buildPath}`);
+            console.log(`[Production Mode] NODE_ENV: ${process.env.NODE_ENV}`);
+            console.log(`[Production Mode] __dirname: ${__dirname}`);
             
             // Check if build directory exists
             if (!fs.existsSync(buildPath)) {
-              console.warn(`Warning: Build directory not found at ${buildPath}. Make sure to build the frontend before starting the server.`);
-            } else {
-              // Serve static files (CSS, JS, images, etc.)
-              app.use(express.static(buildPath));
+              console.error(`❌ ERROR: Build directory not found at ${buildPath}`);
+              console.error(`Current working directory: ${process.cwd()}`);
+              console.error(`Directory contents:`, fs.readdirSync(path.join(__dirname, '..')).join(', '));
               
-              // Serve React app for all non-API routes (MUST be last)
-              app.get('*', (req, res, next) => {
-                // Don't serve React app for API routes
+              // Still serve a helpful error page instead of crashing
+              app.get('*', (req, res) => {
                 if (req.path.startsWith('/api')) {
                   return res.status(404).json({ error: 'API endpoint not found', path: req.path });
                 }
-                res.sendFile(path.join(buildPath, 'index.html'), (err) => {
-                  if (err) {
-                    console.error('Error serving index.html:', err);
-                    res.status(500).json({ error: 'Failed to serve frontend' });
-                  }
+                res.status(500).json({ 
+                  error: 'Frontend build not found',
+                  message: `Build directory missing at ${buildPath}. Please ensure the frontend is built before deployment.`,
+                  buildPath: buildPath,
+                  cwd: process.cwd(),
+                  nodeEnv: process.env.NODE_ENV
                 });
               });
+            } else {
+              console.log(`✅ Build directory found at: ${buildPath}`);
+              
+              // Check if index.html exists
+              if (!fs.existsSync(indexPath)) {
+                console.error(`❌ ERROR: index.html not found at ${indexPath}`);
+                app.get('*', (req, res) => {
+                  if (req.path.startsWith('/api')) {
+                    return res.status(404).json({ error: 'API endpoint not found', path: req.path });
+                  }
+                  res.status(500).json({ 
+                    error: 'Frontend index.html not found',
+                    message: `index.html missing at ${indexPath}`,
+                    indexPath: indexPath
+                  });
+                });
+              } else {
+                console.log(`✅ index.html found at: ${indexPath}`);
+                
+                // Serve static files (CSS, JS, images, etc.)
+                app.use(express.static(buildPath, {
+                  dotfiles: 'ignore',
+                  etag: true,
+                  extensions: false,
+                  fallthrough: true,
+                  immutable: false,
+                  index: false,
+                  lastModified: true,
+                  maxAge: 0,
+                  redirect: false,
+                  setHeaders: (res, path) => {
+                    // Set cache headers for static assets
+                    if (path.endsWith('.html')) {
+                      res.setHeader('Cache-Control', 'no-cache');
+                    }
+                  }
+                }));
+                
+                // Serve React app for all non-API routes (MUST be last)
+                app.get('*', (req, res, next) => {
+                  // Don't serve React app for API routes
+                  if (req.path.startsWith('/api')) {
+                    return res.status(404).json({ error: 'API endpoint not found', path: req.path });
+                  }
+                  
+                  console.log(`[Frontend] Serving index.html for path: ${req.path}`);
+                  res.sendFile(indexPath, (err) => {
+                    if (err) {
+                      console.error(`❌ Error serving index.html for ${req.path}:`, err);
+                      if (!res.headersSent) {
+                        res.status(500).json({ 
+                          error: 'Failed to serve frontend',
+                          path: req.path,
+                          message: err.message
+                        });
+                      }
+                    } else {
+                      console.log(`✅ Successfully served index.html for ${req.path}`);
+                    }
+                  });
+                });
+              }
             }
           } else {
       // Development mode - show API info
