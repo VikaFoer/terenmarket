@@ -9,15 +9,22 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "cd client && NODE_OPTIONS='--max-old-space-size=4096' CI=false GENERATE_SOURCEMAP=false INLINE_RUNTIME_CHUNK=false npm run build",
-  "echo '=== Build verification ==='",
-  "ls -la client/build/ 2>&1 || echo 'Build directory not found'",
-  "test -f client/build/index.html && echo '✅ index.html exists' || echo '❌ index.html NOT FOUND'",
-  "echo '=== Current directory structure ==='",
+  "echo '=== Starting build phase ==='",
   "pwd",
-  "ls -la 2>&1 | head -20",
-  "echo '=== Client directory ==='",
-  "ls -la client/ 2>&1 | head -20"
+  "ls -la",
+  "echo '=== Installing client dependencies ==='",
+  "cd client && npm install --legacy-peer-deps || npm install",
+  "echo '=== Building React app ==='",
+  "cd client && NODE_OPTIONS='--max-old-space-size=4096' CI=false GENERATE_SOURCEMAP=false INLINE_RUNTIME_CHUNK=false npm run build",
+  "echo '=== Build completed, verifying ==='",
+  "cd ..",
+  "pwd",
+  "ls -la",
+  "echo '=== Checking build directory ==='",
+  "test -d client/build && echo '✅ client/build directory exists' || echo '❌ client/build directory NOT FOUND'",
+  "test -f client/build/index.html && echo '✅ index.html exists' || echo '❌ index.html NOT FOUND'",
+  "ls -la client/build/ 2>&1 | head -10 || echo 'Cannot list build directory'",
+  "echo '=== Build verification complete ==='"
 ]
 
 [start]
