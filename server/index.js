@@ -237,56 +237,27 @@ db.init()
 
           // Serve static files from React app in production
           if (process.env.NODE_ENV === 'production') {
-            // Determine build path - server runs from /app/server, so build is at /app/client/build
-            const rootDir = process.cwd(); // Should be /app when running from server/
-            const possiblePaths = [
-              path.join(rootDir, '..', 'client', 'build'),  // /app/client/build (from /app/server)
-              path.join(rootDir, 'client', 'build'),        // If cwd is /app
-              path.join(__dirname, '..', 'client', 'build'), // Relative from server/
-              path.join('/app', 'client', 'build'),         // Absolute Railway path
-              path.join(process.cwd(), 'build')             // If build is in root
-            ];
-            
-            let buildPath = null;
-            let indexPath = null;
+            // Build path: server runs from server/ directory, so build is at ../client/build
+            // This resolves to /app/client/build on Railway when running from /app/server
+            const buildPath = path.join(__dirname, '..', 'client', 'build');
+            const indexPath = path.join(buildPath, 'index.html');
             
             console.log(`[Production Mode] NODE_ENV: ${process.env.NODE_ENV}`);
             console.log(`[Production Mode] __dirname: ${__dirname}`);
             console.log(`[Production Mode] process.cwd(): ${process.cwd()}`);
-            console.log(`[Production Mode] rootDir: ${rootDir}`);
-            
-            // Find the correct build path
-            for (const testPath of possiblePaths) {
-              const testIndexPath = path.join(testPath, 'index.html');
-              console.log(`[Production Mode] Checking: ${testPath}`);
-              try {
-                if (fs.existsSync(testPath)) {
-                  console.log(`  → Directory exists`);
-                  if (fs.existsSync(testIndexPath)) {
-                    buildPath = testPath;
-                    indexPath = testIndexPath;
-                    console.log(`✅ Found build directory at: ${buildPath}`);
-                    break;
-                  } else {
-                    console.log(`  → But index.html missing`);
-                  }
-                } else {
-                  console.log(`  → Directory does not exist`);
-                }
-              } catch (e) {
-                console.log(`  → Error checking: ${e.message}`);
-              }
-            }
+            console.log(`[Production Mode] Build path: ${buildPath}`);
+            console.log(`[Production Mode] Index path: ${indexPath}`);
             
             // Check if build directory exists
-            if (!buildPath || !fs.existsSync(buildPath)) {
-              console.error(`❌ ERROR: Build directory not found in any of the checked locations`);
-              console.error(`Checked paths:`, possiblePaths);
+            if (!fs.existsSync(buildPath)) {
+              console.error(`❌ ERROR: Build directory not found at ${buildPath}`);
               console.error(`Current working directory: ${process.cwd()}`);
               try {
-                console.error(`Root directory contents:`, fs.readdirSync(process.cwd()).join(', '));
-                if (fs.existsSync(path.join(process.cwd(), 'client'))) {
-                  console.error(`Client directory contents:`, fs.readdirSync(path.join(process.cwd(), 'client')).join(', '));
+                const rootDir = path.join(__dirname, '..');
+                console.error(`Root directory: ${rootDir}`);
+                console.error(`Root directory contents:`, fs.readdirSync(rootDir).join(', '));
+                if (fs.existsSync(path.join(rootDir, 'client'))) {
+                  console.error(`Client directory contents:`, fs.readdirSync(path.join(rootDir, 'client')).join(', '));
                 }
               } catch (e) {
                 console.error(`Error reading directories:`, e.message);
@@ -299,75 +270,52 @@ db.init()
                 }
                 res.status(500).json({ 
                   error: 'Frontend build not found',
-                  message: 'Build directory missing. Please ensure the frontend is built before deployment.',
-                  checkedPaths: possiblePaths,
+                  message: `Build directory missing at ${buildPath}. Please ensure the frontend is built before deployment.`,
+                  buildPath: buildPath,
                   cwd: process.cwd(),
-                  nodeEnv: process.env.NODE_ENV,
                   __dirname: __dirname
+                });
+              });
+            } else if (!fs.existsSync(indexPath)) {
+              console.error(`❌ ERROR: index.html not found at ${indexPath}`);
+              app.get('*', (req, res) => {
+                if (req.path.startsWith('/api')) {
+                  return res.status(404).json({ error: 'API endpoint not found', path: req.path });
+                }
+                res.status(500).json({ 
+                  error: 'Frontend index.html not found',
+                  message: `index.html missing at ${indexPath}`,
+                  indexPath: indexPath
                 });
               });
             } else {
               console.log(`✅ Build directory found at: ${buildPath}`);
+              console.log(`✅ index.html found at: ${indexPath}`);
               
-              // Check if index.html exists
-              if (!fs.existsSync(indexPath)) {
-                console.error(`❌ ERROR: index.html not found at ${indexPath}`);
-                app.get('*', (req, res) => {
-                  if (req.path.startsWith('/api')) {
-                    return res.status(404).json({ error: 'API endpoint not found', path: req.path });
-                  }
-                  res.status(500).json({ 
-                    error: 'Frontend index.html not found',
-                    message: `index.html missing at ${indexPath}`,
-                    indexPath: indexPath
-                  });
-                });
-              } else {
-                console.log(`✅ index.html found at: ${indexPath}`);
+              // Serve static files (CSS, JS, images, etc.)
+              app.use(express.static(buildPath));
+              
+              // Serve React app for all non-API routes (MUST be last)
+              app.get('*', (req, res) => {
+                // Don't serve React app for API routes
+                if (req.path.startsWith('/api')) {
+                  return res.status(404).json({ error: 'API endpoint not found', path: req.path });
+                }
                 
-                // Serve static files (CSS, JS, images, etc.)
-                app.use(express.static(buildPath, {
-                  dotfiles: 'ignore',
-                  etag: true,
-                  extensions: false,
-                  fallthrough: true,
-                  immutable: false,
-                  index: false,
-                  lastModified: true,
-                  maxAge: 0,
-                  redirect: false,
-                  setHeaders: (res, path) => {
-                    // Set cache headers for static assets
-                    if (path.endsWith('.html')) {
-                      res.setHeader('Cache-Control', 'no-cache');
+                // Serve index.html for all other routes (React Router will handle routing)
+                res.sendFile(indexPath, (err) => {
+                  if (err) {
+                    console.error(`Error serving index.html for ${req.path}:`, err);
+                    if (!res.headersSent) {
+                      res.status(500).json({ 
+                        error: 'Failed to serve frontend',
+                        path: req.path,
+                        message: err.message
+                      });
                     }
                   }
-                }));
-                
-                // Serve React app for all non-API routes (MUST be last)
-                app.get('*', (req, res, next) => {
-                  // Don't serve React app for API routes
-                  if (req.path.startsWith('/api')) {
-                    return res.status(404).json({ error: 'API endpoint not found', path: req.path });
-                  }
-                  
-                  console.log(`[Frontend] Serving index.html for path: ${req.path}`);
-                  res.sendFile(indexPath, (err) => {
-                    if (err) {
-                      console.error(`❌ Error serving index.html for ${req.path}:`, err);
-                      if (!res.headersSent) {
-                        res.status(500).json({ 
-                          error: 'Failed to serve frontend',
-                          path: req.path,
-                          message: err.message
-                        });
-                      }
-                    } else {
-                      console.log(`✅ Successfully served index.html for ${req.path}`);
-                    }
-                  });
                 });
-              }
+              });
             }
           } else {
       // Development mode - show API info

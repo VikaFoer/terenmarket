@@ -9,23 +9,12 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "echo '=== Starting build phase ==='",
-  "pwd",
-  "ls -la",
   "echo '=== Building React app ==='",
-  "cd client && NODE_OPTIONS='--max-old-space-size=4096' CI=false GENERATE_SOURCEMAP=false INLINE_RUNTIME_CHUNK=false npm run build || (echo 'Build failed!' && exit 1)",
-  "echo '=== Build completed, verifying ==='",
-  "cd ..",
-  "pwd",
-  "ls -la",
-  "echo '=== Checking build directory ==='",
-  "test -d client/build && echo '✅ client/build directory exists' || (echo '❌ client/build directory NOT FOUND' && exit 1)",
-  "test -f client/build/index.html && echo '✅ index.html exists' || (echo '❌ index.html NOT FOUND' && exit 1)",
-  "ls -la client/build/ 2>&1 | head -10",
-  "echo '=== Build verification complete ==='",
-  "echo '=== Final structure check ==='",
-  "find . -name 'index.html' -type f 2>/dev/null | head -5",
-  "du -sh client/build 2>/dev/null || echo 'Cannot check build size'"
+  "cd client && npm install",
+  "cd client && NODE_OPTIONS='--max-old-space-size=4096' CI=false GENERATE_SOURCEMAP=false npm run build",
+  "echo '=== Build verification ==='",
+  "test -d client/build && echo '✅ Build directory exists' || (echo '❌ Build directory missing' && exit 1)",
+  "test -f client/build/index.html && echo '✅ index.html exists' || (echo '❌ index.html missing' && exit 1)"
 ]
 
 [start]

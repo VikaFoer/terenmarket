@@ -4,15 +4,14 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "cd server && NODE_ENV=production node index.js",
+    "startCommand": "npm start",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   },
   "variables": {
     "NODE_ENV": "production",
     "CI": "false",
-    "GENERATE_SOURCEMAP": "false",
-    "INLINE_RUNTIME_CHUNK": "false"
+    "GENERATE_SOURCEMAP": "false"
   }
 }
 

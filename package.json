@@ -4,6 +4,8 @@
   "description": "Internet shop with unique pricing per client",
   "main": "server/index.js",
   "scripts": {
+    "build": "cd client && npm install && CI=false GENERATE_SOURCEMAP=false npm run build",
+    "start": "cd server && NODE_ENV=production node index.js",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && nodemon index.js",
     "client": "cd client && npm start",
