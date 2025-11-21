@@ -59,7 +59,7 @@ router.get('/clients/:id', (req, res) => {
   });
 });
 
-  Create new client
+// Create new client
 router.post('/clients', async (req, res) => {
   const { login, password, email, phone, location, company_name, category_ids } = req.body;
   
