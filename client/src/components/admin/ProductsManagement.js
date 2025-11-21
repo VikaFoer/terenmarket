@@ -717,7 +717,7 @@ const ProductsManagement = () => {
                       {(
                         (selectedProduct?.cost_price || 0) * coef.coefficient
                       ).toFixed(2)}{' '}
-                      грн
+                      €
                     </TableCell>
                     <TableCell align="right">
                       <IconButton
