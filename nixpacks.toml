@@ -9,7 +9,15 @@ cmds = [
 
 [phases.build]
 cmds = [
-  "cd client && NODE_OPTIONS='--max-old-space-size=4096' CI=false GENERATE_SOURCEMAP=false INLINE_RUNTIME_CHUNK=false npm run build"
+  "cd client && NODE_OPTIONS='--max-old-space-size=4096' CI=false GENERATE_SOURCEMAP=false INLINE_RUNTIME_CHUNK=false npm run build",
+  "echo '=== Build verification ==='",
+  "ls -la client/build/ 2>&1 || echo 'Build directory not found'",
+  "test -f client/build/index.html && echo '✅ index.html exists' || echo '❌ index.html NOT FOUND'",
+  "echo '=== Current directory structure ==='",
+  "pwd",
+  "ls -la 2>&1 | head -20",
+  "echo '=== Client directory ==='",
+  "ls -la client/ 2>&1 | head -20"
 ]
 
 [start]
