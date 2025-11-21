@@ -203,6 +203,7 @@ const ClientDashboard = () => {
         name: product.name,
         price: product.price,
         cost_price_eur: product.cost_price_eur || product.cost_price,
+        coefficient: product.coefficient || 1.0,
         quantity: 1,
         image_url: product.image_url
       }]);

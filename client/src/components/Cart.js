@@ -86,7 +86,7 @@ const Cart = ({ open, onClose, cartItems, onUpdateQuantity, onRemoveItem, onClea
                           mb: 0.5,
                         }}
                       >
-                        {item.cost_price_eur ? `${item.cost_price_eur.toFixed(2)} €` : (item.cost_price ? `${item.cost_price.toFixed(2)} €` : '')} за од.
+                        {((item.cost_price_eur || item.cost_price || 0) * (item.coefficient || 1.0)).toFixed(2)} € за од.
                       </Typography>
                       <Typography 
                         variant="body2" 
