@@ -278,8 +278,8 @@ const ClientsManagement = () => {
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>Логін</TableCell>
               <TableCell>Назва підприємства</TableCell>
+              <TableCell>Логін</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Телефон</TableCell>
               <TableCell>Локація</TableCell>
@@ -291,8 +291,8 @@ const ClientsManagement = () => {
             {clients.map((client) => (
               <TableRow key={client.id}>
                 <TableCell>{client.id}</TableCell>
+                <TableCell><strong>{client.company_name || '-'}</strong></TableCell>
                 <TableCell>{client.login}</TableCell>
-                <TableCell>{client.company_name || '-'}</TableCell>
                 <TableCell>{client.email || '-'}</TableCell>
                 <TableCell>{client.phone || '-'}</TableCell>
                 <TableCell>{client.location || '-'}</TableCell>

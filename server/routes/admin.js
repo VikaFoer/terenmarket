@@ -31,7 +31,7 @@ router.get('/clients', (req, res) => {
     FROM clients c
     LEFT JOIN client_categories cc ON c.id = cc.client_id
     GROUP BY c.id
-    ORDER BY c.created_at DESC
+    ORDER BY COALESCE(c.company_name, c.login) ASC
   `, (err, clients) => {
     if (err) {
       return res.status(500).json({ error: err.message });
