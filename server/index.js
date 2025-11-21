@@ -239,10 +239,11 @@ db.init()
           if (process.env.NODE_ENV === 'production') {
             // Try multiple possible build paths
             const possiblePaths = [
+              path.join(process.cwd(), 'client', 'build'),    // From root (most common)
               path.join(__dirname, '..', 'client', 'build'),  // Relative from server/
-              path.join(process.cwd(), 'client', 'build'),    // From root
               path.join('/app', 'client', 'build'),           // Absolute Railway path
-              path.join(process.cwd(), 'build')               // If build is in root
+              path.join(process.cwd(), 'build'),               // If build is in root
+              path.join('/app', 'build')                      // Absolute build in root
             ];
             
             let buildPath = null;
