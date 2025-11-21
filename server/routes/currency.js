@@ -179,10 +179,128 @@ const parseUdinformRates = (html) => {
   return rates;
 };
 
-// Helper function to get rate from NBU API (more reliable)
-const getRateFromNBU = async (code) => {
+// Parse HTML to extract exchange rates from Minfin.com.ua
+const parseMinfinRates = (html) => {
+  const rates = {};
+  
+  if (!html || typeof html !== 'string') {
+    console.error('Invalid HTML provided to parseMinfinRates');
+    return rates;
+  }
+  
+  // Remove script and style tags
+  const cleanHtml = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+                         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+                         .replace(/<!--[\s\S]*?-->/g, '');
+  
+  console.log('Parsing Minfin HTML, length:', cleanHtml.length);
+  
+  // Look for interbank rates in Minfin format
+  // Minfin displays rates in format like "48,7374" or "48.7374"
+  const eurPatterns = [
+    /EUR[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
+    /євро[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
+    /ЄВРО[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
+    /міжбанк[^<>\n]{0,200}?EUR[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
+    /міжбанк[^<>\n]{0,200}?євро[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi
+  ];
+  
+  const usdPatterns = [
+    /USD[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
+    /долар[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
+    /ДОЛАР[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
+    /міжбанк[^<>\n]{0,200}?USD[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
+    /міжбанк[^<>\n]{0,200}?долар[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi
+  ];
+  
+  // Try to find EUR rate
+  for (const pattern of eurPatterns) {
+    const matches = [...cleanHtml.matchAll(pattern)];
+    for (const match of matches) {
+      const rate = parseFloat(match[1].replace(',', '.'));
+      if (rate >= 20 && rate <= 100) {
+        rates.EUR = rate;
+        console.log('Found EUR rate from Minfin:', rates.EUR);
+        break;
+      }
+    }
+    if (rates.EUR) break;
+  }
+  
+  // Try to find USD rate
+  for (const pattern of usdPatterns) {
+    const matches = [...cleanHtml.matchAll(pattern)];
+    for (const match of matches) {
+      const rate = parseFloat(match[1].replace(',', '.'));
+      if (rate >= 20 && rate <= 100) {
+        rates.USD = rate;
+        console.log('Found USD rate from Minfin:', rates.USD);
+        break;
+      }
+    }
+    if (rates.USD) break;
+  }
+  
+  // Alternative: look for data attributes or JSON in page
+  const jsonMatch = cleanHtml.match(/window\.__INITIAL_STATE__\s*=\s*({.+?});/);
+  if (jsonMatch) {
+    try {
+      const data = JSON.parse(jsonMatch[1]);
+      // Try to extract rates from JSON structure
+      if (data.currency && data.currency.rates) {
+        const currencyRates = data.currency.rates;
+        if (currencyRates.eur && !rates.EUR) {
+          rates.EUR = parseFloat(currencyRates.eur);
+        }
+        if (currencyRates.usd && !rates.USD) {
+          rates.USD = parseFloat(currencyRates.usd);
+        }
+      }
+    } catch (e) {
+      console.log('Could not parse JSON from Minfin page');
+    }
+  }
+  
+  console.log('Final Minfin parsed rates:', rates);
+  return rates;
+};
+
+// Helper function to get rate from Minfin (primary) or NBU (fallback)
+const getRateFromMinfin = async (code) => {
   try {
-    // NBU API endpoint
+    // Minfin interbank archive page
+    const currency = code.toLowerCase();
+    const today = new Date();
+    const dateStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
+    
+    const minfinUrl = `https://minfin.com.ua/ua/currency/mb/archive/${currency}/${dateStr}/`;
+    console.log(`[Minfin] Fetching from: ${minfinUrl}`);
+    
+    const minfinResponse = await axios.get(minfinUrl, {
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'uk-UA,uk;q=0.9,en;q=0.8'
+      },
+      httpsAgent: httpsAgent
+    });
+    
+    if (minfinResponse.data) {
+      const rates = parseMinfinRates(minfinResponse.data);
+      const rate = rates[code];
+      
+      if (rate) {
+        console.log(`[Minfin] Found ${code} rate:`, rate);
+        return rate;
+      }
+    }
+  } catch (error) {
+    console.log(`[Minfin] Failed for ${code}, trying NBU API...`, error.message);
+  }
+  
+  // Fallback to NBU API
+  try {
     const nbuCode = code === 'EUR' ? 'EUR' : 'USD';
     const nbuResponse = await axios.get(`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=${nbuCode}&json`, {
       timeout: 5000,
@@ -195,64 +313,87 @@ const getRateFromNBU = async (code) => {
       return rate;
     }
   } catch (error) {
-    console.log(`[NBU API] Failed for ${code}, trying udinform.com...`);
+    console.log(`[NBU API] Failed for ${code}`);
   }
+  
   return null;
 };
 
-// Get exchange rates from NBU API (primary) or udinform.com (fallback)
+// Get exchange rates from Minfin (primary) or NBU (fallback)
 // IMPORTANT: This route must be registered BEFORE /rates/:currencyCode
 router.get('/rates', async (req, res) => {
   try {
     console.log('[Currency API] GET /rates - fetching all rates...');
     const rates = {};
     
-    // Try NBU API first
+    // Try Minfin first
     try {
-      const eurResponse = await axios.get('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=EUR&json', {
-        timeout: 5000,
-        httpsAgent: httpsAgent
-      });
-      if (eurResponse.data && eurResponse.data.length > 0) {
-        rates.EUR = eurResponse.data[0].rate;
-        console.log('[NBU API] EUR rate:', rates.EUR);
-      }
+      const today = new Date();
+      const dateStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
       
-      const usdResponse = await axios.get('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=USD&json', {
-        timeout: 5000,
-        httpsAgent: httpsAgent
-      });
-      if (usdResponse.data && usdResponse.data.length > 0) {
-        rates.USD = usdResponse.data[0].rate;
-        console.log('[NBU API] USD rate:', rates.USD);
-      }
-    } catch (nbuError) {
-      console.log('[NBU API] Failed, trying udinform.com...', nbuError.message);
-    }
-    
-    // Fallback to udinform.com if NBU didn't return both rates
-    if (!rates.EUR || !rates.USD) {
-      try {
-        const response = await axios.get('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', {
+      const eurUrl = `https://minfin.com.ua/ua/currency/mb/archive/eur/${dateStr}/`;
+      const usdUrl = `https://minfin.com.ua/ua/currency/mb/archive/usd/${dateStr}/`;
+      
+      const [eurResponse, usdResponse] = await Promise.allSettled([
+        axios.get(eurUrl, {
           timeout: 10000,
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
           },
           httpsAgent: httpsAgent
+        }),
+        axios.get(usdUrl, {
+          timeout: 10000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+          },
+          httpsAgent: httpsAgent
+        })
+      ]);
+      
+      if (eurResponse.status === 'fulfilled' && eurResponse.value.data) {
+        const eurRates = parseMinfinRates(eurResponse.value.data);
+        if (eurRates.EUR) {
+          rates.EUR = eurRates.EUR;
+          console.log('[Minfin] EUR rate:', rates.EUR);
+        }
+      }
+      
+      if (usdResponse.status === 'fulfilled' && usdResponse.value.data) {
+        const usdRates = parseMinfinRates(usdResponse.value.data);
+        if (usdRates.USD) {
+          rates.USD = usdRates.USD;
+          console.log('[Minfin] USD rate:', rates.USD);
+        }
+      }
+    } catch (minfinError) {
+      console.log('[Minfin] Failed, trying NBU API...', minfinError.message);
+    }
+    
+    // Fallback to NBU API if Minfin didn't return both rates
+    if (!rates.EUR || !rates.USD) {
+      try {
+        const eurResponse = await axios.get('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=EUR&json', {
+          timeout: 5000,
+          httpsAgent: httpsAgent
         });
-        
-        console.log('[Udinform] Response received, HTML length:', response.data?.length || 0);
-        const udinformRates = parseUdinformRates(response.data);
-        console.log('[Udinform] Parsed rates:', udinformRates);
-        
-        if (!rates.EUR && udinformRates.EUR) {
-          rates.EUR = udinformRates.EUR;
+        if (eurResponse.data && eurResponse.data.length > 0 && !rates.EUR) {
+          rates.EUR = eurResponse.data[0].rate;
+          console.log('[NBU API] EUR rate:', rates.EUR);
         }
-        if (!rates.USD && udinformRates.USD) {
-          rates.USD = udinformRates.USD;
+        
+        const usdResponse = await axios.get('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=USD&json', {
+          timeout: 5000,
+          httpsAgent: httpsAgent
+        });
+        if (usdResponse.data && usdResponse.data.length > 0 && !rates.USD) {
+          rates.USD = usdResponse.data[0].rate;
+          console.log('[NBU API] USD rate:', rates.USD);
         }
-      } catch (udinformError) {
-        console.error('[Udinform] Error:', udinformError.message);
+      } catch (nbuError) {
+        console.error('[NBU API] Error:', nbuError.message);
       }
     }
     
@@ -302,28 +443,8 @@ router.get('/rates/:currencyCode', async (req, res) => {
       return res.status(400).json({ error: 'Підтримуються тільки EUR та USD' });
     }
     
-    // Try NBU API first
-    let rate = await getRateFromNBU(code);
-    
-    // Fallback to udinform.com if NBU fails
-    if (!rate) {
-      try {
-        const response = await axios.get('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', {
-          timeout: 10000,
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          },
-          httpsAgent: httpsAgent
-        });
-        
-        console.log(`[Udinform] Response received for ${code}, HTML length:`, response.data?.length || 0);
-        const rates = parseUdinformRates(response.data);
-        console.log(`[Udinform] Parsed rates for ${code}:`, rates);
-        rate = rates[code];
-      } catch (error) {
-        console.error(`[Udinform] Error for ${code}:`, error.message);
-      }
-    }
+    // Try Minfin first (primary source)
+    let rate = await getRateFromMinfin(code);
     
     if (!rate) {
       console.warn(`Rate ${code} not found from any source`);
