@@ -195,69 +195,127 @@ const parseMinfinRates = (html) => {
   
   console.log('Parsing Minfin HTML, length:', cleanHtml.length);
   
-  // Look for interbank rates in Minfin format
-  // Minfin displays rates in format like "48,7374" or "48.7374"
-  const eurPatterns = [
-    /EUR[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
-    /євро[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
-    /ЄВРО[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
-    /міжбанк[^<>\n]{0,200}?EUR[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
-    /міжбанк[^<>\n]{0,200}?євро[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi
+  // Try to find JSON data in script tags first (most reliable)
+  const jsonPatterns = [
+    /window\.__INITIAL_STATE__\s*=\s*({.+?});/s,
+    /window\.__PRELOADED_STATE__\s*=\s*({.+?});/s,
+    /"currency"[^}]*"rates"[^}]*({[^}]+})/s,
+    /data-rates\s*=\s*["']({[^"']+})["']/s
   ];
   
-  const usdPatterns = [
-    /USD[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
-    /долар[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
-    /ДОЛАР[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
-    /міжбанк[^<>\n]{0,200}?USD[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi,
-    /міжбанк[^<>\n]{0,200}?долар[^<>\n]{0,200}?(\d{1,2}[.,]\d{2,4})/gi
-  ];
-  
-  // Try to find EUR rate
-  for (const pattern of eurPatterns) {
-    const matches = [...cleanHtml.matchAll(pattern)];
-    for (const match of matches) {
-      const rate = parseFloat(match[1].replace(',', '.'));
-      if (rate >= 20 && rate <= 100) {
-        rates.EUR = rate;
-        console.log('Found EUR rate from Minfin:', rates.EUR);
-        break;
+  for (const pattern of jsonPatterns) {
+    const jsonMatch = cleanHtml.match(pattern);
+    if (jsonMatch) {
+      try {
+        const data = JSON.parse(jsonMatch[1]);
+        // Try different JSON structures
+        if (data.currency && data.currency.rates) {
+          const currencyRates = data.currency.rates;
+          if (currencyRates.eur || currencyRates.EUR) {
+            rates.EUR = parseFloat(currencyRates.eur || currencyRates.EUR);
+            console.log('Found EUR rate from JSON:', rates.EUR);
+          }
+          if (currencyRates.usd || currencyRates.USD) {
+            rates.USD = parseFloat(currencyRates.usd || currencyRates.USD);
+            console.log('Found USD rate from JSON:', rates.USD);
+          }
+        }
+        // Try direct structure
+        if (data.rates) {
+          if (data.rates.eur || data.rates.EUR) {
+            rates.EUR = parseFloat(data.rates.eur || data.rates.EUR);
+          }
+          if (data.rates.usd || data.rates.USD) {
+            rates.USD = parseFloat(data.rates.usd || data.rates.USD);
+          }
+        }
+      } catch (e) {
+        console.log('Could not parse JSON from Minfin page:', e.message);
       }
     }
-    if (rates.EUR) break;
   }
   
-  // Try to find USD rate
-  for (const pattern of usdPatterns) {
-    const matches = [...cleanHtml.matchAll(pattern)];
-    for (const match of matches) {
-      const rate = parseFloat(match[1].replace(',', '.'));
-      if (rate >= 20 && rate <= 100) {
-        rates.USD = rate;
-        console.log('Found USD rate from Minfin:', rates.USD);
-        break;
+  // If JSON parsing didn't work, try HTML parsing
+  if (!rates.EUR || !rates.USD) {
+    // Look for interbank rates in Minfin format
+    // Minfin displays rates in format like "48,7374" or "48.7374"
+    // Look for table cells or specific divs with rates
+    const ratePatterns = [
+      /<td[^>]*>[\s\S]{0,100}?(\d{1,2}[.,]\d{2,4})[\s\S]{0,100}?<\/td>/gi,
+      /<span[^>]*class[^>]*rate[^>]*>[\s\S]{0,50}?(\d{1,2}[.,]\d{2,4})/gi,
+      /data-rate[^=]*=\s*["']?(\d{1,2}[.,]\d{2,4})["']?/gi
+    ];
+    
+    const allNumbers = [];
+    for (const pattern of ratePatterns) {
+      const matches = [...cleanHtml.matchAll(pattern)];
+      for (const match of matches) {
+        const num = parseFloat(match[1].replace(',', '.'));
+        if (num >= 20 && num <= 100) {
+          allNumbers.push(num);
+        }
       }
     }
-    if (rates.USD) break;
-  }
-  
-  // Alternative: look for data attributes or JSON in page
-  const jsonMatch = cleanHtml.match(/window\.__INITIAL_STATE__\s*=\s*({.+?});/);
-  if (jsonMatch) {
-    try {
-      const data = JSON.parse(jsonMatch[1]);
-      // Try to extract rates from JSON structure
-      if (data.currency && data.currency.rates) {
-        const currencyRates = data.currency.rates;
-        if (currencyRates.eur && !rates.EUR) {
-          rates.EUR = parseFloat(currencyRates.eur);
-        }
-        if (currencyRates.usd && !rates.USD) {
-          rates.USD = parseFloat(currencyRates.usd);
-        }
+    
+    // Find EUR rate - usually higher values (around 48-50)
+    if (!rates.EUR && allNumbers.length > 0) {
+      const eurCandidates = allNumbers.filter(n => n >= 40 && n <= 60).sort((a, b) => b - a);
+      if (eurCandidates.length > 0) {
+        rates.EUR = eurCandidates[0];
+        console.log('Found EUR rate from HTML parsing:', rates.EUR);
       }
-    } catch (e) {
-      console.log('Could not parse JSON from Minfin page');
+    }
+    
+    // Find USD rate - usually lower values (around 36-42)
+    if (!rates.USD && allNumbers.length > 0) {
+      const usdCandidates = allNumbers.filter(n => n >= 30 && n <= 45).sort((a, b) => b - a);
+      if (usdCandidates.length > 0) {
+        rates.USD = usdCandidates[0];
+        console.log('Found USD rate from HTML parsing:', rates.USD);
+      }
+    }
+    
+    // Fallback: look for currency codes near numbers
+    if (!rates.EUR) {
+      const eurPatterns = [
+        /EUR[^<>\n]{0,100}?(\d{1,2}[.,]\d{2,4})/gi,
+        /євро[^<>\n]{0,100}?(\d{1,2}[.,]\d{2,4})/gi,
+        /ЄВРО[^<>\n]{0,100}?(\d{1,2}[.,]\d{2,4})/gi
+      ];
+      
+      for (const pattern of eurPatterns) {
+        const matches = [...cleanHtml.matchAll(pattern)];
+        for (const match of matches) {
+          const rate = parseFloat(match[1].replace(',', '.'));
+          if (rate >= 40 && rate <= 60) {
+            rates.EUR = rate;
+            console.log('Found EUR rate from pattern:', rates.EUR);
+            break;
+          }
+        }
+        if (rates.EUR) break;
+      }
+    }
+    
+    if (!rates.USD) {
+      const usdPatterns = [
+        /USD[^<>\n]{0,100}?(\d{1,2}[.,]\d{2,4})/gi,
+        /долар[^<>\n]{0,100}?(\d{1,2}[.,]\d{2,4})/gi,
+        /ДОЛАР[^<>\n]{0,100}?(\d{1,2}[.,]\d{2,4})/gi
+      ];
+      
+      for (const pattern of usdPatterns) {
+        const matches = [...cleanHtml.matchAll(pattern)];
+        for (const match of matches) {
+          const rate = parseFloat(match[1].replace(',', '.'));
+          if (rate >= 30 && rate <= 45) {
+            rates.USD = rate;
+            console.log('Found USD rate from pattern:', rates.USD);
+            break;
+          }
+        }
+        if (rates.USD) break;
+      }
     }
   }
   
@@ -268,15 +326,44 @@ const parseMinfinRates = (html) => {
 // Helper function to get rate from Minfin (primary) or NBU (fallback)
 const getRateFromMinfin = async (code) => {
   try {
-    // Minfin interbank archive page
+    // Try current date first
     const currency = code.toLowerCase();
     const today = new Date();
     const dateStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
     
-    const minfinUrl = `https://minfin.com.ua/ua/currency/mb/archive/${currency}/${dateStr}/`;
-    console.log(`[Minfin] Fetching from: ${minfinUrl}`);
+    // Try main Minfin page first (current rates)
+    const minfinMainUrl = `https://minfin.com.ua/ua/currency/mb/${currency}/`;
+    console.log(`[Minfin] Fetching current rates from: ${minfinMainUrl}`);
     
-    const minfinResponse = await axios.get(minfinUrl, {
+    try {
+      const mainResponse = await axios.get(minfinMainUrl, {
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'uk-UA,uk;q=0.9,en;q=0.8'
+        },
+        httpsAgent: httpsAgent
+      });
+      
+      if (mainResponse.data) {
+        const rates = parseMinfinRates(mainResponse.data);
+        const rate = rates[code];
+        
+        if (rate) {
+          console.log(`[Minfin] Found ${code} rate from main page:`, rate);
+          return rate;
+        }
+      }
+    } catch (mainError) {
+      console.log(`[Minfin] Main page failed, trying archive...`, mainError.message);
+    }
+    
+    // Try archive page
+    const minfinArchiveUrl = `https://minfin.com.ua/ua/currency/mb/archive/${currency}/${dateStr}/`;
+    console.log(`[Minfin] Fetching archive from: ${minfinArchiveUrl}`);
+    
+    const archiveResponse = await axios.get(minfinArchiveUrl, {
       timeout: 10000,
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -286,12 +373,12 @@ const getRateFromMinfin = async (code) => {
       httpsAgent: httpsAgent
     });
     
-    if (minfinResponse.data) {
-      const rates = parseMinfinRates(minfinResponse.data);
+    if (archiveResponse.data) {
+      const rates = parseMinfinRates(archiveResponse.data);
       const rate = rates[code];
       
       if (rate) {
-        console.log(`[Minfin] Found ${code} rate:`, rate);
+        console.log(`[Minfin] Found ${code} rate from archive:`, rate);
         return rate;
       }
     }
@@ -326,50 +413,21 @@ router.get('/rates', async (req, res) => {
     console.log('[Currency API] GET /rates - fetching all rates...');
     const rates = {};
     
-    // Try Minfin first
+    // Try Minfin API first
     try {
-      const today = new Date();
-      const dateStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
-      
-      const eurUrl = `https://minfin.com.ua/ua/currency/mb/archive/eur/${dateStr}/`;
-      const usdUrl = `https://minfin.com.ua/ua/currency/mb/archive/usd/${dateStr}/`;
-      
-      const [eurResponse, usdResponse] = await Promise.allSettled([
-        axios.get(eurUrl, {
-          timeout: 10000,
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-          },
-          httpsAgent: httpsAgent
-        }),
-        axios.get(usdUrl, {
-          timeout: 10000,
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-          },
-          httpsAgent: httpsAgent
-        })
-      ]);
-      
-      if (eurResponse.status === 'fulfilled' && eurResponse.value.data) {
-        const eurRates = parseMinfinRates(eurResponse.value.data);
-        if (eurRates.EUR) {
-          rates.EUR = eurRates.EUR;
-          console.log('[Minfin] EUR rate:', rates.EUR);
-        }
+      const eurRate = await getRateFromMinfin('EUR');
+      if (eurRate) {
+        rates.EUR = eurRate;
+        console.log('[Minfin API] EUR rate:', rates.EUR);
       }
       
-      if (usdResponse.status === 'fulfilled' && usdResponse.value.data) {
-        const usdRates = parseMinfinRates(usdResponse.value.data);
-        if (usdRates.USD) {
-          rates.USD = usdRates.USD;
-          console.log('[Minfin] USD rate:', rates.USD);
-        }
+      const usdRate = await getRateFromMinfin('USD');
+      if (usdRate) {
+        rates.USD = usdRate;
+        console.log('[Minfin API] USD rate:', rates.USD);
       }
     } catch (minfinError) {
-      console.log('[Minfin] Failed, trying NBU API...', minfinError.message);
+      console.log('[Minfin API] Failed, trying NBU API...', minfinError.message);
     }
     
     // Fallback to NBU API if Minfin didn't return both rates
