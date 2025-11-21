@@ -324,23 +324,48 @@ const parseMinfinRates = (html) => {
 };
 
 // Helper function to get rate from NBU API
+// Documentation: https://bank.gov.ua/ua/open-data/api-dev
 const getRateFromMinfin = async (code) => {
   try {
     const nbuCode = code === 'EUR' ? 'EUR' : 'USD';
     console.log(`[NBU API] Fetching rate for ${code}...`);
     
-    const nbuResponse = await axios.get(`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=${nbuCode}&json`, {
-      timeout: 5000,
+    // NBU API endpoint: https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange
+    // Parameters: valcode - currency code, json - response format
+    const nbuUrl = `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=${nbuCode}&json`;
+    console.log(`[NBU API] Request URL: ${nbuUrl}`);
+    
+    const nbuResponse = await axios.get(nbuUrl, {
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json'
+      },
       httpsAgent: httpsAgent
     });
     
-    if (nbuResponse.data && nbuResponse.data.length > 0) {
-      const rate = nbuResponse.data[0].rate;
-      console.log(`[NBU API] Found ${code} rate:`, rate);
-      return rate;
+    console.log(`[NBU API] Response status: ${nbuResponse.status}`);
+    console.log(`[NBU API] Response data:`, JSON.stringify(nbuResponse.data).substring(0, 200));
+    
+    if (nbuResponse.data && Array.isArray(nbuResponse.data) && nbuResponse.data.length > 0) {
+      const rateData = nbuResponse.data[0];
+      const rate = rateData.rate;
+      
+      if (rate && typeof rate === 'number') {
+        console.log(`[NBU API] Found ${code} rate: ${rate} (date: ${rateData.exchangedate || 'N/A'})`);
+        return rate;
+      } else {
+        console.warn(`[NBU API] Invalid rate format for ${code}:`, rateData);
+      }
+    } else {
+      console.warn(`[NBU API] No data returned for ${code}`);
     }
   } catch (error) {
-    console.log(`[NBU API] Failed for ${code}:`, error.message);
+    console.error(`[NBU API] Failed for ${code}:`, error.message);
+    if (error.response) {
+      console.error(`[NBU API] Response status: ${error.response.status}`);
+      console.error(`[NBU API] Response data:`, error.response.data);
+    }
   }
   
   return null;
@@ -354,20 +379,29 @@ router.get('/rates', async (req, res) => {
     const rates = {};
     
     // Get rates from NBU API
+    // Using official NBU API: https://bank.gov.ua/ua/open-data/api-dev
     try {
-      const eurRate = await getRateFromMinfin('EUR');
+      // Fetch both rates in parallel for better performance
+      const [eurRate, usdRate] = await Promise.all([
+        getRateFromMinfin('EUR'),
+        getRateFromMinfin('USD')
+      ]);
+      
       if (eurRate) {
         rates.EUR = eurRate;
-        console.log('[NBU API] EUR rate:', rates.EUR);
+        console.log('[Currency API] EUR rate set:', rates.EUR);
+      } else {
+        console.warn('[Currency API] EUR rate not available');
       }
       
-      const usdRate = await getRateFromMinfin('USD');
       if (usdRate) {
         rates.USD = usdRate;
-        console.log('[NBU API] USD rate:', rates.USD);
+        console.log('[Currency API] USD rate set:', rates.USD);
+      } else {
+        console.warn('[Currency API] USD rate not available');
       }
     } catch (error) {
-      console.error('[NBU API] Error:', error.message);
+      console.error('[Currency API] Error fetching rates:', error.message);
     }
     
     const result = {
