@@ -323,18 +323,84 @@ const parseMinfinRates = (html) => {
   return rates;
 };
 
-// Helper function to get rate from NBU API
-// Documentation: https://bank.gov.ua/ua/open-data/api-dev
+// Minfin API key
+const MINFIN_API_KEY = process.env.MINFIN_API_KEY || '74f2b2cb8ae2e0f1a5ac4a820a075573f5f1f3e0';
+
+// Helper function to get rate from Minfin API (primary) or NBU API (fallback)
+// Minfin API documentation: https://minfin.com.ua/ua/developers/api/
 const getRateFromMinfin = async (code) => {
+  // Try Minfin API first
+  try {
+    const currency = code.toLowerCase();
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+    
+    // Minfin API format: https://api.minfin.com.ua/mb/{key}/{date}/
+    const minfinUrl = `https://api.minfin.com.ua/mb/${MINFIN_API_KEY}/${dateStr}/`;
+    console.log(`[Minfin API] Fetching rate for ${code} from: ${minfinUrl}`);
+    
+    const minfinResponse = await axios.get(minfinUrl, {
+      timeout: 10000,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json'
+      },
+      httpsAgent: httpsAgent
+    });
+    
+    console.log(`[Minfin API] Response status: ${minfinResponse.status}`);
+    
+    if (minfinResponse.data) {
+      const data = minfinResponse.data;
+      let rate = null;
+      
+      // Minfin API returns data in format: { id, pointDate, date, ask, bid, currency }
+      // We need to filter by currency and calculate average rate
+      if (Array.isArray(data)) {
+        // Find rate for specific currency
+        const currencyRate = data.find(r => r.currency === currency);
+        if (currencyRate) {
+          // Use average of ask and bid for interbank rate
+          if (currencyRate.ask && currencyRate.bid) {
+            rate = (parseFloat(currencyRate.ask) + parseFloat(currencyRate.bid)) / 2;
+          } else if (currencyRate.ask) {
+            rate = parseFloat(currencyRate.ask);
+          } else if (currencyRate.bid) {
+            rate = parseFloat(currencyRate.bid);
+          }
+        }
+      } else if (data.currency === currency) {
+        // Single object response
+        if (data.ask && data.bid) {
+          rate = (parseFloat(data.ask) + parseFloat(data.bid)) / 2;
+        } else if (data.ask) {
+          rate = parseFloat(data.ask);
+        } else if (data.bid) {
+          rate = parseFloat(data.bid);
+        }
+      }
+      
+      if (rate && rate >= 20 && rate <= 100) {
+        console.log(`[Minfin API] Found ${code} rate: ${rate}`);
+        return rate;
+      } else {
+        console.warn(`[Minfin API] Invalid rate for ${code}:`, rate);
+      }
+    }
+  } catch (error) {
+    console.error(`[Minfin API] Failed for ${code}:`, error.message);
+    if (error.response) {
+      console.error(`[Minfin API] Response status: ${error.response.status}`);
+      console.error(`[Minfin API] Response data:`, error.response.data);
+    }
+  }
+  
+  // Fallback to NBU API
   try {
     const nbuCode = code === 'EUR' ? 'EUR' : 'USD';
-    console.log(`[NBU API] Fetching rate for ${code}...`);
+    console.log(`[NBU API] Fetching rate for ${code} as fallback...`);
     
-    // NBU API endpoint: https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange
-    // Parameters: valcode - currency code, json - response format
     const nbuUrl = `https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=${nbuCode}&json`;
-    console.log(`[NBU API] Request URL: ${nbuUrl}`);
-    
     const nbuResponse = await axios.get(nbuUrl, {
       timeout: 10000,
       headers: {
@@ -344,9 +410,6 @@ const getRateFromMinfin = async (code) => {
       httpsAgent: httpsAgent
     });
     
-    console.log(`[NBU API] Response status: ${nbuResponse.status}`);
-    console.log(`[NBU API] Response data:`, JSON.stringify(nbuResponse.data).substring(0, 200));
-    
     if (nbuResponse.data && Array.isArray(nbuResponse.data) && nbuResponse.data.length > 0) {
       const rateData = nbuResponse.data[0];
       const rate = rateData.rate;
@@ -354,18 +417,10 @@ const getRateFromMinfin = async (code) => {
       if (rate && typeof rate === 'number') {
         console.log(`[NBU API] Found ${code} rate: ${rate} (date: ${rateData.exchangedate || 'N/A'})`);
         return rate;
-      } else {
-        console.warn(`[NBU API] Invalid rate format for ${code}:`, rateData);
       }
-    } else {
-      console.warn(`[NBU API] No data returned for ${code}`);
     }
   } catch (error) {
     console.error(`[NBU API] Failed for ${code}:`, error.message);
-    if (error.response) {
-      console.error(`[NBU API] Response status: ${error.response.status}`);
-      console.error(`[NBU API] Response data:`, error.response.data);
-    }
   }
   
   return null;
