@@ -179,22 +179,61 @@ const parseUdinformRates = (html) => {
   return rates;
 };
 
-// Get exchange rates from udinform.com
+// Get exchange rates from NBU API (primary) or udinform.com (fallback)
 // IMPORTANT: This route must be registered BEFORE /rates/:currencyCode
 router.get('/rates', async (req, res) => {
   try {
-    console.log('[Currency API] GET /rates - fetching all rates from udinform.com...');
-    const response = await axios.get('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', {
-      timeout: 10000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      },
-      httpsAgent: httpsAgent
-    });
+    console.log('[Currency API] GET /rates - fetching all rates...');
+    const rates = {};
     
-    console.log('Response received, HTML length:', response.data?.length || 0);
-    const rates = parseUdinformRates(response.data);
-    console.log('Parsed rates:', rates);
+    // Try NBU API first
+    try {
+      const eurResponse = await axios.get('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=EUR&json', {
+        timeout: 5000,
+        httpsAgent: httpsAgent
+      });
+      if (eurResponse.data && eurResponse.data.length > 0) {
+        rates.EUR = eurResponse.data[0].rate;
+        console.log('[NBU API] EUR rate:', rates.EUR);
+      }
+      
+      const usdResponse = await axios.get('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=USD&json', {
+        timeout: 5000,
+        httpsAgent: httpsAgent
+      });
+      if (usdResponse.data && usdResponse.data.length > 0) {
+        rates.USD = usdResponse.data[0].rate;
+        console.log('[NBU API] USD rate:', rates.USD);
+      }
+    } catch (nbuError) {
+      console.log('[NBU API] Failed, trying udinform.com...', nbuError.message);
+    }
+    
+    // Fallback to udinform.com if NBU didn't return both rates
+    if (!rates.EUR || !rates.USD) {
+      try {
+        const response = await axios.get('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', {
+          timeout: 10000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          },
+          httpsAgent: httpsAgent
+        });
+        
+        console.log('[Udinform] Response received, HTML length:', response.data?.length || 0);
+        const udinformRates = parseUdinformRates(response.data);
+        console.log('[Udinform] Parsed rates:', udinformRates);
+        
+        if (!rates.EUR && udinformRates.EUR) {
+          rates.EUR = udinformRates.EUR;
+        }
+        if (!rates.USD && udinformRates.USD) {
+          rates.USD = udinformRates.USD;
+        }
+      } catch (udinformError) {
+        console.error('[Udinform] Error:', udinformError.message);
+      }
+    }
     
     const result = {
       date: new Date().toISOString().split('T')[0],
@@ -217,7 +256,7 @@ router.get('/rates', async (req, res) => {
       });
     }
     
-    console.log('Sending result:', result);
+    console.log('[Currency API] Sending result:', result);
     res.json(result);
   } catch (error) {
     console.error('Error fetching exchange rates:', error.message);
@@ -229,6 +268,27 @@ router.get('/rates', async (req, res) => {
   }
 });
 
+// Try to get rate from NBU API first (more reliable)
+const getRateFromNBU = async (code) => {
+  try {
+    // NBU API endpoint
+    const nbuCode = code === 'EUR' ? 'EUR' : 'USD';
+    const nbuResponse = await axios.get(`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=${nbuCode}&json`, {
+      timeout: 5000,
+      httpsAgent: httpsAgent
+    });
+    
+    if (nbuResponse.data && nbuResponse.data.length > 0) {
+      const rate = nbuResponse.data[0].rate;
+      console.log(`[NBU API] Found ${code} rate:`, rate);
+      return rate;
+    }
+  } catch (error) {
+    console.log(`[NBU API] Failed for ${code}, trying udinform.com...`);
+  }
+  return null;
+};
+
 // Get exchange rate for specific currency (EUR or USD)
 // IMPORTANT: This route must be registered AFTER /rates route
 router.get('/rates/:currencyCode', async (req, res) => {
@@ -236,31 +296,40 @@ router.get('/rates/:currencyCode', async (req, res) => {
     const { currencyCode } = req.params;
     const code = currencyCode.toUpperCase();
     
-    console.log(`[Currency API] GET /rates/${code} - fetching rate for ${code}, path: ${req.path}, params:`, req.params);
+    console.log(`[Currency API] GET /rates/${code} - fetching rate for ${code}`);
     
     if (code !== 'EUR' && code !== 'USD') {
       return res.status(400).json({ error: 'Підтримуються тільки EUR та USD' });
     }
     
-    const response = await axios.get('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', {
-      timeout: 10000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      },
-      httpsAgent: httpsAgent
-    });
+    // Try NBU API first
+    let rate = await getRateFromNBU(code);
     
-    console.log(`Response received for ${code}, HTML length:`, response.data?.length || 0);
-    const rates = parseUdinformRates(response.data);
-    console.log(`Parsed rates for ${code}:`, rates);
-    const rate = rates[code];
+    // Fallback to udinform.com if NBU fails
+    if (!rate) {
+      try {
+        const response = await axios.get('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', {
+          timeout: 10000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          },
+          httpsAgent: httpsAgent
+        });
+        
+        console.log(`[Udinform] Response received for ${code}, HTML length:`, response.data?.length || 0);
+        const rates = parseUdinformRates(response.data);
+        console.log(`[Udinform] Parsed rates for ${code}:`, rates);
+        rate = rates[code];
+      } catch (error) {
+        console.error(`[Udinform] Error for ${code}:`, error.message);
+      }
+    }
     
     if (!rate) {
-      console.warn(`Rate ${code} not found. Available rates:`, Object.keys(rates));
+      console.warn(`Rate ${code} not found from any source`);
       return res.status(404).json({ 
         error: `Курс ${code} не знайдено`,
-        availableRates: Object.keys(rates),
-        parsedRates: rates
+        message: 'Спробуйте пізніше'
       });
     }
     
@@ -271,7 +340,7 @@ router.get('/rates/:currencyCode', async (req, res) => {
       date: new Date().toISOString().split('T')[0]
     };
     
-    console.log(`Sending result for ${code}:`, result);
+    console.log(`[Currency API] Sending result for ${code}:`, result);
     res.json(result);
   } catch (error) {
     console.error(`Error fetching exchange rate for ${req.params.currencyCode}:`, error.message);
