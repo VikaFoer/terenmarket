@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS client_categories (
 
 -- Insert default categories
 INSERT OR IGNORE INTO categories (name) VALUES 
-    ('Сировина+колір. пасти'),
+    ('Хімічна сировина'),
+    ('Колоранти'),
     ('Брукер Оптікс (БІЧ)'),
     ('Колірувальне обладнання'),
     ('Фільтри'),

@@ -150,7 +150,7 @@ const importData = async () => {
     
     // Якщо категорія не вказана, використовуємо першу категорію за замовчуванням
     const defaultCategoryId = categories[0] ? categories[0].id : null;
-    const defaultCategoryName = categories[0] ? categories[0].name : 'Сировина+колір. пасти';
+    const defaultCategoryName = categories[0] ? categories[0].name : 'Хімічна сировина';
     
     data.forEach(function(row, index) {
       const clientName = row[clientNameCol] || ('Client_' + index);
