@@ -324,7 +324,7 @@ const ClientDashboard = () => {
                   <Chip
                     label={`EUR: ${eurRate.toFixed(2)} ₴`}
                     size="small"
-                    onClick={() => window.open('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', '_blank')}
+                    onClick={() => window.open('https://minfin.com.ua/ua/currency/mb/', '_blank')}
                     sx={{
                       backgroundColor: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
@@ -346,7 +346,7 @@ const ClientDashboard = () => {
                   <Chip
                     label={`USD: ${usdRate.toFixed(2)} ₴`}
                     size="small"
-                    onClick={() => window.open('https://www.udinform.com/index.php?option=com_dealingquotation&task=forexukrarchive', '_blank')}
+                    onClick={() => window.open('https://minfin.com.ua/ua/currency/mb/', '_blank')}
                     sx={{
                       backgroundColor: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
