@@ -323,48 +323,12 @@ const parseMinfinRates = (html) => {
   return rates;
 };
 
-// Helper function to get rate from Monobank API (primary), then NBU (fallback)
+// Helper function to get rate from NBU API
 const getRateFromMinfin = async (code) => {
-  // Try Monobank API first (public, no key required, very reliable)
-  try {
-    console.log(`[Monobank API] Fetching rates for ${code}...`);
-    const monoResponse = await axios.get('https://api.monobank.ua/bank/currency', {
-      timeout: 5000,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      },
-      httpsAgent: httpsAgent
-    });
-    
-    if (monoResponse.data && Array.isArray(monoResponse.data)) {
-      // Monobank uses currency codes: 840 = USD, 978 = EUR, 980 = UAH
-      const currencyCodeA = code === 'EUR' ? 978 : 840; // EUR or USD
-      const currencyCodeB = 980; // UAH
-      
-      // Find rate where currencyA is base and UAH is quote
-      const rate = monoResponse.data.find(r => 
-        (r.currencyCodeA === currencyCodeA && r.currencyCodeB === currencyCodeB)
-      );
-      
-      if (rate) {
-        // Monobank provides rateBuy and rateSell, use average for interbank rate
-        const avgRate = rate.rateBuy && rate.rateSell 
-          ? (rate.rateBuy + rate.rateSell) / 2 
-          : (rate.rateBuy || rate.rateSell || rate.rateCross);
-        
-        if (avgRate && avgRate >= 20 && avgRate <= 100) {
-          console.log(`[Monobank API] Found ${code} rate:`, avgRate);
-          return avgRate;
-        }
-      }
-    }
-  } catch (monoError) {
-    console.log(`[Monobank API] Failed:`, monoError.message);
-  }
-  
-  // Fallback to NBU API
   try {
     const nbuCode = code === 'EUR' ? 'EUR' : 'USD';
+    console.log(`[NBU API] Fetching rate for ${code}...`);
+    
     const nbuResponse = await axios.get(`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=${nbuCode}&json`, {
       timeout: 5000,
       httpsAgent: httpsAgent
@@ -376,7 +340,7 @@ const getRateFromMinfin = async (code) => {
       return rate;
     }
   } catch (error) {
-    console.log(`[NBU API] Failed for ${code}`);
+    console.log(`[NBU API] Failed for ${code}:`, error.message);
   }
   
   return null;
@@ -389,46 +353,21 @@ router.get('/rates', async (req, res) => {
     console.log('[Currency API] GET /rates - fetching all rates...');
     const rates = {};
     
-    // Try Minfin API first
+    // Get rates from NBU API
     try {
       const eurRate = await getRateFromMinfin('EUR');
       if (eurRate) {
         rates.EUR = eurRate;
-        console.log('[Minfin API] EUR rate:', rates.EUR);
+        console.log('[NBU API] EUR rate:', rates.EUR);
       }
       
       const usdRate = await getRateFromMinfin('USD');
       if (usdRate) {
         rates.USD = usdRate;
-        console.log('[Minfin API] USD rate:', rates.USD);
+        console.log('[NBU API] USD rate:', rates.USD);
       }
-    } catch (minfinError) {
-      console.log('[Minfin API] Failed, trying NBU API...', minfinError.message);
-    }
-    
-    // Fallback to NBU API if Minfin didn't return both rates
-    if (!rates.EUR || !rates.USD) {
-      try {
-        const eurResponse = await axios.get('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=EUR&json', {
-          timeout: 5000,
-          httpsAgent: httpsAgent
-        });
-        if (eurResponse.data && eurResponse.data.length > 0 && !rates.EUR) {
-          rates.EUR = eurResponse.data[0].rate;
-          console.log('[NBU API] EUR rate:', rates.EUR);
-        }
-        
-        const usdResponse = await axios.get('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=USD&json', {
-          timeout: 5000,
-          httpsAgent: httpsAgent
-        });
-        if (usdResponse.data && usdResponse.data.length > 0 && !rates.USD) {
-          rates.USD = usdResponse.data[0].rate;
-          console.log('[NBU API] USD rate:', rates.USD);
-        }
-      } catch (nbuError) {
-        console.error('[NBU API] Error:', nbuError.message);
-      }
+    } catch (error) {
+      console.error('[NBU API] Error:', error.message);
     }
     
     const result = {
