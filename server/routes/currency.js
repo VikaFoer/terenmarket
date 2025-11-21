@@ -323,67 +323,43 @@ const parseMinfinRates = (html) => {
   return rates;
 };
 
-// Helper function to get rate from Minfin (primary) or NBU (fallback)
+// Helper function to get rate from Monobank API (primary), then NBU (fallback)
 const getRateFromMinfin = async (code) => {
+  // Try Monobank API first (public, no key required, very reliable)
   try {
-    // Try current date first
-    const currency = code.toLowerCase();
-    const today = new Date();
-    const dateStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
-    
-    // Try main Minfin page first (current rates)
-    const minfinMainUrl = `https://minfin.com.ua/ua/currency/mb/${currency}/`;
-    console.log(`[Minfin] Fetching current rates from: ${minfinMainUrl}`);
-    
-    try {
-      const mainResponse = await axios.get(minfinMainUrl, {
-        timeout: 10000,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          'Accept-Language': 'uk-UA,uk;q=0.9,en;q=0.8'
-        },
-        httpsAgent: httpsAgent
-      });
-      
-      if (mainResponse.data) {
-        const rates = parseMinfinRates(mainResponse.data);
-        const rate = rates[code];
-        
-        if (rate) {
-          console.log(`[Minfin] Found ${code} rate from main page:`, rate);
-          return rate;
-        }
-      }
-    } catch (mainError) {
-      console.log(`[Minfin] Main page failed, trying archive...`, mainError.message);
-    }
-    
-    // Try archive page
-    const minfinArchiveUrl = `https://minfin.com.ua/ua/currency/mb/archive/${currency}/${dateStr}/`;
-    console.log(`[Minfin] Fetching archive from: ${minfinArchiveUrl}`);
-    
-    const archiveResponse = await axios.get(minfinArchiveUrl, {
-      timeout: 10000,
+    console.log(`[Monobank API] Fetching rates for ${code}...`);
+    const monoResponse = await axios.get('https://api.monobank.ua/bank/currency', {
+      timeout: 5000,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'uk-UA,uk;q=0.9,en;q=0.8'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       },
       httpsAgent: httpsAgent
     });
     
-    if (archiveResponse.data) {
-      const rates = parseMinfinRates(archiveResponse.data);
-      const rate = rates[code];
+    if (monoResponse.data && Array.isArray(monoResponse.data)) {
+      // Monobank uses currency codes: 840 = USD, 978 = EUR, 980 = UAH
+      const currencyCodeA = code === 'EUR' ? 978 : 840; // EUR or USD
+      const currencyCodeB = 980; // UAH
+      
+      // Find rate where currencyA is base and UAH is quote
+      const rate = monoResponse.data.find(r => 
+        (r.currencyCodeA === currencyCodeA && r.currencyCodeB === currencyCodeB)
+      );
       
       if (rate) {
-        console.log(`[Minfin] Found ${code} rate from archive:`, rate);
-        return rate;
+        // Monobank provides rateBuy and rateSell, use average for interbank rate
+        const avgRate = rate.rateBuy && rate.rateSell 
+          ? (rate.rateBuy + rate.rateSell) / 2 
+          : (rate.rateBuy || rate.rateSell || rate.rateCross);
+        
+        if (avgRate && avgRate >= 20 && avgRate <= 100) {
+          console.log(`[Monobank API] Found ${code} rate:`, avgRate);
+          return avgRate;
+        }
       }
     }
-  } catch (error) {
-    console.log(`[Minfin] Failed for ${code}, trying NBU API...`, error.message);
+  } catch (monoError) {
+    console.log(`[Monobank API] Failed:`, monoError.message);
   }
   
   // Fallback to NBU API
