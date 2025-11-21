@@ -613,5 +613,229 @@ router.post('/products/add-test-products', async (req, res) => {
   }
 });
 
+// Migrate categories endpoint - migrate old category to new ones
+router.post('/categories/migrate', async (req, res) => {
+  const database = db.getDb();
+  
+  try {
+    console.log('[Admin API] Starting category migration...');
+    
+    // Знаходимо стару категорію
+    const oldCategory = await new Promise((resolve, reject) => {
+      database.get(
+        "SELECT * FROM categories WHERE name = 'Сировина+колір. пасти'",
+        (err, row) => {
+          if (err) reject(err);
+          else resolve(row);
+        }
+      );
+    });
+    
+    if (!oldCategory) {
+      return res.json({
+        success: true,
+        message: 'Стара категорія не знайдена, міграція не потрібна',
+        migrated: false
+      });
+    }
+    
+    console.log(`[Admin API] Found old category: ${oldCategory.name} (ID: ${oldCategory.id})`);
+    
+    // Перевіряємо чи існують нові категорії
+    const [himiynaCategory, kolorantyCategory] = await Promise.all([
+      new Promise((resolve, reject) => {
+        database.get(
+          "SELECT * FROM categories WHERE name = 'Хімічна сировина'",
+          (err, row) => {
+            if (err) reject(err);
+            else resolve(row);
+          }
+        );
+      }),
+      new Promise((resolve, reject) => {
+        database.get(
+          "SELECT * FROM categories WHERE name = 'Колоранти'",
+          (err, row) => {
+            if (err) reject(err);
+            else resolve(row);
+          }
+        );
+      })
+    ]);
+    
+    // Створюємо нові категорії якщо їх немає
+    let himiynaId = himiynaCategory ? himiynaCategory.id : null;
+    let kolorantyId = kolorantyCategory ? kolorantyCategory.id : null;
+    
+    if (!himiynaId) {
+      himiynaId = await new Promise((resolve, reject) => {
+        database.run(
+          "INSERT INTO categories (name) VALUES ('Хімічна сировина')",
+          function(err) {
+            if (err) reject(err);
+            else resolve(this.lastID);
+          }
+        );
+      });
+    }
+    
+    if (!kolorantyId) {
+      kolorantyId = await new Promise((resolve, reject) => {
+        database.run(
+          "INSERT INTO categories (name) VALUES ('Колоранти')",
+          function(err) {
+            if (err) reject(err);
+            else resolve(this.lastID);
+          }
+        );
+      });
+    }
+    
+    // Отримуємо всі товари зі старої категорії
+    const products = await new Promise((resolve, reject) => {
+      database.all(
+        'SELECT * FROM products WHERE category_id = ?',
+        [oldCategory.id],
+        (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        }
+      );
+    });
+    
+    // Мігруємо товари
+    let migratedToHimiyna = 0;
+    let migratedToKoloranty = 0;
+    
+    for (const product of products) {
+      const productName = product.name.toLowerCase();
+      let newCategoryId;
+      
+      if (productName.includes('сировина') || productName.includes('сировин')) {
+        newCategoryId = himiynaId;
+        migratedToHimiyna++;
+      } else {
+        newCategoryId = kolorantyId;
+        migratedToKoloranty++;
+      }
+      
+      await new Promise((resolve, reject) => {
+        database.run(
+          'UPDATE products SET category_id = ? WHERE id = ?',
+          [newCategoryId, product.id],
+          (err) => {
+            if (err) reject(err);
+            else resolve();
+          }
+        );
+      });
+    }
+    
+    // Мігруємо зв'язки клієнт-категорія
+    const clientCategories = await new Promise((resolve, reject) => {
+      database.all(
+        'SELECT * FROM client_categories WHERE category_id = ?',
+        [oldCategory.id],
+        (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        }
+      );
+    });
+    
+    for (const cc of clientCategories) {
+      for (const newCategoryId of [himiynaId, kolorantyId]) {
+        await new Promise((resolve, reject) => {
+          database.run(
+            'INSERT OR IGNORE INTO client_categories (client_id, category_id) VALUES (?, ?)',
+            [cc.client_id, newCategoryId],
+            (err) => {
+              if (err) reject(err);
+              else resolve();
+            }
+          );
+        });
+      }
+    }
+    
+    // Видаляємо стару категорію
+    await new Promise((resolve, reject) => {
+      database.run(
+        'DELETE FROM categories WHERE id = ?',
+        [oldCategory.id],
+        (err) => {
+          if (err) reject(err);
+          else resolve();
+        }
+      );
+    });
+    
+    // Видаляємо дублікат "Коліранти" якщо він існує
+    const duplicateCategory = await new Promise((resolve, reject) => {
+      database.get(
+        "SELECT * FROM categories WHERE name = 'Коліранти'",
+        (err, row) => {
+          if (err) reject(err);
+          else resolve(row);
+        }
+      );
+    });
+    
+    if (duplicateCategory && kolorantyId) {
+      // Переміщуємо товари та зв'язки в правильну категорію
+      await new Promise((resolve, reject) => {
+        database.run(
+          'UPDATE products SET category_id = ? WHERE category_id = ?',
+          [kolorantyId, duplicateCategory.id],
+          (err) => {
+            if (err) reject(err);
+            else resolve();
+          }
+        );
+      });
+      
+      await new Promise((resolve, reject) => {
+        database.run(
+          'UPDATE client_categories SET category_id = ? WHERE category_id = ?',
+          [kolorantyId, duplicateCategory.id],
+          (err) => {
+            if (err) reject(err);
+            else resolve();
+          }
+        );
+      });
+      
+      await new Promise((resolve, reject) => {
+        database.run(
+          'DELETE FROM categories WHERE id = ?',
+          [duplicateCategory.id],
+          (err) => {
+            if (err) reject(err);
+            else resolve();
+          }
+        );
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Міграція категорій завершена успішно',
+      migrated: {
+        productsToHimiyna: migratedToHimiyna,
+        productsToKoloranty: migratedToKoloranty,
+        clientCategories: clientCategories.length,
+        deletedOldCategory: true,
+        deletedDuplicate: !!duplicateCategory
+      }
+    });
+  } catch (error) {
+    console.error('[Admin API] Migration error:', error);
+    res.status(500).json({
+      error: 'Помилка міграції категорій',
+      details: error.message
+    });
+  }
+});
+
 module.exports = router;
 
