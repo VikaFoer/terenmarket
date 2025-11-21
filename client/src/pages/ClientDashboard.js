@@ -16,6 +16,8 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  ListItemIcon,
+  Checkbox,
   Divider,
   Chip,
 } from '@mui/material';
@@ -37,6 +39,8 @@ const drawerWidth = 280;
 const ClientDashboard = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [cartOpen, setCartOpen] = useState(false);
@@ -51,6 +55,7 @@ const ClientDashboard = () => {
   useEffect(() => {
     fetchProducts();
     fetchCategories();
+    fetchAllCategories();
     // Load cart from localStorage
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
@@ -58,6 +63,16 @@ const ClientDashboard = () => {
         setCartItems(JSON.parse(savedCart));
       } catch (e) {
         console.error('Error loading cart:', e);
+      }
+    }
+    // Load selected categories from localStorage
+    const savedSelectedCategories = localStorage.getItem('selectedCategories');
+    if (savedSelectedCategories) {
+      try {
+        const parsed = JSON.parse(savedSelectedCategories);
+        setSelectedCategories(parsed);
+      } catch (e) {
+        console.error('Error loading selected categories:', e);
       }
     }
   }, []);
@@ -125,6 +140,50 @@ const ClientDashboard = () => {
     }
   };
 
+  const fetchAllCategories = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/client/categories/all`);
+      setAllCategories(response.data);
+      
+      // Якщо вибір ще не збережено, використовуємо доступні категорії як початковий вибір
+      const savedSelectedCategories = localStorage.getItem('selectedCategories');
+      if (!savedSelectedCategories) {
+        // Отримуємо доступні категорії клієнта
+        try {
+          const categoriesResponse = await axios.get(`${API_URL}/client/categories`);
+          if (categoriesResponse.data.length > 0) {
+            const categoryIds = categoriesResponse.data.map(c => c.id);
+            setSelectedCategories(categoryIds);
+            localStorage.setItem('selectedCategories', JSON.stringify(categoryIds));
+          } else {
+            // Якщо немає доступних категорій, вибираємо всі
+            const allIds = response.data.map(c => c.id);
+            setSelectedCategories(allIds);
+            localStorage.setItem('selectedCategories', JSON.stringify(allIds));
+          }
+        } catch (err) {
+          // Якщо помилка, вибираємо всі категорії
+          const allIds = response.data.map(c => c.id);
+          setSelectedCategories(allIds);
+          localStorage.setItem('selectedCategories', JSON.stringify(allIds));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching all categories:', error);
+    }
+  };
+
+  const handleCategoryToggle = (categoryId) => {
+    setSelectedCategories(prev => {
+      const newSelection = prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId];
+      // Зберігаємо вибір в localStorage
+      localStorage.setItem('selectedCategories', JSON.stringify(newSelection));
+      return newSelection;
+    });
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -143,6 +202,7 @@ const ClientDashboard = () => {
         id: product.id,
         name: product.name,
         price: product.price,
+        cost_price_eur: product.cost_price_eur || product.cost_price,
         quantity: 1,
         image_url: product.image_url
       }]);
@@ -172,10 +232,19 @@ const ClientDashboard = () => {
 
   const cartItemsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Filter products by selected category
-  const filteredProducts = selectedCategory
-    ? products.filter(p => p.category_id === selectedCategory)
-    : products;
+  // Filter products by selected categories
+  const filteredProducts = products.filter(p => {
+    // Якщо вибрано конкретну категорію (старий спосіб), фільтруємо по ній
+    if (selectedCategory) {
+      return p.category_id === selectedCategory;
+    }
+    // Якщо вибрано категорії через чекбокси, фільтруємо по ним
+    if (selectedCategories.length > 0) {
+      return selectedCategories.includes(p.category_id);
+    }
+    // Якщо нічого не вибрано, показуємо всі доступні товари
+    return true;
+  });
 
   const groupedProducts = filteredProducts.reduce((acc, product) => {
     if (!acc[product.category_name]) {
@@ -213,13 +282,24 @@ const ClientDashboard = () => {
         <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
           Категорії
         </Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, fontSize: '0.75rem' }}>
+          Оберіть категорії для відображення
+        </Typography>
       </Box>
       <Divider />
       <List>
         <ListItem disablePadding>
           <ListItemButton
-            selected={selectedCategory === null}
-            onClick={() => setSelectedCategory(null)}
+            selected={selectedCategory === null && selectedCategories.length === 0}
+            onClick={() => {
+              setSelectedCategory(null);
+              // Якщо натиснуто "Всі товари", вибираємо всі категорії
+              if (allCategories.length > 0) {
+                const allIds = allCategories.map(c => c.id);
+                setSelectedCategories(allIds);
+                localStorage.setItem('selectedCategories', JSON.stringify(allIds));
+              }
+            }}
             sx={{
               '&.Mui-selected': {
                 backgroundColor: '#e3f2fd',
@@ -232,47 +312,62 @@ const ClientDashboard = () => {
             <ListItemText 
               primary="Всі товари" 
               primaryTypographyProps={{
-                fontWeight: selectedCategory === null ? 600 : 400
+                fontWeight: selectedCategory === null && selectedCategories.length === 0 ? 600 : 400
               }}
             />
             <Chip 
               label={products.length} 
               size="small" 
               color="primary"
-              variant={selectedCategory === null ? "filled" : "outlined"}
+              variant={selectedCategory === null && selectedCategories.length === 0 ? "filled" : "outlined"}
             />
           </ListItemButton>
         </ListItem>
         <Divider />
-        {categories.map((category) => (
-          <ListItem key={category.id} disablePadding>
-            <ListItemButton
-              selected={selectedCategory === category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: '#e3f2fd',
-                  '&:hover': {
-                    backgroundColor: '#bbdefb',
-                  },
-                },
-              }}
-            >
-              <ListItemText 
-                primary={category.name}
-                primaryTypographyProps={{
-                  fontWeight: selectedCategory === category.id ? 600 : 400
+        {allCategories.map((category) => {
+          const isSelected = selectedCategories.includes(category.id);
+          const categoryProductsCount = products.filter(p => p.category_id === category.id).length;
+          
+          return (
+            <ListItem key={category.id} disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  handleCategoryToggle(category.id);
+                  setSelectedCategory(null); // Скидаємо старий вибір
                 }}
-              />
-              <Chip 
-                label={category.product_count || 0} 
-                size="small" 
-                color="primary"
-                variant={selectedCategory === category.id ? "filled" : "outlined"}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: '#f5f5f5',
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 40 }}>
+                  <Checkbox
+                    edge="start"
+                    checked={isSelected}
+                    tabIndex={-1}
+                    disableRipple
+                    sx={{ p: 0.5 }}
+                  />
+                </ListItemIcon>
+                <ListItemText 
+                  primary={category.name}
+                  primaryTypographyProps={{
+                    fontWeight: isSelected ? 600 : 400,
+                    color: isSelected ? 'primary.main' : 'text.primary'
+                  }}
+                />
+                <Chip 
+                  label={categoryProductsCount} 
+                  size="small" 
+                  color={isSelected ? "primary" : "default"}
+                  variant={isSelected ? "filled" : "outlined"}
+                  sx={{ ml: 1 }}
+                />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
       </List>
     </Box>
   );
@@ -542,16 +637,34 @@ const ClientDashboard = () => {
                             <Box sx={{ mt: 'auto', pt: 2 }}>
                               <Box sx={{ 
                                 display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
+                                flexDirection: 'column',
+                                gap: 0.5,
                                 mb: 2
                               }}>
-                                <Typography variant="body2" color="text.secondary">
-                                  Ціна:
-                                </Typography>
-                                <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
-                                  {product.price.toFixed(2)} грн
-                                </Typography>
+                                <Box sx={{ 
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center'
+                                }}>
+                                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+                                    Ціна в євро:
+                                  </Typography>
+                                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                                    {product.cost_price_eur ? product.cost_price_eur.toFixed(2) : product.cost_price?.toFixed(2) || '0.00'} €
+                                  </Typography>
+                                </Box>
+                                <Box sx={{ 
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center'
+                                }}>
+                                  <Typography variant="body2" color="text.secondary">
+                                    Ваша ціна:
+                                  </Typography>
+                                  <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
+                                    {product.price.toFixed(2)} грн
+                                  </Typography>
+                                </Box>
                               </Box>
 
                               {quantity > 0 ? (

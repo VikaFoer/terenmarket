@@ -77,16 +77,27 @@ const Cart = ({ open, onClose, cartItems, onUpdateQuantity, onRemoveItem, onClea
                         <DeleteIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
                       </IconButton>
                     </Box>
-                    <Typography 
-                      variant="body2" 
-                      color="text.secondary" 
-                      sx={{ 
-                        mb: 1,
-                        fontSize: { xs: '0.8rem', sm: '0.875rem' },
-                      }}
-                    >
-                      {item.price.toFixed(2)} грн за од.
-                    </Typography>
+                    <Box sx={{ mb: 1 }}>
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary" 
+                        sx={{ 
+                          fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                          mb: 0.5,
+                        }}
+                      >
+                        {item.cost_price_eur ? `${item.cost_price_eur.toFixed(2)} €` : (item.cost_price ? `${item.cost_price.toFixed(2)} €` : '')} за од.
+                      </Typography>
+                      <Typography 
+                        variant="body2" 
+                        color="text.secondary" 
+                        sx={{ 
+                          fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                        }}
+                      >
+                        {item.price.toFixed(2)} грн за од.
+                      </Typography>
+                    </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 2 }, width: '100%', flexWrap: 'wrap' }}>
                       <Typography 
                         variant="body2"

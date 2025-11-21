@@ -229,17 +229,49 @@ const createTables = () => {
           return;
         }
         console.log('ClientCategories table created/verified');
-        console.log('All tables created successfully');
         
-        // Create default admin user
-        console.log('Creating default admin user...');
-        createDefaultAdmin().then(() => {
-          console.log('Default admin user created successfully');
-          console.log('Database initialized successfully');
-          resolve();
-        }).catch((adminErr) => {
-          console.error('Error creating default admin:', adminErr);
-          reject(adminErr);
+        // CategoryManagers table (which manager is responsible for which category)
+        db.run(`CREATE TABLE IF NOT EXISTS category_managers (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          category_id INTEGER NOT NULL,
+          manager_id TEXT NOT NULL,
+          manager_name TEXT,
+          manager_email TEXT,
+          manager_phone TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+          UNIQUE(category_id, manager_id)
+        )`, (err) => {
+          if (err) {
+            console.error('Error creating category_managers table:', err);
+            reject(err);
+            return;
+          }
+          console.log('CategoryManagers table created/verified');
+          
+          // Add manager_id column to clients table if it doesn't exist (for direct client-manager assignment)
+          db.run(`ALTER TABLE clients ADD COLUMN manager_id TEXT`, (alterErr) => {
+            // Ignore error if column already exists
+            if (alterErr && !alterErr.message.includes('duplicate column')) {
+              console.error('Error adding manager_id column to clients:', alterErr);
+            } else {
+              console.log('manager_id column added/verified to clients table');
+            }
+          });
+          
+          console.log('All tables created successfully');
+          
+          // Create default admin user
+          console.log('Creating default admin user...');
+          createDefaultAdmin().then(() => {
+            console.log('Default admin user created successfully');
+            console.log('Database initialized successfully');
+            resolve();
+          }).catch((adminErr) => {
+            console.error('Error creating default admin:', adminErr);
+            reject(adminErr);
+          });
         });
       });
     });
