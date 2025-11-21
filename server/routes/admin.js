@@ -385,6 +385,110 @@ router.get('/categories', (req, res) => {
   });
 });
 
+// Get single category
+router.get('/categories/:id', (req, res) => {
+  const database = db.getDb();
+  const categoryId = req.params.id;
+  
+  database.get('SELECT * FROM categories WHERE id = ?', [categoryId], (err, category) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+    res.json(category);
+  });
+});
+
+// Create new category
+router.post('/categories', (req, res) => {
+  const { name } = req.body;
+  
+  if (!name) {
+    return res.status(400).json({ error: 'Category name is required' });
+  }
+
+  const database = db.getDb();
+  
+  database.run(
+    'INSERT INTO categories (name) VALUES (?)',
+    [name],
+    function(err) {
+      if (err) {
+        if (err.message.includes('UNIQUE constraint')) {
+          return res.status(400).json({ error: 'Category with this name already exists' });
+        }
+        return res.status(500).json({ error: err.message });
+      }
+      res.status(201).json({ id: this.lastID, message: 'Category created successfully' });
+    }
+  );
+});
+
+// Update category
+router.put('/categories/:id', (req, res) => {
+  const { name } = req.body;
+  const categoryId = req.params.id;
+  
+  if (!name) {
+    return res.status(400).json({ error: 'Category name is required' });
+  }
+
+  const database = db.getDb();
+  
+  database.run(
+    'UPDATE categories SET name = ? WHERE id = ?',
+    [name, categoryId],
+    function(err) {
+      if (err) {
+        if (err.message.includes('UNIQUE constraint')) {
+          return res.status(400).json({ error: 'Category with this name already exists' });
+        }
+        return res.status(500).json({ error: err.message });
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ error: 'Category not found' });
+      }
+      res.json({ message: 'Category updated successfully' });
+    }
+  );
+});
+
+// Delete category
+router.delete('/categories/:id', (req, res) => {
+  const database = db.getDb();
+  const categoryId = req.params.id;
+  
+  // Перевіряємо чи є товари в цій категорії
+  database.get(
+    'SELECT COUNT(*) as count FROM products WHERE category_id = ?',
+    [categoryId],
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      
+      if (result.count > 0) {
+        return res.status(400).json({ 
+          error: `Cannot delete category: there are ${result.count} products in this category` 
+        });
+      }
+      
+      // Видаляємо категорію
+      database.run('DELETE FROM categories WHERE id = ?', [categoryId], function(err) {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        if (this.changes === 0) {
+          return res.status(404).json({ error: 'Category not found' });
+        }
+        res.json({ message: 'Category deleted successfully' });
+      });
+    }
+  );
+});
+
 // Upload product image
 router.post('/products/:id/upload-image', upload.single('image'), (req, res) => {
   if (!req.file) {
@@ -613,229 +717,6 @@ router.post('/products/add-test-products', async (req, res) => {
   }
 });
 
-// Migrate categories endpoint - migrate old category to new ones
-router.post('/categories/migrate', async (req, res) => {
-  const database = db.getDb();
-  
-  try {
-    console.log('[Admin API] Starting category migration...');
-    
-    // Знаходимо стару категорію
-    const oldCategory = await new Promise((resolve, reject) => {
-      database.get(
-        "SELECT * FROM categories WHERE name = 'Сировина+колір. пасти'",
-        (err, row) => {
-          if (err) reject(err);
-          else resolve(row);
-        }
-      );
-    });
-    
-    if (!oldCategory) {
-      return res.json({
-        success: true,
-        message: 'Стара категорія не знайдена, міграція не потрібна',
-        migrated: false
-      });
-    }
-    
-    console.log(`[Admin API] Found old category: ${oldCategory.name} (ID: ${oldCategory.id})`);
-    
-    // Перевіряємо чи існують нові категорії
-    const [himiynaCategory, kolorantyCategory] = await Promise.all([
-      new Promise((resolve, reject) => {
-        database.get(
-          "SELECT * FROM categories WHERE name = 'Хімічна сировина'",
-          (err, row) => {
-            if (err) reject(err);
-            else resolve(row);
-          }
-        );
-      }),
-      new Promise((resolve, reject) => {
-        database.get(
-          "SELECT * FROM categories WHERE name = 'Колоранти'",
-          (err, row) => {
-            if (err) reject(err);
-            else resolve(row);
-          }
-        );
-      })
-    ]);
-    
-    // Створюємо нові категорії якщо їх немає
-    let himiynaId = himiynaCategory ? himiynaCategory.id : null;
-    let kolorantyId = kolorantyCategory ? kolorantyCategory.id : null;
-    
-    if (!himiynaId) {
-      himiynaId = await new Promise((resolve, reject) => {
-        database.run(
-          "INSERT INTO categories (name) VALUES ('Хімічна сировина')",
-          function(err) {
-            if (err) reject(err);
-            else resolve(this.lastID);
-          }
-        );
-      });
-    }
-    
-    if (!kolorantyId) {
-      kolorantyId = await new Promise((resolve, reject) => {
-        database.run(
-          "INSERT INTO categories (name) VALUES ('Колоранти')",
-          function(err) {
-            if (err) reject(err);
-            else resolve(this.lastID);
-          }
-        );
-      });
-    }
-    
-    // Отримуємо всі товари зі старої категорії
-    const products = await new Promise((resolve, reject) => {
-      database.all(
-        'SELECT * FROM products WHERE category_id = ?',
-        [oldCategory.id],
-        (err, rows) => {
-          if (err) reject(err);
-          else resolve(rows);
-        }
-      );
-    });
-    
-    // Мігруємо товари
-    let migratedToHimiyna = 0;
-    let migratedToKoloranty = 0;
-    
-    for (const product of products) {
-      const productName = product.name.toLowerCase();
-      let newCategoryId;
-      
-      if (productName.includes('сировина') || productName.includes('сировин')) {
-        newCategoryId = himiynaId;
-        migratedToHimiyna++;
-      } else {
-        newCategoryId = kolorantyId;
-        migratedToKoloranty++;
-      }
-      
-      await new Promise((resolve, reject) => {
-        database.run(
-          'UPDATE products SET category_id = ? WHERE id = ?',
-          [newCategoryId, product.id],
-          (err) => {
-            if (err) reject(err);
-            else resolve();
-          }
-        );
-      });
-    }
-    
-    // Мігруємо зв'язки клієнт-категорія
-    const clientCategories = await new Promise((resolve, reject) => {
-      database.all(
-        'SELECT * FROM client_categories WHERE category_id = ?',
-        [oldCategory.id],
-        (err, rows) => {
-          if (err) reject(err);
-          else resolve(rows);
-        }
-      );
-    });
-    
-    for (const cc of clientCategories) {
-      for (const newCategoryId of [himiynaId, kolorantyId]) {
-        await new Promise((resolve, reject) => {
-          database.run(
-            'INSERT OR IGNORE INTO client_categories (client_id, category_id) VALUES (?, ?)',
-            [cc.client_id, newCategoryId],
-            (err) => {
-              if (err) reject(err);
-              else resolve();
-            }
-          );
-        });
-      }
-    }
-    
-    // Видаляємо стару категорію
-    await new Promise((resolve, reject) => {
-      database.run(
-        'DELETE FROM categories WHERE id = ?',
-        [oldCategory.id],
-        (err) => {
-          if (err) reject(err);
-          else resolve();
-        }
-      );
-    });
-    
-    // Видаляємо дублікат "Коліранти" якщо він існує
-    const duplicateCategory = await new Promise((resolve, reject) => {
-      database.get(
-        "SELECT * FROM categories WHERE name = 'Коліранти'",
-        (err, row) => {
-          if (err) reject(err);
-          else resolve(row);
-        }
-      );
-    });
-    
-    if (duplicateCategory && kolorantyId) {
-      // Переміщуємо товари та зв'язки в правильну категорію
-      await new Promise((resolve, reject) => {
-        database.run(
-          'UPDATE products SET category_id = ? WHERE category_id = ?',
-          [kolorantyId, duplicateCategory.id],
-          (err) => {
-            if (err) reject(err);
-            else resolve();
-          }
-        );
-      });
-      
-      await new Promise((resolve, reject) => {
-        database.run(
-          'UPDATE client_categories SET category_id = ? WHERE category_id = ?',
-          [kolorantyId, duplicateCategory.id],
-          (err) => {
-            if (err) reject(err);
-            else resolve();
-          }
-        );
-      });
-      
-      await new Promise((resolve, reject) => {
-        database.run(
-          'DELETE FROM categories WHERE id = ?',
-          [duplicateCategory.id],
-          (err) => {
-            if (err) reject(err);
-            else resolve();
-          }
-        );
-      });
-    }
-    
-    res.json({
-      success: true,
-      message: 'Міграція категорій завершена успішно',
-      migrated: {
-        productsToHimiyna: migratedToHimiyna,
-        productsToKoloranty: migratedToKoloranty,
-        clientCategories: clientCategories.length,
-        deletedOldCategory: true,
-        deletedDuplicate: !!duplicateCategory
-      }
-    });
-  } catch (error) {
-    console.error('[Admin API] Migration error:', error);
-    res.status(500).json({
-      error: 'Помилка міграції категорій',
-      details: error.message
-    });
-  }
-});
 
 module.exports = router;
 

@@ -61,7 +61,6 @@ const ProductsManagement = () => {
   const [success, setSuccess] = useState('');
   const [addingTestProducts, setAddingTestProducts] = useState(false);
   const [syncingDatabase, setSyncingDatabase] = useState(false);
-  const [migratingCategories, setMigratingCategories] = useState(false);
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
@@ -333,27 +332,6 @@ const ProductsManagement = () => {
     }
   };
 
-  const handleMigrateCategories = async () => {
-    if (!window.confirm('Виконати міграцію категорій? Стара категорія "Сировина+колір. пасти" буде замінена на "Хімічна сировина" та "Колоранти".')) {
-      return;
-    }
-
-    setMigratingCategories(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      const response = await axios.post(`${API_URL}/admin/categories/migrate`);
-      setSuccess(response.data.message || 'Міграція категорій завершена успішно');
-      fetchProducts();
-      fetchCategories();
-    } catch (error) {
-      setError(error.response?.data?.error || 'Помилка міграції категорій');
-    } finally {
-      setMigratingCategories(false);
-    }
-  };
-
   const handleSyncDatabase = async () => {
     // Створюємо input для вибору файлу
     const input = document.createElement('input');
@@ -407,14 +385,6 @@ const ProductsManagement = () => {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Typography variant="h4">Управління продуктами</Typography>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          <Button
-            variant="outlined"
-            color="warning"
-            onClick={handleMigrateCategories}
-            disabled={migratingCategories}
-          >
-            {migratingCategories ? 'Міграція...' : 'Мігрувати категорії'}
-          </Button>
           <Button
             variant="outlined"
             color="info"
