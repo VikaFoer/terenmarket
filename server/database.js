@@ -110,7 +110,7 @@ const createTables = () => {
         // Insert default categories
         const categories = [
           'Хімічна сировина',
-          'Коліранти',
+          'Колоранти',
           'Брукер Оптікс (БІЧ)',
           'Колірувальне обладнання',
           'Фільтри',

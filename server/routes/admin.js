@@ -474,7 +474,7 @@ router.post('/products/add-test-products', async (req, res) => {
       { name: 'Сировина базова', cost_price: 10.50 },
       { name: 'Сировина преміум', cost_price: 15.75 },
     ],
-    'Коліранти': [
+    'Колоранти': [
       { name: 'Колірна паста біла', cost_price: 15.50 },
       { name: 'Колірна паста чорна', cost_price: 18.75 },
       { name: 'Колірна паста синя', cost_price: 16.20 },
