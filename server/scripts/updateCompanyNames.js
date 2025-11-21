@@ -102,6 +102,9 @@ const updateCompanyNames = async () => {
     let notFoundCount = 0;
     
     for (const [login, companyName] of uniqueClients) {
+      // Спочатку пробуємо знайти за точним логіном
+      let found = false;
+      
       await new Promise((resolve, reject) => {
         database.run(
           'UPDATE clients SET company_name = ? WHERE login = ?',
@@ -114,15 +117,60 @@ const updateCompanyNames = async () => {
               if (this.changes > 0) {
                 console.log('Updated: ' + login + ' -> ' + companyName);
                 updatedCount++;
-              } else {
-                console.log('Not found in database: ' + login + ' (' + companyName + ')');
-                notFoundCount++;
+                found = true;
               }
               resolve();
             }
           }
         );
       });
+      
+      // Якщо не знайдено за точним логіном, пробуємо знайти за частиною логіну
+      if (!found) {
+        await new Promise((resolve, reject) => {
+          // Видаляємо останні символи з логіну для пошуку
+          const loginPrefix = login.replace(/[a-z]$/, '').replace(/[a-z]$/, '');
+          
+          database.all(
+            'SELECT id, login FROM clients WHERE login LIKE ? AND (company_name IS NULL OR company_name = "")',
+            [loginPrefix + '%'],
+            function(err, rows) {
+              if (err) {
+                reject(err);
+              } else {
+                if (rows.length === 1) {
+                  // Знайдено один клієнт, оновлюємо його
+                  database.run(
+                    'UPDATE clients SET company_name = ? WHERE id = ?',
+                    [companyName, rows[0].id],
+                    function(updateErr) {
+                      if (updateErr) {
+                        console.error('Error updating client by ID:', updateErr);
+                        reject(updateErr);
+                      } else {
+                        console.log('Updated (by partial match): ' + rows[0].login + ' -> ' + companyName);
+                        updatedCount++;
+                        found = true;
+                        resolve();
+                      }
+                    }
+                  );
+                } else {
+                  // Не знайдено або знайдено багато
+                  if (rows.length === 0) {
+                    console.log('Not found in database: ' + login + ' (' + companyName + ')');
+                    notFoundCount++;
+                  } else {
+                    console.log('Multiple matches found for: ' + login + ' (' + companyName + '), skipping');
+                    notFoundCount++;
+                  }
+                  resolve();
+                }
+              }
+            }
+          );
+        });
+      }
     }
     
     console.log('\n=== Update completed! ===');
