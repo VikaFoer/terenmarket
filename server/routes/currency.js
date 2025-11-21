@@ -179,6 +179,27 @@ const parseUdinformRates = (html) => {
   return rates;
 };
 
+// Helper function to get rate from NBU API (more reliable)
+const getRateFromNBU = async (code) => {
+  try {
+    // NBU API endpoint
+    const nbuCode = code === 'EUR' ? 'EUR' : 'USD';
+    const nbuResponse = await axios.get(`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=${nbuCode}&json`, {
+      timeout: 5000,
+      httpsAgent: httpsAgent
+    });
+    
+    if (nbuResponse.data && nbuResponse.data.length > 0) {
+      const rate = nbuResponse.data[0].rate;
+      console.log(`[NBU API] Found ${code} rate:`, rate);
+      return rate;
+    }
+  } catch (error) {
+    console.log(`[NBU API] Failed for ${code}, trying udinform.com...`);
+  }
+  return null;
+};
+
 // Get exchange rates from NBU API (primary) or udinform.com (fallback)
 // IMPORTANT: This route must be registered BEFORE /rates/:currencyCode
 router.get('/rates', async (req, res) => {
@@ -267,27 +288,6 @@ router.get('/rates', async (req, res) => {
     });
   }
 });
-
-// Try to get rate from NBU API first (more reliable)
-const getRateFromNBU = async (code) => {
-  try {
-    // NBU API endpoint
-    const nbuCode = code === 'EUR' ? 'EUR' : 'USD';
-    const nbuResponse = await axios.get(`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=${nbuCode}&json`, {
-      timeout: 5000,
-      httpsAgent: httpsAgent
-    });
-    
-    if (nbuResponse.data && nbuResponse.data.length > 0) {
-      const rate = nbuResponse.data[0].rate;
-      console.log(`[NBU API] Found ${code} rate:`, rate);
-      return rate;
-    }
-  } catch (error) {
-    console.log(`[NBU API] Failed for ${code}, trying udinform.com...`);
-  }
-  return null;
-};
 
 // Get exchange rate for specific currency (EUR or USD)
 // IMPORTANT: This route must be registered AFTER /rates route
