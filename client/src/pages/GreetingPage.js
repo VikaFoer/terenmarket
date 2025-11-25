@@ -49,11 +49,15 @@ const GreetingPage = () => {
         // Отримуємо привітання та товари паралельно
         const [greetingResponse, productsResponse] = await Promise.all([
           axios.get(`${API_URL}/greetings/${category}`),
-          axios.get(`${API_URL}/greetings/${category}/products`)
+          axios.get(`${API_URL}/greetings/${category}/products`).catch(err => {
+            // Якщо товари не знайдено, повертаємо порожній масив
+            console.warn('Products not found or error:', err);
+            return { data: [] };
+          })
         ]);
         
         setGreeting(greetingResponse.data.greeting);
-        setProducts(productsResponse.data);
+        setProducts(productsResponse.data || []);
         setError(null);
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -171,6 +175,29 @@ const GreetingPage = () => {
       }}
     >
       <Container maxWidth="lg">
+        {/* Логотип */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mb: 3,
+          }}
+        >
+          <Box
+            component="img"
+            src="/logo.png"
+            alt="SmartMarket Logo"
+            sx={{
+              height: { xs: 40, sm: 50 },
+              objectFit: 'contain',
+            }}
+            onError={(e) => {
+              // Якщо логотип не знайдено, приховуємо його
+              e.target.style.display = 'none';
+            }}
+          />
+        </Box>
         {/* Привітання */}
         <Paper
           elevation={24}
@@ -216,20 +243,34 @@ const GreetingPage = () => {
         </Paper>
 
         {/* Товари */}
-        {products.length > 0 && (
-          <Box sx={{ mb: 4 }}>
-            <Typography
-              variant="h4"
+        <Box sx={{ mb: 4 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              color: 'white',
+              mb: 3,
+              textAlign: 'center',
+              fontSize: { xs: '1.5rem', sm: '2rem' },
+            }}
+          >
+            Товари категорії
+          </Typography>
+          
+          {products.length === 0 ? (
+            <Paper
               sx={{
-                fontWeight: 700,
-                color: 'white',
-                mb: 3,
+                p: 4,
                 textAlign: 'center',
-                fontSize: { xs: '1.5rem', sm: '2rem' },
+                borderRadius: 3,
+                background: 'rgba(255, 255, 255, 0.95)',
               }}
             >
-              Товари категорії
-            </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Товари будуть додані найближчим часом
+              </Typography>
+            </Paper>
+          ) : (
             <Grid container spacing={{ xs: 2, sm: 3 }}>
               {products.map((product) => (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
@@ -283,8 +324,8 @@ const GreetingPage = () => {
                 </Grid>
               ))}
             </Grid>
-          </Box>
-        )}
+          )}
+        </Box>
 
         {/* Форма реєстрації */}
         <Paper

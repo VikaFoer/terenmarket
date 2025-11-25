@@ -60,6 +60,7 @@ const ProductsManagement = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [addingTestProducts, setAddingTestProducts] = useState(false);
+  const [addingQRTestProducts, setAddingQRTestProducts] = useState(false);
   const [syncingDatabase, setSyncingDatabase] = useState(false);
   const [tabValue, setTabValue] = useState(0);
 
@@ -332,6 +333,26 @@ const ProductsManagement = () => {
     }
   };
 
+  const handleAddQRTestProducts = async () => {
+    if (!window.confirm('Додати тестові товари для QR-сторінок? Це додасть по 10 товарів для кожної з 6 категорій (60 товарів).')) {
+      return;
+    }
+
+    setAddingQRTestProducts(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await axios.post(`${API_URL}/admin/products/add-qr-test-products`);
+      setSuccess(response.data.message || `Додано ${response.data.added} товарів`);
+      fetchProducts();
+    } catch (error) {
+      setError(error.response?.data?.error || 'Помилка додавання QR тестових товарів');
+    } finally {
+      setAddingQRTestProducts(false);
+    }
+  };
+
   const handleSyncDatabase = async () => {
     // Створюємо input для вибору файлу
     const input = document.createElement('input');
@@ -401,6 +422,14 @@ const ProductsManagement = () => {
             disabled={addingTestProducts}
           >
             {addingTestProducts ? 'Додавання...' : 'Додати тестові товари'}
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleAddQRTestProducts}
+            disabled={addingQRTestProducts}
+          >
+            {addingQRTestProducts ? 'Додавання...' : 'Додати QR тестові товари (60 шт)'}
           </Button>
           <Button
             variant="contained"
