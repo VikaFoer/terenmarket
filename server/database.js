@@ -261,6 +261,21 @@ const createTables = () => {
             }
           });
           
+          // Email subscriptions table (for QR page registrations)
+          db.run(`CREATE TABLE IF NOT EXISTS email_subscriptions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL,
+            category TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(email)
+          )`, (err) => {
+            if (err) {
+              console.error('Error creating email_subscriptions table:', err);
+            } else {
+              console.log('EmailSubscriptions table created/verified');
+            }
+          });
+          
           console.log('All tables created successfully');
           
           // Create default admin user

@@ -18,10 +18,12 @@ import {
 import PeopleIcon from '@mui/icons-material/People';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import CategoryIcon from '@mui/icons-material/Category';
+import EmailIcon from '@mui/icons-material/Email';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ClientsManagement from '../components/admin/ClientsManagement';
 import ProductsManagement from '../components/admin/ProductsManagement';
 import CategoriesManagement from '../components/admin/CategoriesManagement';
+import EmailSubscriptions from '../components/admin/EmailSubscriptions';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
@@ -41,6 +43,7 @@ const AdminDashboard = () => {
     { text: 'Клієнти', path: '/admin/clients', icon: <PeopleIcon /> },
     { text: 'Продукти', path: '/admin/products', icon: <InventoryIcon /> },
     { text: 'Категорії', path: '/admin/categories', icon: <CategoryIcon /> },
+    { text: 'Email підписки', path: '/admin/email-subscriptions', icon: <EmailIcon /> },
   ];
 
   useEffect(() => {
@@ -244,6 +247,7 @@ const AdminDashboard = () => {
             <Route path="clients" element={<ClientsManagement />} />
             <Route path="products" element={<ProductsManagement />} />
             <Route path="categories" element={<CategoriesManagement />} />
+            <Route path="email-subscriptions" element={<EmailSubscriptions />} />
             <Route path="*" element={<ClientsManagement />} />
           </Routes>
         </Container>

@@ -736,6 +736,43 @@ router.post('/products/add-test-products', async (req, res) => {
   }
 });
 
+// ========== EMAIL SUBSCRIPTIONS MANAGEMENT ==========
+
+// Get all email subscriptions
+router.get('/email-subscriptions', (req, res) => {
+  const database = db.getDb();
+  
+  database.all(`
+    SELECT 
+      id,
+      email,
+      category,
+      created_at
+    FROM email_subscriptions
+    ORDER BY created_at DESC
+  `, (err, subscriptions) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(subscriptions);
+  });
+});
+
+// Delete email subscription
+router.delete('/email-subscriptions/:id', (req, res) => {
+  const database = db.getDb();
+  const subscriptionId = req.params.id;
+  
+  database.run('DELETE FROM email_subscriptions WHERE id = ?', [subscriptionId], function(err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (this.changes === 0) {
+      return res.status(404).json({ error: 'Subscription not found' });
+    }
+    res.json({ message: 'Subscription deleted successfully' });
+  });
+});
 
 module.exports = router;
 

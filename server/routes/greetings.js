@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
+const { sendSubscriptionEmail } = require('../utils/email');
 
 // Привітання для кожної категорії
 const greetings = {
@@ -153,7 +154,7 @@ router.get('/:category/products', (req, res) => {
 });
 
 // Зберегти email для реєстрації
-router.post('/register-email', (req, res) => {
+router.post('/register-email', async (req, res) => {
   const { email, category } = req.body;
   
   if (!email || !email.includes('@')) {
@@ -162,12 +163,14 @@ router.post('/register-email', (req, res) => {
   
   const database = db.getDb();
   
-  // Перевіряємо чи email вже існує
-  database.get('SELECT id FROM clients WHERE email = ?', [email], (err, existing) => {
-    if (err) {
-      console.error('Error checking email:', err);
-      return res.status(500).json({ error: err.message });
-    }
+  try {
+    // Перевіряємо чи email вже існує в підписках
+    const existing = await new Promise((resolve, reject) => {
+      database.get('SELECT id FROM email_subscriptions WHERE email = ?', [email], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
     
     if (existing) {
       return res.json({ 
@@ -177,25 +180,34 @@ router.post('/register-email', (req, res) => {
       });
     }
     
-    // Зберігаємо email з тимчасовим логіном (без пароля, адмін зможе створити повний акаунт пізніше)
-    const tempLogin = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    database.run(
-      'INSERT INTO clients (login, password, email) VALUES (?, ?, ?)',
-      [tempLogin, '', email],
-      function(insertErr) {
-        if (insertErr) {
-          console.error('Error inserting email:', insertErr);
-          return res.status(500).json({ error: insertErr.message });
+    // Зберігаємо email в таблицю підписок
+    await new Promise((resolve, reject) => {
+      database.run(
+        'INSERT INTO email_subscriptions (email, category) VALUES (?, ?)',
+        [email, category || null],
+        function(insertErr) {
+          if (insertErr) reject(insertErr);
+          else resolve(this.lastID);
         }
-        
-        res.json({ 
-          success: true, 
-          message: 'Email успішно зареєстровано',
-          alreadyExists: false
-        });
-      }
-    );
-  });
+      );
+    });
+    
+    // Відправляємо email на vikafoer@gmail.com
+    const emailResult = await sendSubscriptionEmail(email, category);
+    if (!emailResult.success) {
+      console.warn('Failed to send notification email:', emailResult.error);
+      // Не блокуємо успішну реєстрацію, якщо email не відправився
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Email успішно зареєстровано',
+      alreadyExists: false
+    });
+  } catch (error) {
+    console.error('Error registering email:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 module.exports = router;
