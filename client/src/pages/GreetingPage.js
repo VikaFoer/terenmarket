@@ -106,18 +106,43 @@ const GreetingPage = () => {
     }
   };
 
-  // Generate SVG image for product
+  // Generate SVG image for product (більш акуратний дизайн)
   const getProductImage = (product) => {
     const productName = product.name;
-    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3', '#FFD93D', '#6BCB77', '#4D96FF'];
+    // Використовуємо більш приглушені, професійні кольори
+    const gradients = [
+      ['#667eea', '#764ba2'],
+      ['#f093fb', '#f5576c'],
+      ['#4facfe', '#00f2fe'],
+      ['#43e97b', '#38f9d7'],
+      ['#fa709a', '#fee140'],
+      ['#30cfd0', '#330867'],
+      ['#a8edea', '#fed6e3'],
+      ['#ff9a9e', '#fecfef'],
+      ['#ffecd2', '#fcb69f'],
+      ['#ff8a80', '#ea4c89'],
+    ];
+    
     let hash = 0;
     for (let i = 0; i < productName.length; i++) {
       hash = productName.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const colorIndex = Math.abs(hash) % colors.length;
-    const bgColor = colors[colorIndex];
+    const gradientIndex = Math.abs(hash) % gradients.length;
+    const [color1, color2] = gradients[gradientIndex];
     
-    const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="${bgColor}"/><text x="50%" y="50%" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text></svg>`;
+    // Створюємо більш акуратний SVG з градієнтом
+    const svg = `
+      <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="grad${hash}" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:${color1};stop-opacity:1" />
+            <stop offset="100%" style="stop-color:${color2};stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        <rect width="400" height="300" fill="url(#grad${hash})"/>
+        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.95">${productName}</text>
+      </svg>
+    `;
     
     return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
   };
@@ -280,41 +305,80 @@ const GreetingPage = () => {
                       display: 'flex',
                       flexDirection: 'column',
                       borderRadius: 3,
-                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                      background: 'rgba(255, 255, 255, 0.98)',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      overflow: 'hidden',
                       '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: 6,
+                        transform: 'translateY(-8px)',
+                        boxShadow: '0 12px 24px rgba(0, 0, 0, 0.15)',
+                        borderColor: 'rgba(102, 126, 234, 0.3)',
                       },
                     }}
                   >
                     <Box
                       sx={{
                         width: '100%',
-                        height: { xs: 180, sm: 200 },
-                        backgroundColor: '#f0f0f0',
+                        height: { xs: 200, sm: 220 },
+                        background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         overflow: 'hidden',
+                        position: 'relative',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
+                          zIndex: 1,
+                        },
                       }}
                     >
-                      <img
+                      <Box
+                        component="img"
                         src={getProductImage(product)}
                         alt={product.name}
-                        style={{
+                        sx={{
                           width: '100%',
                           height: '100%',
                           objectFit: 'cover',
+                          position: 'relative',
+                          zIndex: 2,
+                          transition: 'transform 0.3s ease',
+                          '&:hover': {
+                            transform: 'scale(1.05)',
+                          },
                         }}
                       />
                     </Box>
-                    <CardContent sx={{ flexGrow: 1 }}>
+                    <CardContent 
+                      sx={{ 
+                        flexGrow: 1,
+                        p: { xs: 2, sm: 2.5 },
+                        display: 'flex',
+                        alignItems: 'center',
+                        minHeight: { xs: 70, sm: 80 },
+                      }}
+                    >
                       <Typography
                         variant="h6"
                         component="h3"
                         sx={{
                           fontWeight: 600,
-                          fontSize: { xs: '1rem', sm: '1.1rem' },
+                          fontSize: { xs: '0.95rem', sm: '1.05rem' },
+                          color: '#2c3e50',
+                          lineHeight: 1.4,
+                          textAlign: 'center',
+                          width: '100%',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
                         }}
                       >
                         {product.name}
