@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const db = require('../database');
 
 // Привітання для кожної категорії
 const greetings = {
@@ -95,6 +96,16 @@ const greetings = {
   ]
 };
 
+// Мапінг URL категорій до назв категорій в БД
+const categoryMapping = {
+  'colorant': 'Колоранти',
+  'mix': 'Колірувальне обладнання',
+  'bruker-o': 'Брукер Оптікс (БІЧ)',
+  'axs': 'Брукер АХС',
+  'filter': 'Фільтри',
+  'lab': 'Лабораторка'
+};
+
 // Отримати рандомне привітання для категорії
 router.get('/:category', (req, res) => {
   const { category } = req.params;
@@ -110,6 +121,80 @@ router.get('/:category', (req, res) => {
   res.json({
     category,
     greeting: randomGreeting
+  });
+});
+
+// Отримати товари категорії (без цін, публічний доступ)
+router.get('/:category/products', (req, res) => {
+  const { category } = req.params;
+  const database = db.getDb();
+  
+  const categoryName = categoryMapping[category];
+  if (!categoryName) {
+    return res.status(404).json({ error: 'Category not found' });
+  }
+  
+  database.all(`
+    SELECT 
+      p.id,
+      p.name,
+      p.image_url,
+      c.name as category_name
+    FROM products p
+    JOIN categories c ON p.category_id = c.id
+    WHERE c.name = ?
+    ORDER BY p.name
+  `, [categoryName], (err, products) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(products);
+  });
+});
+
+// Зберегти email для реєстрації
+router.post('/register-email', (req, res) => {
+  const { email, category } = req.body;
+  
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ error: 'Valid email is required' });
+  }
+  
+  const database = db.getDb();
+  
+  // Перевіряємо чи email вже існує
+  database.get('SELECT id FROM clients WHERE email = ?', [email], (err, existing) => {
+    if (err) {
+      console.error('Error checking email:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    
+    if (existing) {
+      return res.json({ 
+        success: true, 
+        message: 'Email вже зареєстровано',
+        alreadyExists: true
+      });
+    }
+    
+    // Зберігаємо email з тимчасовим логіном (без пароля, адмін зможе створити повний акаунт пізніше)
+    const tempLogin = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    database.run(
+      'INSERT INTO clients (login, password, email) VALUES (?, ?, ?)',
+      [tempLogin, '', email],
+      function(insertErr) {
+        if (insertErr) {
+          console.error('Error inserting email:', insertErr);
+          return res.status(500).json({ error: insertErr.message });
+        }
+        
+        res.json({ 
+          success: true, 
+          message: 'Email успішно зареєстровано',
+          alreadyExists: false
+        });
+      }
+    );
   });
 });
 

@@ -567,6 +567,25 @@ router.delete('/products/:id/image', (req, res) => {
   );
 });
 
+// Add QR test products (10 for each category)
+router.post('/products/add-qr-test-products', async (req, res) => {
+  try {
+    const { addQRTestProducts } = require('../scripts/addQRTestProducts');
+    const result = await addQRTestProducts();
+    res.json({
+      success: true,
+      message: `Додано ${result.added} товарів, пропущено ${result.skipped} (вже існують)`,
+      ...result
+    });
+  } catch (error) {
+    console.error('Error adding QR test products:', error);
+    res.status(500).json({ 
+      error: 'Помилка додавання тестових товарів',
+      details: error.message 
+    });
+  }
+});
+
 // Add test products for all categories
 router.post('/products/add-test-products', async (req, res) => {
   const database = db.getDb();

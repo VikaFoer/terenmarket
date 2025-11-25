@@ -6,29 +6,29 @@ import {
   Typography,
   Paper,
   CircularProgress,
+  TextField,
   Button,
+  Grid,
+  Card,
+  CardContent,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
 
-// Мапінг категорій до назв
-const categoryNames = {
-  'colorant': 'Колоранти',
-  'mix': 'Колірувальне обладнання',
-  'bruker-o': 'Брукер Оптікс (БІЧ)',
-  'axs': 'Брукер АХС',
-  'filter': 'Фільтри',
-  'lab': 'Лабораторка'
-};
-
 const GreetingPage = () => {
   const location = useLocation();
   const category = location.pathname.replace('/', ''); // Отримуємо категорію з URL
   const [greeting, setGreeting] = useState(null);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [email, setEmail] = useState('');
+  const [emailSubmitted, setEmailSubmitted] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const navigate = useNavigate();
 
   // Валідні категорії для привітань
@@ -42,22 +42,81 @@ const GreetingPage = () => {
       return;
     }
 
-    const fetchGreeting = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/greetings/${category}`);
-        setGreeting(response.data.greeting);
+        
+        // Отримуємо привітання та товари паралельно
+        const [greetingResponse, productsResponse] = await Promise.all([
+          axios.get(`${API_URL}/greetings/${category}`),
+          axios.get(`${API_URL}/greetings/${category}/products`)
+        ]);
+        
+        setGreeting(greetingResponse.data.greeting);
+        setProducts(productsResponse.data);
         setError(null);
       } catch (err) {
-        console.error('Error fetching greeting:', err);
-        setError('Не вдалося завантажити привітання');
+        console.error('Error fetching data:', err);
+        setError('Не вдалося завантажити дані');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchGreeting();
+    fetchData();
   }, [category]);
+
+  const handleEmailSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!email || !email.includes('@')) {
+      setSnackbar({
+        open: true,
+        message: 'Будь ласка, введіть валідний email',
+        severity: 'error'
+      });
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${API_URL}/greetings/register-email`, {
+        email,
+        category
+      });
+
+      setEmailSubmitted(true);
+      setSnackbar({
+        open: true,
+        message: response.data.alreadyExists 
+          ? 'Цей email вже зареєстровано' 
+          : 'Email успішно зареєстровано! Ми зв\'яжемося з вами найближчим часом.',
+        severity: 'success'
+      });
+      setEmail('');
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: 'Помилка реєстрації. Спробуйте ще раз.',
+        severity: 'error'
+      });
+    }
+  };
+
+  // Generate SVG image for product
+  const getProductImage = (product) => {
+    const productName = product.name;
+    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3', '#FFD93D', '#6BCB77', '#4D96FF'];
+    let hash = 0;
+    for (let i = 0; i < productName.length; i++) {
+      hash = productName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const colorIndex = Math.abs(hash) % colors.length;
+    const bgColor = colors[colorIndex];
+    
+    const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="${bgColor}"/><text x="50%" y="50%" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text></svg>`;
+    
+    return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+  };
 
   if (loading) {
     return (
@@ -106,49 +165,30 @@ const GreetingPage = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        py: 4,
+        py: { xs: 3, sm: 4 },
         px: 2,
       }}
     >
-      <Container maxWidth="md">
+      <Container maxWidth="lg">
+        {/* Привітання */}
         <Paper
           elevation={24}
           sx={{
-            p: { xs: 3, sm: 6, md: 8 },
+            p: { xs: 3, sm: 4, md: 5 },
             textAlign: 'center',
             borderRadius: 4,
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(10px)',
+            mb: 4,
           }}
         >
-          <Typography
-            variant="h4"
-            component="h1"
-            gutterBottom
-            sx={{
-              fontWeight: 700,
-              color: '#2c3e50',
-              mb: 3,
-              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
-            }}
-          >
-            {categoryNames[category] || category}
-          </Typography>
-
           <Box
             sx={{
-              my: 4,
-              p: { xs: 3, sm: 4 },
+              p: { xs: 2, sm: 3 },
               borderRadius: 3,
               background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-              minHeight: { xs: 150, sm: 200 },
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              mb: 3,
             }}
           >
             <Typography
@@ -157,45 +197,194 @@ const GreetingPage = () => {
                 fontWeight: 500,
                 color: '#2c3e50',
                 lineHeight: 1.8,
-                fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
+                fontSize: { xs: '1.1rem', sm: '1.3rem', md: '1.5rem' },
               }}
             >
               {greeting}
             </Typography>
           </Box>
 
-          <Box sx={{ mt: 4 }}>
+          <Typography
+            variant="body1"
+            sx={{
+              color: '#7f8c8d',
+              fontSize: { xs: '0.875rem', sm: '1rem' },
+            }}
+          >
+            З Новим 2026 роком! 🎉
+          </Typography>
+        </Paper>
+
+        {/* Товари */}
+        {products.length > 0 && (
+          <Box sx={{ mb: 4 }}>
             <Typography
-              variant="body1"
+              variant="h4"
               sx={{
-                color: '#7f8c8d',
-                fontSize: { xs: '0.875rem', sm: '1rem' },
-                mb: 2,
+                fontWeight: 700,
+                color: 'white',
+                mb: 3,
+                textAlign: 'center',
+                fontSize: { xs: '1.5rem', sm: '2rem' },
               }}
             >
-              З Новим 2026 роком! 🎉
+              Товари категорії
             </Typography>
-            <Button
-              variant="outlined"
-              onClick={() => window.location.reload()}
+            <Grid container spacing={{ xs: 2, sm: 3 }}>
+              {products.map((product) => (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+                  <Card
+                    sx={{
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      borderRadius: 3,
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: 6,
+                      },
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: { xs: 180, sm: 200 },
+                        backgroundColor: '#f0f0f0',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <img
+                        src={getProductImage(product)}
+                        alt={product.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </Box>
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Typography
+                        variant="h6"
+                        component="h3"
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: { xs: '1rem', sm: '1.1rem' },
+                        }}
+                      >
+                        {product.name}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        )}
+
+        {/* Форма реєстрації */}
+        <Paper
+          elevation={24}
+          sx={{
+            p: { xs: 3, sm: 4, md: 5 },
+            textAlign: 'center',
+            borderRadius: 4,
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 700,
+              color: '#2c3e50',
+              mb: 2,
+              fontSize: { xs: '1.25rem', sm: '1.5rem' },
+            }}
+          >
+            Хочете бачити персональні ціни?
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              color: '#7f8c8d',
+              mb: 3,
+              fontSize: { xs: '0.875rem', sm: '1rem' },
+            }}
+          >
+            Залиште свій email, і ми зв'яжемося з вами для налаштування персонального доступу до цін
+          </Typography>
+
+          {!emailSubmitted ? (
+            <Box
+              component="form"
+              onSubmit={handleEmailSubmit}
               sx={{
-                mt: 2,
-                px: 4,
-                py: 1.5,
-                borderRadius: 2,
-                textTransform: 'none',
-                fontSize: '1rem',
-                fontWeight: 600,
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: 2,
+                maxWidth: 500,
+                mx: 'auto',
               }}
             >
-              Отримати інше привітання
-            </Button>
-          </Box>
+              <TextField
+                type="email"
+                placeholder="Ваш email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                fullWidth
+                variant="outlined"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                  },
+                }}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Зареєструватись
+              </Button>
+            </Box>
+          ) : (
+            <Alert severity="success" sx={{ maxWidth: 500, mx: 'auto' }}>
+              Дякуємо! Ми зв'яжемося з вами найближчим часом.
+            </Alert>
+          )}
         </Paper>
       </Container>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
 
 export default GreetingPage;
-
