@@ -261,6 +261,8 @@ const createTables = () => {
             }
           });
           
+          console.log('All tables created successfully');
+          
           // Email subscriptions table (for QR page registrations)
           db.run(`CREATE TABLE IF NOT EXISTS email_subscriptions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -275,8 +277,6 @@ const createTables = () => {
               console.log('EmailSubscriptions table created/verified');
             }
           });
-          
-          console.log('All tables created successfully');
           
           // Create default admin user
           console.log('Creating default admin user...');
