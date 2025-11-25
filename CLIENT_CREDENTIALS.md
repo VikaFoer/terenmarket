@@ -16,7 +16,7 @@
 
 ### 4. Скантрейд-Україна
 - **Login**: `skantreyd_ukrayina`
-- **Password**: `xXRqSg0K`
+- **Password**: `xXRqSg0K`image.png
 
 ### 5. БТА
 - **Login**: `bta`

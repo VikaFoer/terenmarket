@@ -6,6 +6,7 @@ import { Box, CircularProgress } from '@mui/material';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import ClientDashboard from './pages/ClientDashboard';
+import GreetingPage from './pages/GreetingPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 const theme = createTheme({
@@ -181,6 +182,12 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route path="/colorant" element={<GreetingPage />} />
+            <Route path="/mix" element={<GreetingPage />} />
+            <Route path="/bruker-o" element={<GreetingPage />} />
+            <Route path="/axs" element={<GreetingPage />} />
+            <Route path="/filter" element={<GreetingPage />} />
+            <Route path="/lab" element={<GreetingPage />} />
             <Route path="/" element={<Navigate to="/login" />} />
           </Routes>
         </Router>
