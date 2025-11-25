@@ -29,6 +29,7 @@ const GreetingPage = () => {
   const [email, setEmail] = useState('');
   const [emailSubmitted, setEmailSubmitted] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [loadingGreeting, setLoadingGreeting] = useState(false);
   const navigate = useNavigate();
 
   // Валідні категорії для привітань
@@ -69,6 +70,23 @@ const GreetingPage = () => {
 
     fetchData();
   }, [category]);
+
+  const handleGetNewGreeting = async () => {
+    setLoadingGreeting(true);
+    try {
+      const response = await axios.get(`${API_URL}/greetings/${category}`);
+      setGreeting(response.data.greeting);
+    } catch (err) {
+      console.error('Error fetching greeting:', err);
+      setSnackbar({
+        open: true,
+        message: 'Не вдалося завантажити привітання',
+        severity: 'error'
+      });
+    } finally {
+      setLoadingGreeting(false);
+    }
+  };
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
@@ -261,10 +279,34 @@ const GreetingPage = () => {
             sx={{
               color: '#7f8c8d',
               fontSize: { xs: '0.875rem', sm: '1rem' },
+              mb: 2,
             }}
           >
             З Новим 2026 роком! 🎉
           </Typography>
+          
+          <Button
+            variant="outlined"
+            onClick={handleGetNewGreeting}
+            disabled={loadingGreeting}
+            sx={{
+              mt: 1,
+              px: 3,
+              py: 1,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              borderColor: '#667eea',
+              color: '#667eea',
+              '&:hover': {
+                borderColor: '#764ba2',
+                backgroundColor: 'rgba(102, 126, 234, 0.04)',
+              },
+            }}
+          >
+            {loadingGreeting ? 'Завантаження...' : 'Ще одне побажання'}
+          </Button>
         </Paper>
 
         {/* Товари */}
@@ -296,23 +338,23 @@ const GreetingPage = () => {
               </Typography>
             </Paper>
           ) : (
-            <Grid container spacing={{ xs: 2, sm: 3 }}>
+            <Grid container spacing={{ xs: 1.5, sm: 2 }}>
               {products.map((product) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+                <Grid item xs={6} sm={4} md={3} lg={2.4} key={product.id}>
                   <Card
                     sx={{
                       height: '100%',
                       display: 'flex',
                       flexDirection: 'column',
-                      borderRadius: 3,
+                      borderRadius: 2,
                       background: 'rgba(255, 255, 255, 0.98)',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       border: '1px solid rgba(255, 255, 255, 0.2)',
                       overflow: 'hidden',
                       '&:hover': {
-                        transform: 'translateY(-8px)',
-                        boxShadow: '0 12px 24px rgba(0, 0, 0, 0.15)',
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
                         borderColor: 'rgba(102, 126, 234, 0.3)',
                       },
                     }}
@@ -320,7 +362,7 @@ const GreetingPage = () => {
                     <Box
                       sx={{
                         width: '100%',
-                        height: { xs: 200, sm: 220 },
+                        height: { xs: 120, sm: 140 },
                         background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
                         display: 'flex',
                         alignItems: 'center',
@@ -359,20 +401,20 @@ const GreetingPage = () => {
                     <CardContent 
                       sx={{ 
                         flexGrow: 1,
-                        p: { xs: 2, sm: 2.5 },
+                        p: { xs: 1, sm: 1.5 },
                         display: 'flex',
                         alignItems: 'center',
-                        minHeight: { xs: 70, sm: 80 },
+                        minHeight: { xs: 50, sm: 60 },
                       }}
                     >
                       <Typography
-                        variant="h6"
+                        variant="body2"
                         component="h3"
                         sx={{
                           fontWeight: 600,
-                          fontSize: { xs: '0.95rem', sm: '1.05rem' },
+                          fontSize: { xs: '0.75rem', sm: '0.85rem' },
                           color: '#2c3e50',
-                          lineHeight: 1.4,
+                          lineHeight: 1.3,
                           textAlign: 'center',
                           width: '100%',
                           display: '-webkit-box',
