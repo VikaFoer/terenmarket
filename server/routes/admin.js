@@ -736,6 +736,94 @@ router.post('/products/add-test-products', async (req, res) => {
   }
 });
 
+// Add filter products (10 specific products for Filters category)
+router.post('/products/add-filter-products', async (req, res) => {
+  const database = db.getDb();
+  
+  // Товари для категорії "Фільтри"
+  const filterProducts = [
+    'Фільтруючий елемент мішечного типу AGFE-51-R02H-O-15L (F5870079)',
+    'Фільтруючий елемент мішечного типу PEXL-1-P01H-30L',
+    'Корпус фільтру для використання з фільтрувальним мішком FBF-0102-AD10-050D (FL-0037)',
+    'Корпус фільтру для використання з фільтрувальним мішком SF1A2-10-050B',
+    'Фільтруючий елемент мішечного типу PE-5-P0S2',
+    'Фільтруючий елемент мішечного типу NMO-200-P02S',
+    'Фільтруючий елемент картриджного типу 03PP020-307SAG',
+    'Капсульний фільтр BA-PTD2222-AC-5S',
+    'Гофрований картридж з нержавіючої сталі CRPM4020H107E',
+    'Фільтруючий елемент картриджного типу CRPPA0305003E'
+  ];
+
+  try {
+    // Отримуємо категорію "Фільтри"
+    const category = await new Promise((resolve, reject) => {
+      database.get('SELECT * FROM categories WHERE name = ?', ['Фільтри'], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+    
+    if (!category) {
+      return res.status(404).json({ error: 'Category "Фільтри" not found' });
+    }
+    
+    let addedCount = 0;
+    let skippedCount = 0;
+    const results = [];
+    
+    // Додаємо товари
+    for (const productName of filterProducts) {
+      // Перевіряємо чи товар вже існує
+      const existing = await new Promise((resolve, reject) => {
+        database.get(
+          'SELECT id FROM products WHERE name = ? AND category_id = ?',
+          [productName, category.id],
+          (err, row) => {
+            if (err) reject(err);
+            else resolve(row);
+          }
+        );
+      });
+      
+      if (existing) {
+        skippedCount++;
+        results.push({ name: productName, status: 'skipped', reason: 'already exists' });
+        continue;
+      }
+      
+      // Додаємо товар
+      await new Promise((resolve, reject) => {
+        database.run(
+          'INSERT INTO products (name, category_id, cost_price) VALUES (?, ?, ?)',
+          [productName, category.id, 0],
+          function(err) {
+            if (err) reject(err);
+            else {
+              addedCount++;
+              results.push({ name: productName, status: 'added', id: this.lastID });
+              resolve();
+            }
+          }
+        );
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: `Додано ${addedCount} товарів, пропущено ${skippedCount} (вже існують)`,
+      added: addedCount,
+      skipped: skippedCount,
+      results: results
+    });
+  } catch (error) {
+    console.error('Error adding filter products:', error);
+    res.status(500).json({ 
+      error: 'Помилка додавання товарів категорії "Фільтри"',
+      details: error.message 
+    });
+  }
+});
+
 // ========== EMAIL SUBSCRIPTIONS MANAGEMENT ==========
 
 // Get all email subscriptions
