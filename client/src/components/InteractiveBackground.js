@@ -26,13 +26,26 @@ const InteractiveBackground = ({ children, onInteraction }) => {
       this.x += this.vx;
       this.y += this.vy;
 
+      // Get canvas dimensions (use display size, not internal canvas size)
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const maxX = rect.width || window.innerWidth;
+      const maxY = rect.height || window.innerHeight;
+
       // Bounce off edges
-      if (this.x < 0 || this.x > canvasRef.current.width) this.vx *= -1;
-      if (this.y < 0 || this.y > canvasRef.current.height) this.vy *= -1;
+      if (this.x < 0 || this.x > maxX) {
+        this.vx *= -1;
+        this.x = Math.max(0, Math.min(maxX, this.x));
+      }
+      if (this.y < 0 || this.y > maxY) {
+        this.vy *= -1;
+        this.y = Math.max(0, Math.min(maxY, this.y));
+      }
 
       // Keep in bounds
-      this.x = Math.max(0, Math.min(canvasRef.current.width, this.x));
-      this.y = Math.max(0, Math.min(canvasRef.current.height, this.y));
+      this.x = Math.max(0, Math.min(maxX, this.x));
+      this.y = Math.max(0, Math.min(maxY, this.y));
 
       // React to mouse proximity
       const dx = mouseX - this.x;
@@ -77,14 +90,19 @@ const InteractiveBackground = ({ children, onInteraction }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const particleCount = Math.floor((canvas.width * canvas.height) / 8000);
+    const rect = canvas.getBoundingClientRect();
+    const width = rect.width || window.innerWidth;
+    const height = rect.height || window.innerHeight;
+    const particleCount = Math.floor((width * height) / 8000);
     particlesRef.current = [];
+
+    console.log('Initializing particles:', particleCount, 'for canvas size:', width, height);
 
     for (let i = 0; i < particleCount; i++) {
       particlesRef.current.push(
         new Particle(
-          Math.random() * canvas.width,
-          Math.random() * canvas.height
+          Math.random() * width,
+          Math.random() * height
         )
       );
     }
@@ -123,12 +141,24 @@ const InteractiveBackground = ({ children, onInteraction }) => {
   const animate = () => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
+    if (!canvas || !ctx) {
+      console.warn('Canvas or context not available');
+      return;
+    }
 
-    // Clear canvas
+    // Get display dimensions
+    const rect = canvas.getBoundingClientRect();
+    const displayWidth = rect.width || window.innerWidth;
+    const displayHeight = rect.height || window.innerHeight;
+
+    // Clear canvas (use internal canvas size)
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Update and draw particles
+    if (particlesRef.current.length === 0) {
+      console.warn('No particles to animate');
+    }
+
     particlesRef.current.forEach(particle => {
       particle.update(mouseRef.current.x, mouseRef.current.y, isInteracting);
       particle.draw(ctx);
@@ -261,30 +291,62 @@ const InteractiveBackground = ({ children, onInteraction }) => {
   // Setup canvas
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      console.warn('Canvas ref not available');
+      return;
+    }
 
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width || window.innerWidth;
+      const height = rect.height || window.innerHeight;
+      
+      // Set internal canvas size (for high DPI)
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.scale(dpr, dpr);
+      }
+      
+      // Set display size
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+      
+      console.log('Canvas resized:', width, height, 'dpr:', dpr);
       initParticles();
     };
 
+    // Initial setup
     resizeCanvas();
+    
+    // Event listeners
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Listen for input focus events
-    const inputs = document.querySelectorAll('input, textarea');
-    inputs.forEach(input => {
-      input.addEventListener('focus', handleInputFocus);
-      input.addEventListener('input', handleInputFocus);
-    });
+    // Listen for input focus events (with delay to ensure DOM is ready)
+    const setupInputListeners = () => {
+      const inputs = document.querySelectorAll('input, textarea');
+      inputs.forEach(input => {
+        input.addEventListener('focus', handleInputFocus);
+        input.addEventListener('input', handleInputFocus);
+      });
 
-    // Listen for button clicks
-    const buttons = document.querySelectorAll('button');
-    buttons.forEach(button => {
-      button.addEventListener('click', handleButtonClick);
-    });
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(button => {
+        button.addEventListener('click', handleButtonClick);
+      });
+    };
+
+    // Setup listeners after a short delay
+    setTimeout(setupInputListeners, 100);
+    
+    // Also setup on DOM mutations
+    const observer = new MutationObserver(setupInputListeners);
+    observer.observe(document.body, { childList: true, subtree: true });
 
     // Start animation
     animate();
@@ -292,13 +354,7 @@ const InteractiveBackground = ({ children, onInteraction }) => {
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       window.removeEventListener('scroll', handleScroll);
-      inputs.forEach(input => {
-        input.removeEventListener('focus', handleInputFocus);
-        input.removeEventListener('input', handleInputFocus);
-      });
-      buttons.forEach(button => {
-        button.removeEventListener('click', handleButtonClick);
-      });
+      observer.disconnect();
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -315,10 +371,9 @@ const InteractiveBackground = ({ children, onInteraction }) => {
         background: 'transparent',
       }}
     >
-      <Box
-        component="canvas"
+      <canvas
         ref={canvasRef}
-        sx={{
+        style={{
           position: 'fixed',
           top: 0,
           left: 0,
@@ -326,6 +381,7 @@ const InteractiveBackground = ({ children, onInteraction }) => {
           height: '100vh',
           zIndex: 0,
           pointerEvents: 'auto',
+          display: 'block',
         }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
