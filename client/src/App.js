@@ -159,17 +159,24 @@ const PrivateRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
-function App() {
-  // Initialize analytics
-  useEffect(() => {
-    initAnalytics();
-  }, []);
+// Component to track page views on route changes
+const PageTracker = () => {
+  const location = useLocation();
 
+  useEffect(() => {
+    trackPageView(location.pathname, document.title);
+  }, [location]);
+
+  return null;
+};
+
+function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AuthProvider>
         <Router>
+          <PageTracker />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route

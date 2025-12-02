@@ -4,37 +4,32 @@ const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
-// Helper function to generate session ID
-const generateSessionId = () => {
-  return `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-};
-
-// Helper function to detect device type
-const detectDeviceType = (userAgent) => {
+// Helper function to get device type from user agent
+const getDeviceType = (userAgent) => {
   if (!userAgent) return 'unknown';
   const ua = userAgent.toLowerCase();
-  if (/mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua)) {
-    return 'mobile';
-  }
-  if (/tablet|ipad|playbook|silk/i.test(ua)) {
+  if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
     return 'tablet';
+  }
+  if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
+    return 'mobile';
   }
   return 'desktop';
 };
 
-// Helper function to detect browser
-const detectBrowser = (userAgent) => {
+// Helper function to get browser from user agent
+const getBrowser = (userAgent) => {
   if (!userAgent) return 'unknown';
   const ua = userAgent.toLowerCase();
-  if (ua.includes('chrome') && !ua.includes('edg')) return 'Chrome';
+  if (ua.includes('chrome')) return 'Chrome';
   if (ua.includes('firefox')) return 'Firefox';
   if (ua.includes('safari') && !ua.includes('chrome')) return 'Safari';
-  if (ua.includes('edg')) return 'Edge';
-  if (ua.includes('opera') || ua.includes('opr')) return 'Opera';
+  if (ua.includes('edge')) return 'Edge';
+  if (ua.includes('opera')) return 'Opera';
   return 'Other';
 };
 
-// Track event (public endpoint for frontend)
+// Track analytics event (public endpoint)
 router.post('/track', (req, res) => {
   const database = db.getDb();
   const {
@@ -47,98 +42,138 @@ router.post('/track', (req, res) => {
     action,
     label,
     value,
-    metadata,
-    userId
+    metadata
   } = req.body;
+
+  if (!sessionId || !eventType || !eventName || !pagePath) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
 
   const userAgent = req.get('user-agent') || '';
   const ipAddress = req.ip || req.connection.remoteAddress || '';
   const referrer = req.get('referer') || '';
-  const deviceType = detectDeviceType(userAgent);
-  const browser = detectBrowser(userAgent);
+  const deviceType = getDeviceType(userAgent);
+  const browser = getBrowser(userAgent);
 
-  // Create or update session
-  const currentSessionId = sessionId || generateSessionId();
-  
-  database.get('SELECT * FROM analytics_sessions WHERE id = ?', [currentSessionId], (err, session) => {
+  // Get user_id from token if available (optional)
+  const authHeader = req.headers.authorization;
+  let userId = null;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const jwt = require('jsonwebtoken');
+      const token = authHeader.substring(7);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-in-production');
+      userId = decoded.id;
+    } catch (err) {
+      // Token invalid or missing, continue without user_id
+    }
+  }
+
+  const metadataJson = metadata ? JSON.stringify(metadata) : null;
+
+  database.run(
+    `INSERT INTO analytics_events (
+      session_id, user_id, event_type, event_name, page_path, page_title,
+      category, action, label, value, metadata, user_agent, ip_address,
+      referrer, device_type, browser
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      sessionId, userId, eventType, eventName, pagePath, pageTitle,
+      category, action, label, value, metadataJson, userAgent, ipAddress,
+      referrer, deviceType, browser
+    ],
+    function(err) {
+      if (err) {
+        console.error('Error tracking event:', err);
+        return res.status(500).json({ error: 'Failed to track event' });
+      }
+      res.json({ success: true, eventId: this.lastID });
+    }
+  );
+});
+
+// Create or update session (public endpoint)
+router.post('/session', (req, res) => {
+  const database = db.getDb();
+  const { sessionId, pagePath } = req.body;
+
+  if (!sessionId) {
+    return res.status(400).json({ error: 'Session ID is required' });
+  }
+
+  const userAgent = req.get('user-agent') || '';
+  const referrer = req.get('referer') || '';
+  const deviceType = getDeviceType(userAgent);
+  const browser = getBrowser(userAgent);
+
+  // Get user_id from token if available
+  const authHeader = req.headers.authorization;
+  let userId = null;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const jwt = require('jsonwebtoken');
+      const token = authHeader.substring(7);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-in-production');
+      userId = decoded.id;
+    } catch (err) {
+      // Token invalid, continue without user_id
+    }
+  }
+
+  // Check if session exists
+  database.get('SELECT * FROM analytics_sessions WHERE id = ?', [sessionId], (err, existingSession) => {
     if (err) {
       console.error('Error checking session:', err);
       return res.status(500).json({ error: 'Database error' });
     }
 
-    if (!session) {
-      // Create new session
+    if (existingSession) {
+      // Update existing session
       database.run(
-        `INSERT INTO analytics_sessions 
-        (id, user_id, started_at, device_type, browser, referrer, landing_page, page_views) 
-        VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, 1)`,
-        [currentSessionId, userId || null, deviceType, browser, referrer, pagePath],
-        (err) => {
-          if (err) {
-            console.error('Error creating session:', err);
-            return res.status(500).json({ error: 'Database error' });
-          }
-        }
-      );
-    } else {
-      // Update session
-      database.run(
-        'UPDATE analytics_sessions SET page_views = page_views + 1, exit_page = ? WHERE id = ?',
-        [pagePath, currentSessionId],
+        `UPDATE analytics_sessions 
+         SET page_views = page_views + 1,
+             exit_page = ?,
+             ended_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+        [pagePath || existingSession.exit_page, sessionId],
         (err) => {
           if (err) {
             console.error('Error updating session:', err);
+            return res.status(500).json({ error: 'Failed to update session' });
           }
+          res.json({ success: true, session: existingSession });
+        }
+      );
+    } else {
+      // Create new session
+      database.run(
+        `INSERT INTO analytics_sessions (
+          id, user_id, device_type, browser, referrer, landing_page, exit_page, page_views
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
+        [sessionId, userId, deviceType, browser, referrer, pagePath || '/', pagePath || '/'],
+        function(err) {
+          if (err) {
+            console.error('Error creating session:', err);
+            return res.status(500).json({ error: 'Failed to create session' });
+          }
+          res.json({ success: true, sessionId });
         }
       );
     }
-
-    // Insert event
-    database.run(
-      `INSERT INTO analytics_events 
-      (session_id, user_id, event_type, event_name, page_path, page_title, category, action, label, value, metadata, user_agent, ip_address, referrer, device_type, browser)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        currentSessionId,
-        userId || null,
-        eventType || 'custom',
-        eventName,
-        pagePath,
-        pageTitle || null,
-        category || null,
-        action || null,
-        label || null,
-        value || null,
-        metadata ? JSON.stringify(metadata) : null,
-        userAgent,
-        ipAddress,
-        referrer,
-        deviceType,
-        browser
-      ],
-      function(err) {
-        if (err) {
-          console.error('Error inserting event:', err);
-          return res.status(500).json({ error: 'Database error' });
-        }
-        res.json({ 
-          success: true, 
-          sessionId: currentSessionId,
-          eventId: this.lastID 
-        });
-      }
-    );
   });
 });
 
-// Get analytics stats (admin only)
-router.get('/stats', authMiddleware.authenticate || authMiddleware, (req, res) => {
+// Get analytics statistics (admin only)
+const authenticate = authMiddleware.authenticate || authMiddleware;
+router.use('/stats', authenticate);
+
+router.get('/stats', (req, res) => {
   const database = db.getDb();
   const { startDate, endDate, eventType } = req.query;
 
   let dateFilter = '';
   const params = [];
-
+  
   if (startDate && endDate) {
     dateFilter = 'WHERE created_at BETWEEN ? AND ?';
     params.push(startDate, endDate);
@@ -155,199 +190,142 @@ router.get('/stats', authMiddleware.authenticate || authMiddleware, (req, res) =
     params.push(eventType);
   }
 
-  // Get total events
-  database.get(
-    `SELECT COUNT(*) as total FROM analytics_events ${dateFilter}`,
-    params,
-    (err, totalResult) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-
-      // Get unique sessions
-      database.get(
-        `SELECT COUNT(DISTINCT session_id) as sessions FROM analytics_events ${dateFilter}`,
-        params,
-        (err, sessionsResult) => {
-          if (err) {
-            return res.status(500).json({ error: err.message });
-          }
-
-          // Get unique users
-          database.get(
-            `SELECT COUNT(DISTINCT user_id) as users FROM analytics_events ${dateFilter} AND user_id IS NOT NULL`,
-            params,
-            (err, usersResult) => {
-              if (err) {
-                return res.status(500).json({ error: err.message });
-              }
-
-              // Get events by type
-              database.all(
-                `SELECT event_type, COUNT(*) as count 
-                FROM analytics_events ${dateFilter}
-                GROUP BY event_type
-                ORDER BY count DESC`,
-                params,
-                (err, eventsByType) => {
-                  if (err) {
-                    return res.status(500).json({ error: err.message });
-                  }
-
-                  // Get top pages
-                  database.all(
-                    `SELECT page_path, COUNT(*) as views 
-                    FROM analytics_events ${dateFilter}
-                    GROUP BY page_path
-                    ORDER BY views DESC
-                    LIMIT 10`,
-                    params,
-                    (err, topPages) => {
-                      if (err) {
-                        return res.status(500).json({ error: err.message });
-                      }
-
-                      res.json({
-                        total: totalResult.total,
-                        sessions: sessionsResult.sessions,
-                        users: usersResult.users,
-                        eventsByType: eventsByType || [],
-                        topPages: topPages || []
-                      });
-                    }
-                  );
-                }
-              );
-            }
-          );
-        }
-      );
-    }
-  );
-});
-
-// Get QR pages analytics
-router.get('/qr-pages', authMiddleware.authenticate || authMiddleware, (req, res) => {
-  const database = db.getDb();
-  const { startDate, endDate } = req.query;
-
-  let dateFilter = '';
-  const params = [];
-
-  if (startDate && endDate) {
-    dateFilter = 'WHERE created_at BETWEEN ? AND ?';
-    params.push(startDate, endDate);
-  }
-
-  // Get visits per QR category
-  database.all(
-    `SELECT 
-      page_path,
-      COUNT(DISTINCT session_id) as unique_visits,
-      COUNT(*) as total_views,
-      AVG((SELECT COUNT(*) FROM analytics_events e2 WHERE e2.session_id = e1.session_id AND e2.page_path = e1.page_path)) as avg_time_on_page
-    FROM analytics_events e1
+  // Get overall statistics
+  database.all(`
+    SELECT 
+      COUNT(DISTINCT session_id) as unique_sessions,
+      COUNT(*) as total_events,
+      COUNT(DISTINCT user_id) as unique_users
+    FROM analytics_events
     ${dateFilter}
-    AND page_path IN ('/colorant', '/mix', '/bruker-o', '/axs', '/filter', '/lab')
-    GROUP BY page_path
-    ORDER BY unique_visits DESC`,
-    params,
-    (err, qrStats) => {
+  `, params, (err, stats) => {
+    if (err) {
+      console.error('Error fetching stats:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+
+    // Get page views
+    let pageViewFilter = "WHERE event_type = 'page_view'";
+    const pageViewParams = [];
+    
+    if (startDate && endDate) {
+      pageViewFilter += ' AND created_at BETWEEN ? AND ?';
+      pageViewParams.push(startDate, endDate);
+    } else if (startDate) {
+      pageViewFilter += ' AND created_at >= ?';
+      pageViewParams.push(startDate);
+    } else if (endDate) {
+      pageViewFilter += ' AND created_at <= ?';
+      pageViewParams.push(endDate);
+    }
+    
+    database.all(`
+      SELECT 
+        page_path,
+        COUNT(*) as views,
+        COUNT(DISTINCT session_id) as unique_views
+      FROM analytics_events
+      ${pageViewFilter}
+      GROUP BY page_path
+      ORDER BY views DESC
+      LIMIT 20
+    `, pageViewParams, (err, pageViews) => {
       if (err) {
-        return res.status(500).json({ error: err.message });
+        console.error('Error fetching page views:', err);
+        return res.status(500).json({ error: 'Database error' });
       }
 
-      // Get greeting views
-      database.all(
-        `SELECT 
-          page_path,
-          COUNT(*) as greeting_clicks
+      // Get event types breakdown
+      database.all(`
+        SELECT 
+          event_type,
+          COUNT(*) as count
         FROM analytics_events
         ${dateFilter}
-        AND event_name = 'greeting_view'
-        GROUP BY page_path`,
-        params,
-        (err, greetingStats) => {
-          if (err) {
-            return res.status(500).json({ error: err.message });
-          }
+        GROUP BY event_type
+        ORDER BY count DESC
+      `, params, (err, eventTypes) => {
+        if (err) {
+          console.error('Error fetching event types:', err);
+          return res.status(500).json({ error: 'Database error' });
+        }
 
-          // Get email registrations by category
-          let emailDateFilter = '';
-          let emailParams = [];
+          // Get QR page statistics
+          let qrFilter = "WHERE page_path IN ('/colorant', '/mix', '/bruker-o', '/axs', '/filter', '/lab')";
+          const qrParams = [];
+          
           if (startDate && endDate) {
-            emailDateFilter = 'WHERE created_at BETWEEN ? AND ?';
-            emailParams = [startDate, endDate];
+            qrFilter += ' AND created_at BETWEEN ? AND ?';
+            qrParams.push(startDate, endDate);
           } else if (startDate) {
-            emailDateFilter = 'WHERE created_at >= ?';
-            emailParams = [startDate];
+            qrFilter += ' AND created_at >= ?';
+            qrParams.push(startDate);
           } else if (endDate) {
-            emailDateFilter = 'WHERE created_at <= ?';
-            emailParams = [endDate];
+            qrFilter += ' AND created_at <= ?';
+            qrParams.push(endDate);
           }
           
-          database.all(
-            `SELECT 
-              category,
-              COUNT(*) as registrations
-            FROM email_subscriptions
-            ${emailDateFilter}
-            GROUP BY category
-            ORDER BY registrations DESC`,
-            emailParams,
-            (err, emailStats) => {
-              if (err) {
-                return res.status(500).json({ error: err.message });
-              }
+          database.all(`
+            SELECT 
+              page_path,
+              COUNT(*) as total_views,
+              COUNT(DISTINCT session_id) as unique_visitors,
+              COUNT(CASE WHEN event_name = 'email_signup' THEN 1 END) as email_signups,
+              COUNT(CASE WHEN event_name = 'greeting_view' THEN 1 END) as greeting_views,
+              COUNT(CASE WHEN event_name = 'expand_products' THEN 1 END) as expand_clicks
+            FROM analytics_events
+            ${qrFilter}
+            GROUP BY page_path
+            ORDER BY total_views DESC
+          `, qrParams, (err, qrStats) => {
+          if (err) {
+            console.error('Error fetching QR stats:', err);
+            return res.status(500).json({ error: 'Database error' });
+          }
 
-              res.json({
-                qrPages: qrStats || [],
-                greetingViews: greetingStats || [],
-                emailRegistrations: emailStats || []
-              });
+          // Get daily statistics
+          let dailyFilter = '';
+          const dailyParams = [];
+          
+          if (startDate && endDate) {
+            dailyFilter = 'WHERE created_at BETWEEN ? AND ?';
+            dailyParams.push(startDate, endDate);
+          } else if (startDate) {
+            dailyFilter = 'WHERE created_at >= ?';
+            dailyParams.push(startDate);
+          } else if (endDate) {
+            dailyFilter = 'WHERE created_at <= ?';
+            dailyParams.push(endDate);
+          }
+          
+          database.all(`
+            SELECT 
+              DATE(created_at) as date,
+              COUNT(DISTINCT session_id) as sessions,
+              COUNT(*) as events
+            FROM analytics_events
+            ${dailyFilter}
+            GROUP BY DATE(created_at)
+            ORDER BY date DESC
+            LIMIT 30
+          `, dailyParams, (err, dailyStats) => {
+            if (err) {
+              console.error('Error fetching daily stats:', err);
+              return res.status(500).json({ error: 'Database error' });
             }
-          );
-        }
-      );
-    }
-  );
-});
 
-// Get dashboard data
-router.get('/dashboard', authMiddleware.authenticate || authMiddleware, (req, res) => {
-  const database = db.getDb();
-  const { days = 7 } = req.query;
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - parseInt(days));
-
-  // Get daily stats
-  database.all(
-    `SELECT 
-      DATE(created_at) as date,
-      COUNT(*) as events,
-      COUNT(DISTINCT session_id) as sessions,
-      COUNT(DISTINCT user_id) as users
-    FROM analytics_events
-    WHERE created_at >= ?
-    GROUP BY DATE(created_at)
-    ORDER BY date DESC`,
-    [startDate.toISOString()],
-    (err, dailyStats) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-
-      res.json({
-        dailyStats: dailyStats || [],
-        period: {
-          start: startDate.toISOString(),
-          end: new Date().toISOString(),
-          days: parseInt(days)
-        }
+            res.json({
+              overview: stats[0] || { unique_sessions: 0, total_events: 0, unique_users: 0 },
+              pageViews,
+              eventTypes,
+              qrPages: qrStats,
+              dailyStats
+            });
+          });
+        });
       });
-    }
-  );
+    });
+  });
 });
 
 module.exports = router;
-
