@@ -591,7 +591,6 @@ const GreetingPage = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-        </Container>
       </Box>
     </InteractiveBackground>
   );
