@@ -237,10 +237,11 @@ const GreetingPage = () => {
       <Box
         sx={{
           minHeight: '100vh',
-          background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%)',
+          background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%)',
           py: { xs: 3, sm: 4 },
           px: 2,
           position: 'relative',
+          zIndex: 1,
         }}
       >
         <Container maxWidth="lg">

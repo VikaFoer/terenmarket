@@ -13,11 +13,12 @@ const InteractiveBackground = ({ children, onInteraction }) => {
     constructor(x, y) {
       this.x = x;
       this.y = y;
-      this.vx = (Math.random() - 0.5) * 0.5;
-      this.vy = (Math.random() - 0.5) * 0.5;
-      this.radius = Math.random() * 2 + 1;
-      this.opacity = Math.random() * 0.5 + 0.2;
+      this.vx = (Math.random() - 0.5) * 0.8;
+      this.vy = (Math.random() - 0.5) * 0.8;
+      this.radius = Math.random() * 3 + 2;
+      this.opacity = Math.random() * 0.6 + 0.4;
       this.baseOpacity = this.opacity;
+      this.color = `rgba(${255}, ${255}, ${255}, ${this.opacity})`;
     }
 
     update(mouseX, mouseY, isInteracting) {
@@ -50,9 +51,23 @@ const InteractiveBackground = ({ children, onInteraction }) => {
     }
 
     draw(ctx) {
+      // Draw glow effect
+      const gradient = ctx.createRadialGradient(
+        this.x, this.y, 0,
+        this.x, this.y, this.radius * 2
+      );
+      gradient.addColorStop(0, `rgba(255, 255, 255, ${this.opacity})`);
+      gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
+      
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+      
+      // Draw core particle
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+      ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, this.opacity + 0.3)})`;
       ctx.fill();
     }
   }
@@ -62,7 +77,7 @@ const InteractiveBackground = ({ children, onInteraction }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const particleCount = Math.floor((canvas.width * canvas.height) / 15000);
+    const particleCount = Math.floor((canvas.width * canvas.height) / 8000);
     particlesRef.current = [];
 
     for (let i = 0; i < particleCount; i++) {
@@ -85,12 +100,19 @@ const InteractiveBackground = ({ children, onInteraction }) => {
         const maxDistance = 120;
 
         if (distance < maxDistance) {
-          const opacity = (1 - distance / maxDistance) * 0.3;
+          const opacity = (1 - distance / maxDistance) * 0.5;
+          const gradient = ctx.createLinearGradient(
+            particles[i].x, particles[i].y,
+            particles[j].x, particles[j].y
+          );
+          gradient.addColorStop(0, `rgba(255, 255, 255, ${opacity})`);
+          gradient.addColorStop(1, `rgba(255, 255, 255, ${opacity * 0.5})`);
+          
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
-          ctx.lineWidth = 0.5;
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 1;
           ctx.stroke();
         }
       }
@@ -290,10 +312,8 @@ const InteractiveBackground = ({ children, onInteraction }) => {
         width: '100%',
         minHeight: '100vh',
         overflow: 'hidden',
+        background: 'transparent',
       }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
     >
       <Box
         component="canvas"
@@ -302,11 +322,14 @@ const InteractiveBackground = ({ children, onInteraction }) => {
           position: 'fixed',
           top: 0,
           left: 0,
-          width: '100%',
-          height: '100%',
+          width: '100vw',
+          height: '100vh',
           zIndex: 0,
-          pointerEvents: 'none',
+          pointerEvents: 'auto',
         }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
       />
       <Box
         sx={{
