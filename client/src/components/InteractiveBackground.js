@@ -371,9 +371,10 @@ const InteractiveBackground = ({ children, onInteraction }) => {
         background: 'transparent',
       }}
     >
-      <canvas
+      <Box
+        component="canvas"
         ref={canvasRef}
-        style={{
+        sx={{
           position: 'fixed',
           top: 0,
           left: 0,
@@ -381,7 +382,8 @@ const InteractiveBackground = ({ children, onInteraction }) => {
           height: '100vh',
           zIndex: 0,
           pointerEvents: 'auto',
-          display: 'block',
+          display: 'block !important',
+          backgroundColor: 'transparent',
         }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
