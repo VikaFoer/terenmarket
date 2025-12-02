@@ -63,6 +63,8 @@ const ProductsManagement = () => {
   const [addingQRTestProducts, setAddingQRTestProducts] = useState(false);
   const [addingFilterProducts, setAddingFilterProducts] = useState(false);
   const [syncingDatabase, setSyncingDatabase] = useState(false);
+  const [checkingDatabase, setCheckingDatabase] = useState(false);
+  const [dbDiagnostics, setDbDiagnostics] = useState(null);
   const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
@@ -374,6 +376,23 @@ const ProductsManagement = () => {
     }
   };
 
+  const handleCheckDatabase = async () => {
+    setCheckingDatabase(true);
+    setError('');
+    setSuccess('');
+    setDbDiagnostics(null);
+
+    try {
+      const response = await axios.get(`${API_URL}/admin/db-diagnostics`);
+      setDbDiagnostics(response.data);
+      setSuccess('Діагностика бази даних завершена');
+    } catch (error) {
+      setError(error.response?.data?.error || 'Помилка перевірки бази даних');
+    } finally {
+      setCheckingDatabase(false);
+    }
+  };
+
   const handleSyncDatabase = async () => {
     // Створюємо input для вибору файлу
     const input = document.createElement('input');
@@ -429,6 +448,14 @@ const ProductsManagement = () => {
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <Button
             variant="outlined"
+            color="warning"
+            onClick={handleCheckDatabase}
+            disabled={checkingDatabase}
+          >
+            {checkingDatabase ? 'Перевірка...' : 'Перевірити БД'}
+          </Button>
+          <Button
+            variant="outlined"
             color="info"
             onClick={handleSyncDatabase}
             disabled={syncingDatabase}
@@ -480,6 +507,59 @@ const ProductsManagement = () => {
         <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccess('')}>
           {success}
         </Alert>
+      )}
+      {dbDiagnostics && (
+        <Paper sx={{ p: 3, mb: 3, bgcolor: '#f5f5f5' }}>
+          <Typography variant="h6" gutterBottom>
+            Діагностика бази даних
+          </Typography>
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body2" gutterBottom>
+              <strong>Всього товарів:</strong> {dbDiagnostics.total_products}
+            </Typography>
+            <Typography variant="body2" gutterBottom>
+              <strong>Всього категорій:</strong> {dbDiagnostics.total_categories}
+            </Typography>
+            <Typography variant="body2" gutterBottom>
+              <strong>Всього клієнтів:</strong> {dbDiagnostics.total_clients}
+            </Typography>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle2" gutterBottom>
+                <strong>Категорія "Фільтри":</strong>
+              </Typography>
+              <Typography variant="body2" color={dbDiagnostics.filter_category.products_count === 0 ? 'error' : 'success'}>
+                Товарів в категорії: {dbDiagnostics.filter_category.products_count}
+              </Typography>
+              {dbDiagnostics.filter_category.products.length > 0 && (
+                <Box sx={{ mt: 1, pl: 2 }}>
+                  {dbDiagnostics.filter_category.products.map((p, idx) => (
+                    <Typography key={p.id} variant="caption" display="block">
+                      {idx + 1}. {p.name}
+                    </Typography>
+                  ))}
+                </Box>
+              )}
+            </Box>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle2" gutterBottom>
+                <strong>Клієнти та призначені категорії:</strong>
+              </Typography>
+              {dbDiagnostics.clients.map((client) => (
+                <Box key={client.client_id} sx={{ mt: 1, pl: 2, borderLeft: '2px solid #ccc' }}>
+                  <Typography variant="body2">
+                    <strong>{client.login}</strong> {client.company_name && `(${client.company_name})`}
+                  </Typography>
+                  <Typography variant="caption" color={client.assigned_categories.length === 0 ? 'error' : 'text.secondary'}>
+                    Призначені категорії: {client.assigned_categories.length > 0 ? client.assigned_categories.join(', ') : 'НЕ ПРИЗНАЧЕНО'}
+                  </Typography>
+                  {client.assigned_category_ids && client.assigned_category_ids.includes(4) && (
+                    <Chip label="Має доступ до 'Фільтри'" color="success" size="small" sx={{ mt: 0.5 }} />
+                  )}
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Paper>
       )}
 
       <TableContainer component={Paper}>

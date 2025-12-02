@@ -862,5 +862,97 @@ router.delete('/email-subscriptions/:id', (req, res) => {
   });
 });
 
+// ========== DATABASE DIAGNOSTICS ==========
+
+// Check database state - products, categories, client categories
+router.get('/db-diagnostics', (req, res) => {
+  const database = db.getDb();
+  
+  // Get all products with categories
+  database.all(`
+    SELECT 
+      p.id,
+      p.name,
+      p.cost_price,
+      c.id as category_id,
+      c.name as category_name
+    FROM products p
+    JOIN categories c ON p.category_id = c.id
+    ORDER BY c.name, p.name
+  `, (err, products) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    
+    // Get all categories with product counts
+    database.all(`
+      SELECT 
+        c.id,
+        c.name,
+        COUNT(p.id) as product_count
+      FROM categories c
+      LEFT JOIN products p ON p.category_id = c.id
+      GROUP BY c.id, c.name
+      ORDER BY c.name
+    `, (err, categories) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      
+      // Get all clients with their assigned categories
+      database.all(`
+        SELECT 
+          cl.id as client_id,
+          cl.login,
+          cl.company_name,
+          GROUP_CONCAT(c.name) as assigned_categories,
+          GROUP_CONCAT(c.id) as assigned_category_ids
+        FROM clients cl
+        LEFT JOIN client_categories cc ON cl.id = cc.client_id
+        LEFT JOIN categories c ON cc.category_id = c.id
+        GROUP BY cl.id, cl.login, cl.company_name
+        ORDER BY cl.login
+      `, (err, clients) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        
+        // Get products in "Фільтри" category
+        database.all(`
+          SELECT 
+            p.id,
+            p.name,
+            p.cost_price
+          FROM products p
+          JOIN categories c ON p.category_id = c.id
+          WHERE c.name = 'Фільтри'
+          ORDER BY p.name
+        `, (err, filterProducts) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          
+          res.json({
+            total_products: products.length,
+            total_categories: categories.length,
+            total_clients: clients.length,
+            categories: categories,
+            filter_category: {
+              name: 'Фільтри',
+              products_count: filterProducts.length,
+              products: filterProducts
+            },
+            clients: clients.map(client => ({
+              ...client,
+              assigned_categories: client.assigned_categories ? client.assigned_categories.split(',') : [],
+              assigned_category_ids: client.assigned_category_ids ? client.assigned_category_ids.split(',').map(Number) : []
+            }))
+          });
+        });
+      });
+    });
+  });
+});
+
 module.exports = router;
 
