@@ -508,6 +508,7 @@ const ProductsManagement = () => {
           {success}
         </Alert>
       )}
+
       {dbDiagnostics && (
         <Paper sx={{ p: 3, mb: 3, bgcolor: '#f5f5f5' }}>
           <Typography variant="h6" gutterBottom>
@@ -530,11 +531,29 @@ const ProductsManagement = () => {
               <Typography variant="body2" color={dbDiagnostics.filter_category.products_count === 0 ? 'error' : 'success'}>
                 Товарів в категорії: {dbDiagnostics.filter_category.products_count}
               </Typography>
+              <Typography variant="body2" color={dbDiagnostics.filter_category.clients_with_access === 0 ? 'error' : 'success'} sx={{ mt: 1 }}>
+                Клієнтів з доступом: {dbDiagnostics.filter_category.clients_with_access}
+              </Typography>
               {dbDiagnostics.filter_category.products.length > 0 && (
                 <Box sx={{ mt: 1, pl: 2 }}>
+                  <Typography variant="caption" display="block" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+                    Товари:
+                  </Typography>
                   {dbDiagnostics.filter_category.products.map((p, idx) => (
                     <Typography key={p.id} variant="caption" display="block">
                       {idx + 1}. {p.name}
+                    </Typography>
+                  ))}
+                </Box>
+              )}
+              {dbDiagnostics.filter_category.clients_with_access_list.length > 0 && (
+                <Box sx={{ mt: 1, pl: 2 }}>
+                  <Typography variant="caption" display="block" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+                    Клієнти з доступом:
+                  </Typography>
+                  {dbDiagnostics.filter_category.clients_with_access_list.map((client) => (
+                    <Typography key={client.client_id} variant="caption" display="block">
+                      • {client.login} {client.company_name && `(${client.company_name})`}
                     </Typography>
                   ))}
                 </Box>
@@ -552,8 +571,11 @@ const ProductsManagement = () => {
                   <Typography variant="caption" color={client.assigned_categories.length === 0 ? 'error' : 'text.secondary'}>
                     Призначені категорії: {client.assigned_categories.length > 0 ? client.assigned_categories.join(', ') : 'НЕ ПРИЗНАЧЕНО'}
                   </Typography>
-                  {client.assigned_category_ids && client.assigned_category_ids.includes(4) && (
+                  {client.has_filter_access && (
                     <Chip label="Має доступ до 'Фільтри'" color="success" size="small" sx={{ mt: 0.5 }} />
+                  )}
+                  {!client.has_filter_access && client.assigned_categories.length > 0 && (
+                    <Chip label="НЕ має доступу до 'Фільтри'" color="error" size="small" sx={{ mt: 0.5 }} />
                   )}
                 </Box>
               ))}

@@ -932,21 +932,41 @@ router.get('/db-diagnostics', (req, res) => {
             return res.status(500).json({ error: err.message });
           }
           
-          res.json({
-            total_products: products.length,
-            total_categories: categories.length,
-            total_clients: clients.length,
-            categories: categories,
-            filter_category: {
-              name: 'Фільтри',
-              products_count: filterProducts.length,
-              products: filterProducts
-            },
-            clients: clients.map(client => ({
-              ...client,
-              assigned_categories: client.assigned_categories ? client.assigned_categories.split(',') : [],
-              assigned_category_ids: client.assigned_category_ids ? client.assigned_category_ids.split(',').map(Number) : []
-            }))
+          // Get which clients have access to "Фільтри" category
+          database.all(`
+            SELECT 
+              cl.id as client_id,
+              cl.login,
+              cl.company_name
+            FROM clients cl
+            JOIN client_categories cc ON cl.id = cc.client_id
+            JOIN categories c ON cc.category_id = c.id
+            WHERE c.name = 'Фільтри'
+            ORDER BY cl.login
+          `, (err, clientsWithFilterAccess) => {
+            if (err) {
+              return res.status(500).json({ error: err.message });
+            }
+            
+            res.json({
+              total_products: products.length,
+              total_categories: categories.length,
+              total_clients: clients.length,
+              categories: categories,
+              filter_category: {
+                name: 'Фільтри',
+                products_count: filterProducts.length,
+                products: filterProducts,
+                clients_with_access: clientsWithFilterAccess.length,
+                clients_with_access_list: clientsWithFilterAccess
+              },
+              clients: clients.map(client => ({
+                ...client,
+                assigned_categories: client.assigned_categories ? client.assigned_categories.split(',') : [],
+                assigned_category_ids: client.assigned_category_ids ? client.assigned_category_ids.split(',').map(Number) : [],
+                has_filter_access: client.assigned_category_ids ? client.assigned_category_ids.split(',').map(Number).includes(4) : false
+              }))
+            });
           });
         });
       });
