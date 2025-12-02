@@ -30,6 +30,7 @@ const GreetingPage = () => {
   const [emailSubmitted, setEmailSubmitted] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [loadingGreeting, setLoadingGreeting] = useState(false);
+  const [showAllProducts, setShowAllProducts] = useState(false);
   const navigate = useNavigate();
 
   // Валідні категорії для привітань
@@ -338,98 +339,127 @@ const GreetingPage = () => {
               </Typography>
             </Paper>
           ) : (
-            <Grid container spacing={{ xs: 1.5, sm: 2 }}>
-              {products.map((product) => (
-                <Grid item xs={6} sm={4} md={3} lg={2.4} key={product.id}>
-                  <Card
-                    sx={{
-                      height: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      borderRadius: 2,
-                      background: 'rgba(255, 255, 255, 0.98)',
-                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      overflow: 'hidden',
-                      '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
-                        borderColor: 'rgba(102, 126, 234, 0.3)',
-                      },
-                    }}
-                  >
-                    <Box
+            <>
+              <Grid container spacing={{ xs: 1.5, sm: 2 }}>
+                {(showAllProducts ? products : products.slice(0, 6)).map((product) => (
+                  <Grid item xs={6} sm={4} md={3} lg={2.4} key={product.id}>
+                    <Card
                       sx={{
-                        width: '100%',
-                        height: { xs: 120, sm: 140 },
-                        background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
+                        height: '100%',
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                        flexDirection: 'column',
+                        borderRadius: 2,
+                        background: 'rgba(255, 255, 255, 0.98)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
                         overflow: 'hidden',
-                        position: 'relative',
-                        '&::before': {
-                          content: '""',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
-                          zIndex: 1,
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
+                          borderColor: 'rgba(102, 126, 234, 0.3)',
                         },
                       }}
                     >
                       <Box
-                        component="img"
-                        src={getProductImage(product)}
-                        alt={product.name}
                         sx={{
                           width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
+                          height: { xs: 120, sm: 140 },
+                          background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          overflow: 'hidden',
                           position: 'relative',
-                          zIndex: 2,
-                          transition: 'transform 0.3s ease',
-                          '&:hover': {
-                            transform: 'scale(1.05)',
+                          '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
+                            zIndex: 1,
                           },
                         }}
-                      />
-                    </Box>
-                    <CardContent 
-                      sx={{ 
-                        flexGrow: 1,
-                        p: { xs: 1, sm: 1.5 },
-                        display: 'flex',
-                        alignItems: 'center',
-                        minHeight: { xs: 50, sm: 60 },
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
-                        component="h3"
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                          color: '#2c3e50',
-                          lineHeight: 1.3,
-                          textAlign: 'center',
-                          width: '100%',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
+                      >
+                        <Box
+                          component="img"
+                          src={getProductImage(product)}
+                          alt={product.name}
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            position: 'relative',
+                            zIndex: 2,
+                            transition: 'transform 0.3s ease',
+                            '&:hover': {
+                              transform: 'scale(1.05)',
+                            },
+                          }}
+                        />
+                      </Box>
+                      <CardContent 
+                        sx={{ 
+                          flexGrow: 1,
+                          p: { xs: 1, sm: 1.5 },
+                          display: 'flex',
+                          alignItems: 'center',
+                          minHeight: { xs: 50, sm: 60 },
                         }}
                       >
-                        {product.name}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+                        <Typography
+                          variant="body2"
+                          component="h3"
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                            color: '#2c3e50',
+                            lineHeight: 1.3,
+                            textAlign: 'center',
+                            width: '100%',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          {product.name}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+              
+              {products.length > 6 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setShowAllProducts(!showAllProducts)}
+                    sx={{
+                      px: 4,
+                      py: 1.5,
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      borderColor: 'white',
+                      color: 'white',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      backdropFilter: 'blur(10px)',
+                      '&:hover': {
+                        borderColor: 'white',
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      },
+                    }}
+                  >
+                    {showAllProducts ? 'Згорнути' : `Розгорнути далі (${products.length - 6} товарів)`}
+                  </Button>
+                </Box>
+              )}
+            </>
           )}
         </Box>
 
