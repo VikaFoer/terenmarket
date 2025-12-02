@@ -241,13 +241,14 @@ router.get('/stats', (req, res) => {
           event_type,
           COUNT(*) as count
         FROM analytics_events
-        ${dateFilter}
+        ${dateFilter || ''}
         GROUP BY event_type
         ORDER BY count DESC
       `, params, (err, eventTypes) => {
         if (err) {
           console.error('Error fetching event types:', err);
-          return res.status(500).json({ error: 'Database error' });
+          console.error('SQL Error details:', err.message);
+          return res.status(500).json({ error: 'Database error', details: err.message });
         }
 
           // Get QR page statistics
