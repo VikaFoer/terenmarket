@@ -59,6 +59,91 @@ db.init()
       res.json({ status: 'ok' });
     });
 
+    // Public database diagnostics (without sensitive client data)
+    app.get('/api/db-status', (req, res) => {
+      const database = db.getDb();
+      
+      // Get all products with categories
+      database.all(`
+        SELECT 
+          p.id,
+          p.name,
+          c.id as category_id,
+          c.name as category_name
+        FROM products p
+        JOIN categories c ON p.category_id = c.id
+        ORDER BY c.name, p.name
+      `, (err, products) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        
+        // Get all categories with product counts
+        database.all(`
+          SELECT 
+            c.id,
+            c.name,
+            COUNT(p.id) as product_count
+          FROM categories c
+          LEFT JOIN products p ON p.category_id = c.id
+          GROUP BY c.id, c.name
+          ORDER BY c.name
+        `, (err, categories) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          
+          // Get products in "Фільтри" category
+          database.all(`
+            SELECT 
+              p.id,
+              p.name
+            FROM products p
+            JOIN categories c ON p.category_id = c.id
+            WHERE c.name = 'Фільтри'
+            ORDER BY p.name
+          `, (err, filterProducts) => {
+            if (err) {
+              return res.status(500).json({ error: err.message });
+            }
+            
+            // Get count of clients with access to "Фільтри" (without sensitive data)
+            database.all(`
+              SELECT COUNT(DISTINCT cl.id) as count
+              FROM clients cl
+              JOIN client_categories cc ON cl.id = cc.client_id
+              JOIN categories c ON cc.category_id = c.id
+              WHERE c.name = 'Фільтри'
+            `, (err, filterAccessResult) => {
+              if (err) {
+                return res.status(500).json({ error: err.message });
+              }
+              
+              // Get total clients count
+              database.get('SELECT COUNT(*) as count FROM clients', (err, clientsResult) => {
+                if (err) {
+                  return res.status(500).json({ error: err.message });
+                }
+                
+                res.json({
+                  total_products: products.length,
+                  total_categories: categories.length,
+                  total_clients: clientsResult.count,
+                  categories: categories,
+                  filter_category: {
+                    name: 'Фільтри',
+                    products_count: filterProducts.length,
+                    products: filterProducts.map(p => ({ id: p.id, name: p.name })),
+                    clients_with_access: filterAccessResult[0].count
+                  }
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+
     // Database restore endpoint - upload and import database export file
     app.post('/api/db-restore', express.json({ limit: '10mb' }), async (req, res) => {
       try {
