@@ -17,6 +17,19 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
+// Trust proxy - Railway uses HTTPS proxy
+app.set('trust proxy', true);
+
+// Middleware to ensure HTTPS URLs for static assets
+app.use((req, res, next) => {
+  // If request is HTTPS, ensure all responses use HTTPS
+  if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
+    // Set protocol for static assets
+    req.protocol = 'https';
+  }
+  next();
+});
+
 // Middleware
 app.use(cors({
   origin: FRONTEND_URL || '*',
@@ -476,7 +489,19 @@ db.init()
               console.log(`✅ index.html found at: ${indexPath}`);
               
               // Serve static files (CSS, JS, images, etc.)
-              app.use(express.static(buildPath));
+              // Set proper headers for HTTPS
+              app.use(express.static(buildPath, {
+                setHeaders: (res, path) => {
+                  // Ensure Content-Type is set correctly
+                  if (path.endsWith('.css')) {
+                    res.setHeader('Content-Type', 'text/css');
+                  } else if (path.endsWith('.js')) {
+                    res.setHeader('Content-Type', 'application/javascript');
+                  }
+                  // Set security headers
+                  res.setHeader('X-Content-Type-Options', 'nosniff');
+                }
+              }));
               
               // Serve React app for all non-API routes (MUST be last)
               app.get('*', (req, res) => {
