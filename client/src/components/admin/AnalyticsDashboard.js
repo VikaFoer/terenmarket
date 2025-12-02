@@ -28,7 +28,6 @@ import {
 } from 'recharts';
 import axios from 'axios';
 import { format, subDays, parseISO } from 'date-fns';
-import { uk } from 'date-fns/locale';
 
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
 
@@ -76,7 +75,7 @@ const AnalyticsDashboard = () => {
 
   const formatDate = (dateString) => {
     try {
-      return format(parseISO(dateString), 'dd.MM', { locale: uk });
+      return format(parseISO(dateString), 'dd.MM');
     } catch {
       return dateString;
     }
