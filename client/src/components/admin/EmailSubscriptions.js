@@ -17,10 +17,14 @@ import {
   Button,
   Chip,
   Alert,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EmailIcon from '@mui/icons-material/Email';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 import axios from 'axios';
+import AnalyticsDashboard from './AnalyticsDashboard';
 
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
 
@@ -34,6 +38,7 @@ const categoryNames = {
 };
 
 const EmailSubscriptions = () => {
+  const [tabValue, setTabValue] = useState(0);
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -100,14 +105,28 @@ const EmailSubscriptions = () => {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <EmailIcon sx={{ fontSize: 32, color: '#667eea' }} />
-          <Typography variant="h4">Email підписки</Typography>
+          <Typography variant="h4">Email підписки та аналітика</Typography>
         </Box>
-        <Chip 
-          label={`Всього: ${subscriptions.length}`} 
-          color="primary" 
-          sx={{ fontSize: '1rem', py: 2.5 }}
-        />
+        {tabValue === 0 && (
+          <Chip 
+            label={`Всього: ${subscriptions.length}`} 
+            color="primary" 
+            sx={{ fontSize: '1rem', py: 2.5 }}
+          />
+        )}
       </Box>
+
+      <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)} sx={{ mb: 3 }}>
+        <Tab icon={<EmailIcon />} iconPosition="start" label="Підписки" />
+        <Tab icon={<AnalyticsIcon />} iconPosition="start" label="Аналітика" />
+      </Tabs>
+
+      {tabValue === 1 && (
+        <AnalyticsDashboard />
+      )}
+
+      {tabValue === 0 && (
+        <>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
@@ -195,6 +214,8 @@ const EmailSubscriptions = () => {
           </Button>
         </DialogActions>
       </Dialog>
+        </>
+      )}
     </Box>
   );
 };

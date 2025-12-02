@@ -278,6 +278,64 @@ const createTables = () => {
             }
           });
           
+          // Analytics tables
+          db.run(`CREATE TABLE IF NOT EXISTS analytics_sessions (
+            id TEXT PRIMARY KEY,
+            user_id INTEGER,
+            started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            ended_at DATETIME,
+            duration INTEGER,
+            page_views INTEGER DEFAULT 0,
+            device_type TEXT,
+            browser TEXT,
+            referrer TEXT,
+            landing_page TEXT,
+            exit_page TEXT,
+            FOREIGN KEY (user_id) REFERENCES clients(id) ON DELETE SET NULL
+          )`, (err) => {
+            if (err) {
+              console.error('Error creating analytics_sessions table:', err);
+            } else {
+              console.log('AnalyticsSessions table created/verified');
+            }
+          });
+          
+          db.run(`CREATE TABLE IF NOT EXISTS analytics_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            user_id INTEGER,
+            event_type TEXT NOT NULL,
+            event_name TEXT NOT NULL,
+            page_path TEXT NOT NULL,
+            page_title TEXT,
+            category TEXT,
+            action TEXT,
+            label TEXT,
+            value REAL,
+            metadata TEXT,
+            user_agent TEXT,
+            ip_address TEXT,
+            referrer TEXT,
+            device_type TEXT,
+            browser TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (session_id) REFERENCES analytics_sessions(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES clients(id) ON DELETE SET NULL
+          )`, (err) => {
+            if (err) {
+              console.error('Error creating analytics_events table:', err);
+            } else {
+              console.log('AnalyticsEvents table created/verified');
+              // Create indexes
+              db.run(`CREATE INDEX IF NOT EXISTS idx_events_session ON analytics_events(session_id)`, () => {});
+              db.run(`CREATE INDEX IF NOT EXISTS idx_events_user ON analytics_events(user_id)`, () => {});
+              db.run(`CREATE INDEX IF NOT EXISTS idx_events_type ON analytics_events(event_type)`, () => {});
+              db.run(`CREATE INDEX IF NOT EXISTS idx_events_created ON analytics_events(created_at)`, () => {});
+              db.run(`CREATE INDEX IF NOT EXISTS idx_sessions_user ON analytics_sessions(user_id)`, () => {});
+              db.run(`CREATE INDEX IF NOT EXISTS idx_sessions_started ON analytics_sessions(started_at)`, () => {});
+            }
+          });
+          
           // Create default admin user
           console.log('Creating default admin user...');
           createDefaultAdmin().then(() => {

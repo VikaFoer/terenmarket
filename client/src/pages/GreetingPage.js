@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { trackQRPageView, trackGreetingView, trackEmailRegistration, trackProductExpand } from '../utils/analytics';
 
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
 
@@ -32,6 +33,13 @@ const GreetingPage = () => {
   const [loadingGreeting, setLoadingGreeting] = useState(false);
   const [showAllProducts, setShowAllProducts] = useState(false);
   const navigate = useNavigate();
+
+  const handleExpandProducts = () => {
+    setShowAllProducts(!showAllProducts);
+    if (!showAllProducts) {
+      trackProductExpand(category);
+    }
+  };
 
   // Валідні категорії для привітань
   const validCategories = ['colorant', 'mix', 'bruker-o', 'axs', 'filter', 'lab'];
@@ -61,6 +69,10 @@ const GreetingPage = () => {
         setGreeting(greetingResponse.data.greeting);
         setProducts(productsResponse.data || []);
         setError(null);
+        
+        // Track QR page view
+        trackQRPageView(category);
+        trackGreetingView(category);
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Не вдалося завантажити дані');
@@ -77,6 +89,7 @@ const GreetingPage = () => {
     try {
       const response = await axios.get(`${API_URL}/greetings/${category}`);
       setGreeting(response.data.greeting);
+      trackGreetingView(category);
     } catch (err) {
       console.error('Error fetching greeting:', err);
       setSnackbar({
@@ -115,6 +128,12 @@ const GreetingPage = () => {
           : 'Email успішно зареєстровано! Ми зв\'яжемося з вами найближчим часом.',
         severity: 'success'
       });
+      
+      // Track email registration
+      if (!response.data.alreadyExists) {
+        trackEmailRegistration(category, email);
+      }
+      
       setEmail('');
     } catch (err) {
       setSnackbar({
@@ -437,7 +456,7 @@ const GreetingPage = () => {
                 <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                   <Button
                     variant="outlined"
-                    onClick={() => setShowAllProducts(!showAllProducts)}
+                    onClick={handleExpandProducts}
                     sx={{
                       px: 4,
                       py: 1.5,

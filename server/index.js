@@ -11,6 +11,7 @@ const clientRoutes = require('./routes/client');
 const currencyRoutes = require('./routes/currency');
 const managerRoutes = require('./routes/manager');
 const greetingsRoutes = require('./routes/greetings');
+const analyticsRoutes = require('./routes/analytics');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,6 +45,7 @@ db.init()
     app.use('/api/currency', currencyRoutes);
     app.use('/api/manager', managerRoutes);
     app.use('/api/greetings', greetingsRoutes);
+    app.use('/api/analytics', analyticsRoutes);
     
     // Serve uploaded images
     const uploadsPath = path.join(__dirname, 'uploads', 'images');
