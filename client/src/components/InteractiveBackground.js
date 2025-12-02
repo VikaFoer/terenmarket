@@ -10,7 +10,7 @@ const InteractiveBackground = ({ children, onInteraction }) => {
 
   // Particle class
   class Particle {
-    constructor(x, y) {
+    constructor(x, y, width, height) {
       this.x = x;
       this.y = y;
       this.vx = (Math.random() - 0.5) * 0.8;
@@ -18,7 +18,8 @@ const InteractiveBackground = ({ children, onInteraction }) => {
       this.radius = Math.random() * 3 + 2;
       this.opacity = Math.random() * 0.6 + 0.4;
       this.baseOpacity = this.opacity;
-      this.color = `rgba(${255}, ${255}, ${255}, ${this.opacity})`;
+      this.maxX = width;
+      this.maxY = height;
     }
 
     update(mouseX, mouseY, isInteracting) {
@@ -26,26 +27,15 @@ const InteractiveBackground = ({ children, onInteraction }) => {
       this.x += this.vx;
       this.y += this.vy;
 
-      // Get canvas dimensions (use display size, not internal canvas size)
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const rect = canvas.getBoundingClientRect();
-      const maxX = rect.width || window.innerWidth;
-      const maxY = rect.height || window.innerHeight;
-
       // Bounce off edges
-      if (this.x < 0 || this.x > maxX) {
+      if (this.x < 0 || this.x > this.maxX) {
         this.vx *= -1;
-        this.x = Math.max(0, Math.min(maxX, this.x));
+        this.x = Math.max(0, Math.min(this.maxX, this.x));
       }
-      if (this.y < 0 || this.y > maxY) {
+      if (this.y < 0 || this.y > this.maxY) {
         this.vy *= -1;
-        this.y = Math.max(0, Math.min(maxY, this.y));
+        this.y = Math.max(0, Math.min(this.maxY, this.y));
       }
-
-      // Keep in bounds
-      this.x = Math.max(0, Math.min(maxX, this.x));
-      this.y = Math.max(0, Math.min(maxY, this.y));
 
       // React to mouse proximity
       const dx = mouseX - this.x;
@@ -53,7 +43,7 @@ const InteractiveBackground = ({ children, onInteraction }) => {
       const distance = Math.sqrt(dx * dx + dy * dy);
       const maxDistance = 150;
 
-      if (distance < maxDistance && isInteracting) {
+      if (distance < maxDistance && isInteracting && distance > 0) {
         const force = (maxDistance - distance) / maxDistance;
         this.x -= (dx / distance) * force * 2;
         this.y -= (dy / distance) * force * 2;
@@ -88,24 +78,30 @@ const InteractiveBackground = ({ children, onInteraction }) => {
   // Initialize particles
   const initParticles = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      console.warn('Canvas not available for particle initialization');
+      return;
+    }
 
     const rect = canvas.getBoundingClientRect();
     const width = rect.width || window.innerWidth;
     const height = rect.height || window.innerHeight;
-    const particleCount = Math.floor((width * height) / 8000);
+    const particleCount = Math.max(30, Math.floor((width * height) / 8000));
+    
     particlesRef.current = [];
-
-    console.log('Initializing particles:', particleCount, 'for canvas size:', width, height);
 
     for (let i = 0; i < particleCount; i++) {
       particlesRef.current.push(
         new Particle(
           Math.random() * width,
-          Math.random() * height
+          Math.random() * height,
+          width,
+          height
         )
       );
     }
+    
+    console.log(`Initialized ${particleCount} particles for canvas ${width}x${height}`);
   };
 
   // Draw connections between nearby particles
@@ -140,9 +136,14 @@ const InteractiveBackground = ({ children, onInteraction }) => {
   // Animation loop
   const animate = () => {
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) {
-      console.warn('Canvas or context not available');
+    if (!canvas) {
+      console.warn('Canvas not available for animation');
+      return;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.warn('Canvas context not available');
       return;
     }
 
@@ -151,14 +152,10 @@ const InteractiveBackground = ({ children, onInteraction }) => {
     const displayWidth = rect.width || window.innerWidth;
     const displayHeight = rect.height || window.innerHeight;
 
-    // Clear canvas (use internal canvas size)
+    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Update and draw particles
-    if (particlesRef.current.length === 0) {
-      console.warn('No particles to animate');
-    }
-
     particlesRef.current.forEach(particle => {
       particle.update(mouseRef.current.x, mouseRef.current.y, isInteracting);
       particle.draw(ctx);
@@ -208,7 +205,7 @@ const InteractiveBackground = ({ children, onInteraction }) => {
       const distance = Math.sqrt(dx * dx + dy * dy);
       const maxDistance = 100;
 
-      if (distance < maxDistance) {
+      if (distance < maxDistance && distance > 0) {
         const force = (maxDistance - distance) / maxDistance;
         particle.vx += (dx / distance) * force * 3;
         particle.vy += (dy / distance) * force * 3;
@@ -238,7 +235,9 @@ const InteractiveBackground = ({ children, onInteraction }) => {
     const rect = input.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    const canvasRect = canvasRef.current.getBoundingClientRect();
+    const canvasRect = canvasRef.current?.getBoundingClientRect();
+    if (!canvasRect) return;
+    
     const x = centerX - canvasRect.left;
     const y = centerY - canvasRect.top;
 
@@ -248,7 +247,7 @@ const InteractiveBackground = ({ children, onInteraction }) => {
       const distance = Math.sqrt(dx * dx + dy * dy);
       const maxDistance = 200;
 
-      if (distance < maxDistance) {
+      if (distance < maxDistance && distance > 0) {
         const force = (maxDistance - distance) / maxDistance;
         const angle = Math.atan2(dy, dx);
         particle.vx += Math.cos(angle) * force * 2;
@@ -264,7 +263,7 @@ const InteractiveBackground = ({ children, onInteraction }) => {
   // Handle button clicks - create ripple
   const handleButtonClick = (e) => {
     const button = e.target.closest('button');
-    if (!button) return;
+    if (!button || !canvasRef.current) return;
 
     const rect = button.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
@@ -279,7 +278,7 @@ const InteractiveBackground = ({ children, onInteraction }) => {
       const distance = Math.sqrt(dx * dx + dy * dy);
       const maxDistance = 150;
 
-      if (distance < maxDistance) {
+      if (distance < maxDistance && distance > 0) {
         const force = (maxDistance - distance) / maxDistance;
         const angle = Math.atan2(dy, dx);
         particle.vx += Math.cos(angle) * force * 4;
@@ -292,7 +291,7 @@ const InteractiveBackground = ({ children, onInteraction }) => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) {
-      console.warn('Canvas ref not available');
+      console.error('Canvas ref is null');
       return;
     }
 
@@ -316,42 +315,51 @@ const InteractiveBackground = ({ children, onInteraction }) => {
       canvas.style.width = width + 'px';
       canvas.style.height = height + 'px';
       
-      console.log('Canvas resized:', width, height, 'dpr:', dpr);
+      // Update particle bounds
+      particlesRef.current.forEach(particle => {
+        particle.maxX = width;
+        particle.maxY = height;
+      });
+      
       initParticles();
     };
 
-    // Initial setup
-    resizeCanvas();
+    // Initial setup with delay to ensure DOM is ready
+    const initTimeout = setTimeout(() => {
+      resizeCanvas();
+      animate();
+    }, 100);
     
     // Event listeners
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('scroll', handleScroll, { passive: true });
 
-    // Listen for input focus events (with delay to ensure DOM is ready)
+    // Listen for input focus events
     const setupInputListeners = () => {
       const inputs = document.querySelectorAll('input, textarea');
       inputs.forEach(input => {
+        input.removeEventListener('focus', handleInputFocus);
+        input.removeEventListener('input', handleInputFocus);
         input.addEventListener('focus', handleInputFocus);
         input.addEventListener('input', handleInputFocus);
       });
 
       const buttons = document.querySelectorAll('button');
       buttons.forEach(button => {
+        button.removeEventListener('click', handleButtonClick);
         button.addEventListener('click', handleButtonClick);
       });
     };
 
     // Setup listeners after a short delay
-    setTimeout(setupInputListeners, 100);
+    setTimeout(setupInputListeners, 200);
     
     // Also setup on DOM mutations
     const observer = new MutationObserver(setupInputListeners);
     observer.observe(document.body, { childList: true, subtree: true });
 
-    // Start animation
-    animate();
-
     return () => {
+      clearTimeout(initTimeout);
       window.removeEventListener('resize', resizeCanvas);
       window.removeEventListener('scroll', handleScroll);
       observer.disconnect();
@@ -402,4 +410,3 @@ const InteractiveBackground = ({ children, onInteraction }) => {
 };
 
 export default InteractiveBackground;
-
