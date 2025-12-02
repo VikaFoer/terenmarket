@@ -364,7 +364,7 @@ const GreetingPage = () => {
             <>
               <Grid container spacing={{ xs: 1.5, sm: 2 }}>
                 {(showAllProducts ? products : products.slice(0, 6)).map((product) => (
-                  <Grid item xs={6} sm={4} md={3} lg={2.4} key={product.id}>
+                  <Grid item xs={6} sm={4} md={3} lg={2} xl={2} key={product.id}>
                     <Card
                       sx={{
                         height: '100%',
