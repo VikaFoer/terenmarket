@@ -393,13 +393,37 @@ db.init()
     });
 
           // Serve static files from React app in production
-          if (process.env.NODE_ENV === 'production') {
-            // Build path: server runs from server/ directory, so build is at ../client/build
-            // This resolves to /app/client/build on Railway when running from /app/server
-            const buildPath = path.join(__dirname, '..', 'client', 'build');
-            const indexPath = path.join(buildPath, 'index.html');
+          // Check multiple possible build locations
+          const possibleBuildPaths = [
+            path.join(__dirname, '..', 'client', 'build'), // Standard: ../client/build from server/
+            path.join(process.cwd(), 'client', 'build'),   // From root directory
+            path.join(__dirname, '..', '..', 'client', 'build'), // Alternative path
+            path.join(process.cwd(), 'build')              // If build is in root
+          ];
+          
+          let buildPath = null;
+          let indexPath = null;
+          
+          for (const possiblePath of possibleBuildPaths) {
+            const possibleIndexPath = path.join(possiblePath, 'index.html');
+            if (fs.existsSync(possiblePath) && fs.existsSync(possibleIndexPath)) {
+              buildPath = possiblePath;
+              indexPath = possibleIndexPath;
+              console.log(`✅ Found build directory at: ${buildPath}`);
+              break;
+            }
+          }
+          
+          // If NODE_ENV is production or build directory exists, try to serve frontend
+          if (process.env.NODE_ENV === 'production' || buildPath) {
+            if (!buildPath) {
+              // Build path: server runs from server/ directory, so build is at ../client/build
+              // This resolves to /app/client/build on Railway when running from /app/server
+              buildPath = path.join(__dirname, '..', 'client', 'build');
+              indexPath = path.join(buildPath, 'index.html');
+            }
             
-            console.log(`[Production Mode] NODE_ENV: ${process.env.NODE_ENV}`);
+            console.log(`[Production Mode] NODE_ENV: ${process.env.NODE_ENV || 'not set'}`);
             console.log(`[Production Mode] __dirname: ${__dirname}`);
             console.log(`[Production Mode] process.cwd(): ${process.cwd()}`);
             console.log(`[Production Mode] Build path: ${buildPath}`);
@@ -475,21 +499,31 @@ db.init()
               });
             }
           } else {
-      // Development mode - show API info
-      app.get('/', (req, res) => {
-        res.json({
-          message: 'SmartMarket API Server',
-          version: '1.0.0',
-          endpoints: {
-            health: '/api/health',
-            auth: '/api/auth/login',
-            admin: '/api/admin/*',
-            client: '/api/client/*'
-          },
-          note: 'This is an API server. In production, React app is served from root path.'
-        });
-      });
-    }
+            // Development mode or build not found - show API info
+            console.log(`[Development Mode] NODE_ENV: ${process.env.NODE_ENV || 'not set'}`);
+            console.log(`[Development Mode] Build directory not found, serving API info instead`);
+            
+            app.get('/', (req, res) => {
+              res.json({
+                message: 'SmartMarket API Server',
+                version: '1.0.0',
+                endpoints: {
+                  health: '/api/health',
+                  auth: '/api/auth/login',
+                  admin: '/api/admin/*',
+                  client: '/api/client/*',
+                  dbStatus: '/api/db-status'
+                },
+                note: 'This is an API server. In production, React app should be served from root path.',
+                debug: {
+                  nodeEnv: process.env.NODE_ENV || 'not set',
+                  buildPath: buildPath || 'not found',
+                  __dirname: __dirname,
+                  cwd: process.cwd()
+                }
+              });
+            });
+          }
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server is running on port ${PORT}`);
