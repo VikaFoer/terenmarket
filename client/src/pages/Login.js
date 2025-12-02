@@ -5,7 +5,6 @@ import {
   Paper,
   TextField,
   Button,
-  Typography,
   Box,
   Alert,
 } from '@mui/material';
@@ -64,27 +63,13 @@ const Login = () => {
             <Box
               component="img"
               src="/logo.png"
-              alt="SmartMarket Logo"
+              alt="Tecsa market Logo"
               sx={{
                 height: { xs: 60, sm: 80 },
                 objectFit: 'contain',
               }}
             />
           </Box>
-          <Typography 
-            variant="h4" 
-            component="h1" 
-            gutterBottom 
-            align="center" 
-            sx={{ 
-              mb: { xs: 2, sm: 3 }, 
-              fontWeight: 600, 
-              color: '#2c3e50',
-              fontSize: { xs: '1.75rem', sm: '2.125rem' },
-            }}
-          >
-            SmartMarket
-          </Typography>
           
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
