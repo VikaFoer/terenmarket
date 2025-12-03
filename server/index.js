@@ -525,17 +525,28 @@ db.init()
                     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
                   }
                 },
-                // Don't fall through to next middleware if file not found
-                fallthrough: false
+                // Allow fallthrough to React Router for non-static routes
+                fallthrough: true,
+                // Suppress errors for missing files (like favicon.ico)
+                dotfiles: 'ignore',
+                index: false
               }));
               
-              // Handle 404 for static files
+              // Middleware to silently handle missing static files
               app.use((req, res, next) => {
-                // If this is a static file request that wasn't found, return 404
+                // Only check for static file extensions
                 const ext = path.extname(req.path).toLowerCase();
                 const staticExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot', '.mp4', '.webm', '.json'];
-                if (staticExtensions.includes(ext)) {
-                  return res.status(404).json({ error: 'Static file not found', path: req.path });
+                
+                // If it's a static file request and response hasn't been sent, it means file wasn't found
+                // Silently pass to React Router (don't log errors for favicon.ico, etc.)
+                if (staticExtensions.includes(ext) && !res.headersSent) {
+                  // For favicon and other optional files, just pass through silently
+                  if (req.path === '/favicon.ico' || req.path === '/robots.txt') {
+                    return next();
+                  }
+                  // For other static files, let React Router handle it (might be a route)
+                  return next();
                 }
                 next();
               });
@@ -547,11 +558,17 @@ db.init()
                   return res.status(404).json({ error: 'API endpoint not found', path: req.path });
                 }
                 
-                // Don't serve React app for static file requests
+                // Check if it's a static file request that wasn't found
                 const ext = path.extname(req.path).toLowerCase();
                 const staticExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot', '.mp4', '.webm', '.json'];
+                
+                // If it's a static file extension, check if file exists
                 if (staticExtensions.includes(ext)) {
-                  return res.status(404).json({ error: 'Static file not found', path: req.path });
+                  const filePath = path.join(buildPath, req.path);
+                  if (!fs.existsSync(filePath)) {
+                    // Silently return 404 for missing static files (don't log errors)
+                    return res.status(404).end();
+                  }
                 }
                 
                 // Serve index.html for all other routes (React Router will handle routing)
@@ -561,8 +578,9 @@ db.init()
                 
                 res.sendFile(indexPath, (err) => {
                   if (err) {
-                    console.error(`Error serving index.html for ${req.path}:`, err);
+                    // Only log errors if headers weren't sent (real errors)
                     if (!res.headersSent) {
+                      console.error(`Error serving index.html for ${req.path}:`, err);
                       res.status(500).json({ 
                         error: 'Failed to serve frontend',
                         path: req.path,
@@ -599,6 +617,17 @@ db.init()
               });
             });
           }
+
+    // Error handler to suppress ENOENT errors for missing static files
+    app.use((err, req, res, next) => {
+      // Suppress ENOENT errors for static files (favicon.ico, etc.)
+      if (err.code === 'ENOENT' && (req.path.includes('favicon') || req.path.includes('robots') || req.path.match(/\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|mp4|webm|json)$/))) {
+        return res.status(404).end();
+      }
+      // Log other errors
+      console.error('Error:', err);
+      next(err);
+    });
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server is running on port ${PORT}`);
