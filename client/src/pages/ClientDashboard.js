@@ -754,7 +754,20 @@ const ClientDashboard = () => {
                           height: '100%', 
                           display: 'flex', 
                           flexDirection: 'column',
+                          opacity: 0,
+                          animation: 'fadeInUp 0.6s ease forwards',
+                          animationDelay: `${categoryProducts.indexOf(product) * 0.1}s`,
                           transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                          '@keyframes fadeInUp': {
+                            from: {
+                              opacity: 0,
+                              transform: 'translateY(20px)',
+                            },
+                            to: {
+                              opacity: 1,
+                              transform: 'translateY(0)',
+                            },
+                          },
                           '&:hover': {
                             transform: { xs: 'none', sm: 'translateY(-4px)' },
                             boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.08)', sm: '0 8px 16px rgba(0,0,0,0.15)' },
