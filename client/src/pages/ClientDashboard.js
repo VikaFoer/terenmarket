@@ -501,7 +501,7 @@ const ClientDashboard = () => {
         position="fixed"
         sx={{
           width: '100%',
-          backgroundColor: '#2c3e50',
+          backgroundColor: '#e91e63', // TEST: Changed to pink/magenta for testing
           zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
