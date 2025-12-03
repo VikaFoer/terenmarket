@@ -40,25 +40,71 @@ const Login = () => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ px: { xs: 2, sm: 3 } }}>
+    <Box
+      sx={{
+        position: 'relative',
+        minHeight: '100vh',
+        width: '100%',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Video Background */}
       <Box
+        component="video"
+        autoPlay
+        loop
+        muted
+        playsInline
         sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          py: { xs: 2, sm: 0 },
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          zIndex: 0,
+          pointerEvents: 'none',
         }}
       >
-        <Paper 
-          elevation={3} 
-          sx={{ 
-            p: { xs: 3, sm: 4 }, 
-            width: '100%', 
-            borderRadius: 3,
-            mx: { xs: 1, sm: 0 },
+        <source src="/bg-video.mp4" type="video/mp4" />
+      </Box>
+      
+      {/* Overlay for better readability */}
+      <Box
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }}
+      />
+      
+      {/* Main Content */}
+      <Container maxWidth="sm" sx={{ px: { xs: 2, sm: 3 }, position: 'relative', zIndex: 2 }}>
+        <Box
+          sx={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            py: { xs: 2, sm: 0 },
           }}
         >
+          <Paper 
+            elevation={3} 
+            sx={{ 
+              p: { xs: 3, sm: 4 }, 
+              width: '100%', 
+              borderRadius: 3,
+              mx: { xs: 1, sm: 0 },
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)',
+            }}
+          >
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 2, sm: 3 } }}>
             <Box
               component="img"
@@ -112,8 +158,9 @@ const Login = () => {
             </Button>
           </form>
         </Paper>
-      </Box>
-    </Container>
+        </Box>
+      </Container>
+    </Box>
   );
 };
 
