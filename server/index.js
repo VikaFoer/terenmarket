@@ -511,6 +511,10 @@ db.init()
                 }
                 
                 // Serve index.html for all other routes (React Router will handle routing)
+                // Set headers to ensure HTTPS is used
+                res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                res.setHeader('X-Content-Type-Options', 'nosniff');
+                
                 res.sendFile(indexPath, (err) => {
                   if (err) {
                     console.error(`Error serving index.html for ${req.path}:`, err);
