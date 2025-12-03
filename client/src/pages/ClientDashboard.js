@@ -351,7 +351,7 @@ const ClientDashboard = () => {
         {categories.length > 0 && (
           <>
             <Box sx={{ px: 2, py: 1 }}>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+              <Typography variant="caption" sx={{ color: '#5a7a8a', fontWeight: 500 }}>
                 Призначені категорії
               </Typography>
             </Box>
