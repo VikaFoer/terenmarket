@@ -304,7 +304,7 @@ const ClientDashboard = () => {
         <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
           Категорії
         </Typography>
-        <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5, fontSize: '0.75rem' }}>
+        <Typography variant="body2" sx={{ color: '#5a7a8a', mt: 0.5, fontSize: '0.75rem' }}>
           Оберіть категорії для відображення
         </Typography>
       </Box>
