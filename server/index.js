@@ -489,25 +489,69 @@ db.init()
               console.log(`✅ index.html found at: ${indexPath}`);
               
               // Serve static files (CSS, JS, images, etc.)
-              // Set proper headers for HTTPS
+              // Set proper headers for HTTPS and correct MIME types
               app.use(express.static(buildPath, {
-                setHeaders: (res, path) => {
-                  // Ensure Content-Type is set correctly
-                  if (path.endsWith('.css')) {
-                    res.setHeader('Content-Type', 'text/css');
-                  } else if (path.endsWith('.js')) {
-                    res.setHeader('Content-Type', 'application/javascript');
+                setHeaders: (res, filePath) => {
+                  // Determine Content-Type based on file extension
+                  const ext = path.extname(filePath).toLowerCase();
+                  const mimeTypes = {
+                    '.css': 'text/css; charset=utf-8',
+                    '.js': 'application/javascript; charset=utf-8',
+                    '.json': 'application/json; charset=utf-8',
+                    '.png': 'image/png',
+                    '.jpg': 'image/jpeg',
+                    '.jpeg': 'image/jpeg',
+                    '.gif': 'image/gif',
+                    '.svg': 'image/svg+xml',
+                    '.ico': 'image/x-icon',
+                    '.woff': 'font/woff',
+                    '.woff2': 'font/woff2',
+                    '.ttf': 'font/ttf',
+                    '.eot': 'application/vnd.ms-fontobject',
+                    '.mp4': 'video/mp4',
+                    '.webm': 'video/webm',
+                    '.html': 'text/html; charset=utf-8',
+                  };
+                  
+                  if (mimeTypes[ext]) {
+                    res.setHeader('Content-Type', mimeTypes[ext]);
                   }
+                  
                   // Set security headers
                   res.setHeader('X-Content-Type-Options', 'nosniff');
-                }
+                  
+                  // Cache static assets
+                  if (ext === '.css' || ext === '.js' || ext === '.png' || ext === '.jpg' || ext === '.jpeg' || ext === '.svg' || ext === '.woff' || ext === '.woff2') {
+                    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+                  }
+                },
+                // Don't fall through to next middleware if file not found
+                fallthrough: false
               }));
+              
+              // Handle 404 for static files
+              app.use((req, res, next) => {
+                // If this is a static file request that wasn't found, return 404
+                const ext = path.extname(req.path).toLowerCase();
+                const staticExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot', '.mp4', '.webm', '.json'];
+                if (staticExtensions.includes(ext)) {
+                  return res.status(404).json({ error: 'Static file not found', path: req.path });
+                }
+                next();
+              });
               
               // Serve React app for all non-API routes (MUST be last)
               app.get('*', (req, res) => {
                 // Don't serve React app for API routes
                 if (req.path.startsWith('/api')) {
                   return res.status(404).json({ error: 'API endpoint not found', path: req.path });
+                }
+                
+                // Don't serve React app for static file requests
+                const ext = path.extname(req.path).toLowerCase();
+                const staticExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.eot', '.mp4', '.webm', '.json'];
+                if (staticExtensions.includes(ext)) {
+                  return res.status(404).json({ error: 'Static file not found', path: req.path });
                 }
                 
                 // Serve index.html for all other routes (React Router will handle routing)
