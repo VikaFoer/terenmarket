@@ -95,7 +95,7 @@ const AdminDashboard = () => {
         position="fixed"
         sx={{ 
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          backgroundColor: '#2c3e50',
+          backgroundColor: '#e91e63', // TEST: Changed to pink/magenta for testing
         }}
       >
         <Toolbar sx={{ pl: 2 }}>
