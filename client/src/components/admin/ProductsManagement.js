@@ -62,6 +62,7 @@ const ProductsManagement = () => {
   const [addingTestProducts, setAddingTestProducts] = useState(false);
   const [addingQRTestProducts, setAddingQRTestProducts] = useState(false);
   const [addingFilterProducts, setAddingFilterProducts] = useState(false);
+  const [deletingColorantProducts, setDeletingColorantProducts] = useState(false);
   const [syncingDatabase, setSyncingDatabase] = useState(false);
   const [checkingDatabase, setCheckingDatabase] = useState(false);
   const [dbDiagnostics, setDbDiagnostics] = useState(null);
@@ -373,6 +374,26 @@ const ProductsManagement = () => {
       setError(error.response?.data?.error || 'Помилка додавання товарів категорії "Фільтри"');
     } finally {
       setAddingFilterProducts(false);
+    }
+  };
+
+  const handleDeleteColorantProducts = async () => {
+    if (!window.confirm('Ви впевнені, що хочете видалити ВСІ товари з категорії "Колоранти"? Цю дію неможливо скасувати!')) {
+      return;
+    }
+
+    setDeletingColorantProducts(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await axios.post(`${API_URL}/admin/products/delete-colorant-products`);
+      setSuccess(response.data.message || `Видалено ${response.data.deleted} товарів`);
+      fetchProducts();
+    } catch (error) {
+      setError(error.response?.data?.error || 'Помилка видалення товарів з категорії "Колоранти"');
+    } finally {
+      setDeletingColorantProducts(false);
     }
   };
 

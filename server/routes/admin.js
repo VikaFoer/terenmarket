@@ -586,6 +586,25 @@ router.post('/products/add-qr-test-products', async (req, res) => {
   }
 });
 
+// Delete all products from "Колоранти" category
+router.post('/products/delete-colorant-products', async (req, res) => {
+  try {
+    const { deleteColorantProducts } = require('../scripts/deleteColorantProducts');
+    const result = await deleteColorantProducts();
+    res.json({
+      success: true,
+      message: `Видалено ${result.deleted} товарів з категорії "Колоранти"`,
+      ...result
+    });
+  } catch (error) {
+    console.error('Error deleting colorant products:', error);
+    res.status(500).json({ 
+      error: 'Помилка видалення товарів',
+      details: error.message 
+    });
+  }
+});
+
 // Add test products for all categories
 router.post('/products/add-test-products', async (req, res) => {
   const database = db.getDb();
