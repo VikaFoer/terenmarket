@@ -509,6 +509,15 @@ const ProductsManagement = () => {
             {addingFilterProducts ? 'Додавання...' : 'Додати товари "Фільтри" (10 шт)'}
           </Button>
           <Button
+            variant="outlined"
+            color="error"
+            onClick={handleDeleteColorantProducts}
+            disabled={deletingColorantProducts}
+            startIcon={<DeleteForeverIcon />}
+          >
+            {deletingColorantProducts ? 'Видалення...' : 'Видалити всі товари "Колоранти"'}
+          </Button>
+          <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => handleOpen()}
