@@ -17,7 +17,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { trackPageView, trackQRGreetingView, trackEmailSignup, trackExpandProducts, trackScrollDepth, trackTimeOnPage } from '../utils/analytics';
-import InteractiveBackground from '../components/InteractiveBackground';
 
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
 
@@ -233,15 +232,57 @@ const GreetingPage = () => {
   }
 
   return (
-    <InteractiveBackground>
+    <Box
+      sx={{
+        position: 'relative',
+        minHeight: '100vh',
+        width: '100%',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Video Background */}
+      <Box
+        component="video"
+        autoPlay
+        loop
+        muted
+        playsInline
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          zIndex: 0,
+          pointerEvents: 'none',
+        }}
+      >
+        <source src="/bg-video.mp4" type="video/mp4" />
+      </Box>
+      
+      {/* Overlay for better readability */}
+      <Box
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }}
+      />
+      
+      {/* Main Content */}
       <Box
         sx={{
           minHeight: '100vh',
-          background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%)',
           py: { xs: 3, sm: 4 },
           px: 2,
           position: 'relative',
-          zIndex: 1,
+          zIndex: 2,
         }}
       >
         <Container maxWidth="lg">
@@ -594,7 +635,7 @@ const GreetingPage = () => {
         </Alert>
       </Snackbar>
       </Box>
-    </InteractiveBackground>
+    </Box>
   );
 };
 
