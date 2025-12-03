@@ -746,7 +746,7 @@ const ClientDashboard = () => {
                   </Typography>
                 )}
                 <Grid container spacing={{ xs: 2, sm: 3 }}>
-                  {categoryProducts.map((product) => {
+                  {categoryProducts.map((product, index) => {
                     const quantity = getCartItemQuantity(product.id);
                     return (
                       <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
@@ -756,7 +756,7 @@ const ClientDashboard = () => {
                           flexDirection: 'column',
                           opacity: 0,
                           animation: 'fadeInUp 0.6s ease forwards',
-                          animationDelay: `${categoryProducts.indexOf(product) * 0.1}s`,
+                          animationDelay: `${index * 0.1}s`,
                           transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                           '@keyframes fadeInUp': {
                             from: {
