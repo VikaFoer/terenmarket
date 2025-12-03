@@ -759,7 +759,10 @@ const ClientDashboard = () => {
                           opacity: 0,
                           animation: 'fadeInUp 0.6s ease forwards',
                           animationDelay: `${index * 0.1}s`,
-                          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                          backdropFilter: 'blur(10px)',
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          transition: 'transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease',
                           '@keyframes fadeInUp': {
                             from: {
                               opacity: 0,
@@ -772,7 +775,8 @@ const ClientDashboard = () => {
                           },
                           '&:hover': {
                             transform: { xs: 'none', sm: 'translateY(-4px)' },
-                            boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.08)', sm: '0 8px 16px rgba(0,0,0,0.15)' },
+                            boxShadow: { xs: '0 2px 8px rgba(0,0,0,0.3)', sm: '0 8px 16px rgba(0,0,0,0.4)' },
+                            backgroundColor: 'rgba(255, 255, 255, 0.15)',
                           },
                         }}>
                         <Box
