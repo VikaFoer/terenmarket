@@ -900,6 +900,7 @@ const ClientDashboard = () => {
         onRemoveItem={removeFromCart}
         onClearCart={clearCart}
       />
+      </Box>
     </Box>
   );
 };
