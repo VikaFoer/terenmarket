@@ -6,7 +6,7 @@
 
 body {
   margin: 0;
-  font-family: 'Helvetica', 'Helvetica Neue', 'Arial', sans-serif;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Arial', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f8f9fa;

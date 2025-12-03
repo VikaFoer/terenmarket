@@ -40,8 +40,9 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: [
-      'Helvetica',
-      'Helvetica Neue',
+      'Manrope',
+      '-apple-system',
+      'BlinkMacSystemFont',
       'Arial',
       'sans-serif',
     ].join(','),
