@@ -724,6 +724,8 @@ const ClientDashboard = () => {
             sx={{ 
               fontSize: { xs: '1.5rem', sm: '2.125rem' },
               mb: { xs: 2, sm: 3 },
+              color: 'white',
+              textShadow: '0 2px 4px rgba(0,0,0,0.5)',
             }}
           >
             {selectedCategory 
@@ -732,16 +734,16 @@ const ClientDashboard = () => {
           </Typography>
           
           {loading ? (
-            <Typography>Завантаження...</Typography>
+            <Typography sx={{ color: 'white' }}>Завантаження...</Typography>
           ) : Object.keys(groupedProducts).length === 0 ? (
-            <Typography color="text.secondary">
+            <Typography sx={{ color: 'white' }}>
               Немає доступних товарів
             </Typography>
           ) : (
             Object.entries(groupedProducts).map(([category, categoryProducts]) => (
               <Box key={category} sx={{ mb: 4 }}>
                 {!selectedCategory && (
-                  <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 2 }}>
+                  <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 2, color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
                     {category}
                   </Typography>
                 )}
@@ -810,7 +812,7 @@ const ClientDashboard = () => {
                           />
                         </Box>
                           <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                            <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600 }}>
+                            <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: 'white' }}>
                               {product.name}
                             </Typography>
                             
@@ -826,10 +828,10 @@ const ClientDashboard = () => {
                                   justifyContent: 'space-between',
                                   alignItems: 'center'
                                 }}>
-                                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+                                  <Typography variant="body2" sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)' }}>
                                     Ціна в євро:
                                   </Typography>
-                                  <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'white' }}>
                                     {((product.cost_price_eur || product.cost_price || 0) * (product.coefficient || 1.0)).toFixed(2)} €
                                   </Typography>
                                 </Box>
@@ -838,10 +840,10 @@ const ClientDashboard = () => {
                                   justifyContent: 'space-between',
                                   alignItems: 'center'
                                 }}>
-                                  <Typography variant="body2" color="text.secondary">
+                                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
                                     Ваша ціна:
                                   </Typography>
-                                  <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
+                                  <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
                                     {product.price.toFixed(2)} грн
                                   </Typography>
                                 </Box>
