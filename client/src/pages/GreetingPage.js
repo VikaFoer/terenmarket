@@ -259,7 +259,9 @@ const GreetingPage = () => {
             src="/logo.png"
             alt="SmartMarket Logo"
             sx={{
-              height: { xs: 40, sm: 50 },
+              height: { xs: 35, sm: 45, md: 50 },
+              width: 'auto',
+              maxWidth: { xs: '180px', sm: '220px', md: '250px' },
               objectFit: 'contain',
             }}
             onError={(e) => {

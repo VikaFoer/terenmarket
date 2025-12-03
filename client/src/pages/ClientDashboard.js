@@ -564,8 +564,10 @@ const ClientDashboard = () => {
             src="/logo.png"
             alt="SmartMarket Logo"
             sx={{
-              height: 28,
-              mr: 1.5,
+              height: { xs: 24, sm: 28 },
+              width: 'auto',
+              maxWidth: { xs: '120px', sm: '150px' },
+              mr: { xs: 1, sm: 1.5 },
               objectFit: 'contain',
               display: 'flex',
               alignItems: 'center',

@@ -111,7 +111,9 @@ const Login = () => {
               src="/logo.png"
               alt="Tecsa market Logo"
               sx={{
-                height: { xs: 60, sm: 80 },
+                height: { xs: 40, sm: 60, md: 80 },
+                width: 'auto',
+                maxWidth: { xs: '200px', sm: '250px', md: '300px' },
                 objectFit: 'contain',
               }}
             />
