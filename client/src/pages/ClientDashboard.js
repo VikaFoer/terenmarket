@@ -496,7 +496,51 @@ const ClientDashboard = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box 
+      sx={{ 
+        position: 'relative',
+        minHeight: '100vh',
+        width: '100%',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Video Background */}
+      <Box
+        component="video"
+        autoPlay
+        loop
+        muted
+        playsInline
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          zIndex: 0,
+          pointerEvents: 'none',
+        }}
+      >
+        <source src="/bg-video.mp4" type="video/mp4" />
+      </Box>
+      
+      {/* Overlay for better readability */}
+      <Box
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }}
+      />
+      
+      {/* Main Content */}
+      <Box sx={{ display: 'flex', position: 'relative', zIndex: 2 }}>
       <AppBar
         position="fixed"
         sx={{
