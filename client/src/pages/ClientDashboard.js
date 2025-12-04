@@ -728,86 +728,123 @@ const ClientDashboard = () => {
                             </Typography>
                             
                             <Box sx={{ mt: 'auto', pt: 2 }}>
-                              <Box sx={{ 
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: 0.5,
-                                mb: 2
-                              }}>
-                                <Box sx={{ 
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center'
-                                }}>
-                                  <Typography variant="body2" sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)' }}>
-                                    Ціна в євро:
-                                  </Typography>
-                                  <Typography variant="body2" sx={{ fontWeight: 500, color: 'white' }}>
-                                    {((product.cost_price_eur || product.cost_price || 0) * (product.coefficient || 1.0)).toFixed(2)} €
-                                  </Typography>
-                                </Box>
-                                <Box sx={{ 
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center'
-                                }}>
-                                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
-                                    Ваша ціна:
-                                  </Typography>
-                                  <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
-                                    {product.price.toFixed(2)} грн
-                                  </Typography>
-                                </Box>
-                              </Box>
+                              {/* Check if product has price */}
+                              {(() => {
+                                const hasPrice = (product.cost_price_eur !== null && product.cost_price_eur !== undefined && product.cost_price_eur > 0) ||
+                                                (product.cost_price_uah !== null && product.cost_price_uah !== undefined && product.cost_price_uah > 0) ||
+                                                (product.cost_price !== null && product.cost_price !== undefined && product.cost_price > 0) ||
+                                                (product.price !== null && product.price !== undefined && product.price > 0);
+                                
+                                if (!hasPrice) {
+                                  // No price - show "Дізнатися ціну" button
+                                  return (
+                                    <Button
+                                      variant="outlined"
+                                      fullWidth
+                                      sx={{
+                                        borderColor: 'rgba(255,255,255,0.5)',
+                                        color: 'white',
+                                        '&:hover': {
+                                          borderColor: 'white',
+                                          backgroundColor: 'rgba(255,255,255,0.1)',
+                                        },
+                                      }}
+                                      onClick={() => {
+                                        // You can add functionality here, e.g., open a contact form or show a message
+                                        alert('Для отримання ціни зв\'яжіться з нами');
+                                      }}
+                                    >
+                                      Дізнатися ціну
+                                    </Button>
+                                  );
+                                }
+                                
+                                // Has price - show price and cart functionality
+                                return (
+                                  <>
+                                    <Box sx={{ 
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      gap: 0.5,
+                                      mb: 2
+                                    }}>
+                                      <Box sx={{ 
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                      }}>
+                                        <Typography variant="body2" sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)' }}>
+                                          Ціна в євро:
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'white' }}>
+                                          {((product.cost_price_eur || product.cost_price || 0) * (product.coefficient || 1.0)).toFixed(2)} €
+                                        </Typography>
+                                      </Box>
+                                      <Box sx={{ 
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                      }}>
+                                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                                          Ваша ціна:
+                                        </Typography>
+                                        <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
+                                          {product.price ? product.price.toFixed(2) : '0.00'} грн
+                                        </Typography>
+                                      </Box>
+                                    </Box>
 
-                              {quantity > 0 ? (
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => updateQuantity(product.id, quantity - 1)}
-                                    color="primary"
-                                  >
-                                    <RemoveIcon />
-                                  </IconButton>
-                                  <TextField
-                                    type="number"
-                                    size="small"
-                                    value={quantity}
-                                    onChange={(e) => {
-                                      const newQuantity = Math.max(0, parseInt(e.target.value) || 0);
-                                      if (newQuantity === 0) {
-                                        removeFromCart(product.id);
-                                      } else {
-                                        updateQuantity(product.id, newQuantity);
-                                      }
-                                    }}
-                                    inputProps={{ min: 0, style: { width: '50px', textAlign: 'center' } }}
-                                    sx={{ width: 70 }}
-                                  />
-                                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', ml: 0.5 }}>
-                                    {product.unit || 'шт'}
-                                  </Typography>
-                                  <IconButton
-                                    size="small"
-                                    onClick={() => updateQuantity(product.id, quantity + 1)}
-                                    color="primary"
-                                  >
-                                    <AddIcon />
-                                  </IconButton>
-                                  <Typography variant="body2" sx={{ ml: 'auto', fontWeight: 600 }}>
-                                    {(product.price * quantity).toFixed(2)} грн
-                                  </Typography>
-                                </Box>
-                              ) : (
-                                <Button
-                                  variant="contained"
-                                  fullWidth
-                                  startIcon={<AddIcon />}
-                                  onClick={() => addToCart(product)}
-                                >
-                                  Додати до корзини
-                                </Button>
-                              )}
+                                    {quantity > 0 ? (
+                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <IconButton
+                                          size="small"
+                                          onClick={() => updateQuantity(product.id, quantity - 1)}
+                                          color="primary"
+                                        >
+                                          <RemoveIcon />
+                                        </IconButton>
+                                        <TextField
+                                          type="number"
+                                          size="small"
+                                          value={quantity}
+                                          onChange={(e) => {
+                                            const newQuantity = Math.max(0, parseInt(e.target.value) || 0);
+                                            if (newQuantity === 0) {
+                                              removeFromCart(product.id);
+                                            } else {
+                                              updateQuantity(product.id, newQuantity);
+                                            }
+                                          }}
+                                          inputProps={{ min: 0, style: { width: '50px', textAlign: 'center' } }}
+                                          sx={{ width: 70 }}
+                                        />
+                                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', ml: 0.5 }}>
+                                          {product.unit || 'шт'}
+                                        </Typography>
+                                        <IconButton
+                                          size="small"
+                                          onClick={() => updateQuantity(product.id, quantity + 1)}
+                                          color="primary"
+                                        >
+                                          <AddIcon />
+                                        </IconButton>
+                                        <Typography variant="body2" sx={{ ml: 'auto', fontWeight: 600 }}>
+                                          {(product.price * quantity).toFixed(2)} грн
+                                        </Typography>
+                                      </Box>
+                                    ) : (
+                                      <Button
+                                        variant="contained"
+                                        fullWidth
+                                        startIcon={<AddIcon />}
+                                        onClick={() => addToCart(product)}
+                                      >
+                                        Додати до корзини
+                                      </Button>
+                                    )}
+                                  </>
+                                );
+                              })()}
                             </Box>
                           </CardContent>
                         </Card>
