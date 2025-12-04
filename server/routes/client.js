@@ -55,7 +55,7 @@ router.get('/products', async (req, res) => {
       console.warn('[Client API] EUR rate not available, using default calculation');
     }
     
-    // Get categories available to this client
+    // Get all products (all categories visible to all clients)
     database.all(`
       SELECT DISTINCT
         p.id,
@@ -68,10 +68,9 @@ router.get('/products', async (req, res) => {
         COALESCE(cpc.coefficient, 1.0) as coefficient
       FROM products p
       JOIN categories c ON p.category_id = c.id
-      JOIN client_categories cc ON c.id = cc.category_id AND cc.client_id = ?
       LEFT JOIN client_product_coefficients cpc ON p.id = cpc.product_id AND cpc.client_id = ?
       ORDER BY c.name, p.name
-    `, [clientId, clientId], (err, products) => {
+    `, [clientId], (err, products) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
@@ -100,10 +99,9 @@ router.get('/products', async (req, res) => {
   }
 });
 
-// Get categories available to the authenticated client
+// Get all categories (all categories visible to all clients)
 router.get('/categories', (req, res) => {
   const database = db.getDb();
-  const clientId = req.user.id;
   
   database.all(`
     SELECT DISTINCT
@@ -111,11 +109,10 @@ router.get('/categories', (req, res) => {
       c.name,
       COUNT(p.id) as product_count
     FROM categories c
-    JOIN client_categories cc ON c.id = cc.category_id AND cc.client_id = ?
     LEFT JOIN products p ON p.category_id = c.id
     GROUP BY c.id, c.name
     ORDER BY c.name
-  `, [clientId], (err, categories) => {
+  `, [], (err, categories) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
