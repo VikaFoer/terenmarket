@@ -55,6 +55,7 @@ const Login = () => {
         loop
         muted
         playsInline
+        preload="metadata"
         sx={{
           position: 'fixed',
           top: 0,

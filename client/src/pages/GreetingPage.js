@@ -247,6 +247,7 @@ const GreetingPage = () => {
         loop
         muted
         playsInline
+        preload="metadata"
         sx={{
           position: 'fixed',
           top: 0,
