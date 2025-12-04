@@ -72,9 +72,10 @@ const ClientDashboard = () => {
   // Set default selected category to first assigned category
   useEffect(() => {
     if (categories.length > 0 && selectedCategory === null) {
+      console.log('Setting default category to:', categories[0].id, categories[0].name);
       setSelectedCategory(categories[0].id);
     }
-  }, [categories]);
+  }, [categories, selectedCategory]);
 
   useEffect(() => {
     const fetchRates = async () => {
@@ -198,9 +199,27 @@ const ClientDashboard = () => {
   const cartItemsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   // Filter products by selected category
+  // If no category selected or category is null, show all products
   const filteredProducts = selectedCategory 
     ? products.filter(p => p.category_id === selectedCategory)
     : products;
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('=== Product Display Debug ===');
+    console.log('Total products from API:', products.length);
+    console.log('Selected category ID:', selectedCategory);
+    console.log('Filtered products count:', filteredProducts.length);
+    console.log('Available categories:', categories.map(c => ({ id: c.id, name: c.name })));
+    if (selectedCategory) {
+      const categoryProducts = products.filter(p => p.category_id === selectedCategory);
+      console.log('Products in selected category:', categoryProducts.length);
+      if (categoryProducts.length === 0 && products.length > 0) {
+        console.warn('⚠️ No products found for selected category, but products exist. Category IDs:', 
+          [...new Set(products.map(p => p.category_id))]);
+      }
+    }
+  }, [products, selectedCategory, filteredProducts.length, categories]);
 
   const groupedProducts = filteredProducts.reduce((acc, product) => {
     if (!acc[product.category_name]) {
