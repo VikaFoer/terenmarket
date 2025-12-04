@@ -211,7 +211,7 @@ router.get('/products/:id', (req, res) => {
 
 // Create new product
 router.post('/products', (req, res) => {
-  const { name, category_id, cost_price, image_url } = req.body;
+  const { name, category_id, cost_price, image_url, unit } = req.body;
   
   if (!name || !category_id) {
     return res.status(400).json({ error: 'Name and category are required' });
@@ -220,8 +220,8 @@ router.post('/products', (req, res) => {
   const database = db.getDb();
   
   database.run(
-    'INSERT INTO products (name, category_id, cost_price, image_url) VALUES (?, ?, ?, ?)',
-    [name, category_id, cost_price || 0, image_url || null],
+    'INSERT INTO products (name, category_id, cost_price, image_url, unit) VALUES (?, ?, ?, ?, ?)',
+    [name, category_id, cost_price || 0, image_url || null, unit || 'шт'],
     function(err) {
       if (err) {
         return res.status(500).json({ error: err.message });
@@ -233,14 +233,14 @@ router.post('/products', (req, res) => {
 
 // Update product
 router.put('/products/:id', (req, res) => {
-  const { name, category_id, cost_price, image_url } = req.body;
+  const { name, category_id, cost_price, image_url, unit } = req.body;
   const productId = req.params.id;
   
   const database = db.getDb();
   
   database.run(
-    'UPDATE products SET name = ?, category_id = ?, cost_price = ?, image_url = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-    [name, category_id, cost_price || 0, image_url || null, productId],
+    'UPDATE products SET name = ?, category_id = ?, cost_price = ?, image_url = ?, unit = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+    [name, category_id, cost_price || 0, image_url || null, unit || 'шт', productId],
     function(err) {
       if (err) {
         return res.status(500).json({ error: err.message });

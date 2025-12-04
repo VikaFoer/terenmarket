@@ -49,6 +49,7 @@ const ProductsManagement = () => {
     category_id: '',
     cost_price: '',
     image_url: '',
+    unit: 'шт',
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
@@ -121,6 +122,7 @@ const ProductsManagement = () => {
         category_id: product.category_id,
         cost_price: product.cost_price,
         image_url: product.image_url || '',
+        unit: product.unit || 'шт',
       });
       setImagePreview(product.image_url || null);
       setSelectedImageFile(null);
@@ -131,6 +133,7 @@ const ProductsManagement = () => {
         category_id: '',
         cost_price: '',
         image_url: '',
+        unit: 'шт',
       });
       setImagePreview(null);
       setSelectedImageFile(null);
@@ -148,6 +151,7 @@ const ProductsManagement = () => {
       category_id: '',
       cost_price: '',
       image_url: '',
+      unit: 'шт',
     });
     setImagePreview(null);
     setSelectedImageFile(null);
@@ -488,6 +492,7 @@ const ProductsManagement = () => {
               <TableCell>Назва</TableCell>
               <TableCell>Категорія</TableCell>
               <TableCell>Собівартість</TableCell>
+              <TableCell>Одиниця</TableCell>
               <TableCell align="right">Дії</TableCell>
             </TableRow>
           </TableHead>
@@ -498,6 +503,7 @@ const ProductsManagement = () => {
                 <TableCell>{product.name}</TableCell>
                 <TableCell>{product.category_name}</TableCell>
                 <TableCell>{product.cost_price.toFixed(2)} грн</TableCell>
+                <TableCell>{product.unit || 'шт'}</TableCell>
                 <TableCell align="right">
                   <IconButton
                     color="primary"
@@ -566,6 +572,21 @@ const ProductsManagement = () => {
             margin="normal"
             inputProps={{ step: '0.01', min: '0' }}
           />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Одиниця вимірювання</InputLabel>
+            <Select
+              value={formData.unit}
+              onChange={(e) =>
+                setFormData({ ...formData, unit: e.target.value })
+              }
+              label="Одиниця вимірювання"
+            >
+              <MenuItem value="шт">шт</MenuItem>
+              <MenuItem value="л">л</MenuItem>
+              <MenuItem value="кг">кг</MenuItem>
+              <MenuItem value="т">т</MenuItem>
+            </Select>
+          </FormControl>
           <Box sx={{ mt: 2, mb: 2 }}>
             <Typography variant="subtitle2" gutterBottom>
               Зображення товару

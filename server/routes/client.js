@@ -62,6 +62,7 @@ router.get('/products', async (req, res) => {
         p.name,
         p.image_url,
         p.cost_price,
+        p.unit,
         c.name as category_name,
         c.id as category_id,
         COALESCE(cpc.coefficient, 1.0) as coefficient

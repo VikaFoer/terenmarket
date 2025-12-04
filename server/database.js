@@ -163,6 +163,15 @@ const createTables = () => {
               console.error('Error adding image_url column:', alterErr);
             }
           });
+          // Add unit column if it doesn't exist (for existing databases)
+          db.run(`ALTER TABLE products ADD COLUMN unit TEXT DEFAULT 'шт'`, (alterErr) => {
+            // Ignore error if column already exists
+            if (alterErr && !alterErr.message.includes('duplicate column')) {
+              console.error('Error adding unit column:', alterErr);
+            } else {
+              console.log('unit column added/verified');
+            }
+          });
         }
       });
 

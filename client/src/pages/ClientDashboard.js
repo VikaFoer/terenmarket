@@ -888,6 +888,9 @@ const ClientDashboard = () => {
                                     inputProps={{ min: 0, style: { width: '50px', textAlign: 'center' } }}
                                     sx={{ width: 70 }}
                                   />
+                                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', ml: 0.5 }}>
+                                    {product.unit || 'шт'}
+                                  </Typography>
                                   <IconButton
                                     size="small"
                                     onClick={() => updateQuantity(product.id, quantity + 1)}
