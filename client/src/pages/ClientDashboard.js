@@ -16,6 +16,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
+  ListItemIcon,
   Divider,
   Chip,
   Collapse,
