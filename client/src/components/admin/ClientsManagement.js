@@ -20,6 +20,8 @@ import {
   Checkbox,
   FormGroup,
   Alert,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -58,6 +60,7 @@ const ClientsManagement = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
     fetchClients();
@@ -250,7 +253,7 @@ const ClientsManagement = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3, alignItems: 'center' }}>
         <Typography variant="h4">Управління клієнтами</Typography>
         <Button
           variant="contained"
@@ -260,6 +263,28 @@ const ClientsManagement = () => {
           Додати клієнта
         </Button>
       </Box>
+
+      <Tabs
+        value={tabValue}
+        onChange={(e, newValue) => setTabValue(newValue)}
+        sx={{
+          mb: 3,
+          '& .MuiTab-root': {
+            backgroundColor: 'rgba(0, 0, 0, 0.05)',
+            opacity: 0.7,
+            '&.Mui-selected': {
+              backgroundColor: 'rgba(44, 62, 80, 0.1)',
+              opacity: 1,
+            },
+            '&:hover': {
+              opacity: 0.9,
+            },
+          },
+        }}
+      >
+        <Tab label="Всі клієнти" />
+        <Tab label="Коефіцієнти" />
+      </Tabs>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
@@ -273,6 +298,7 @@ const ClientsManagement = () => {
         </Alert>
       )}
 
+      {tabValue === 0 && (
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -337,6 +363,18 @@ const ClientsManagement = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      )}
+
+      {tabValue === 1 && (
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Коефіцієнти клієнтів
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Для управління коефіцієнтами виберіть клієнта з таблиці та натисніть іконку налаштувань
+          </Typography>
+        </Paper>
+      )}
 
       <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
         <DialogTitle>

@@ -16,8 +16,6 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
-  ListItemIcon,
-  Checkbox,
   Divider,
   Chip,
   Collapse,
@@ -43,8 +41,6 @@ const ClientDashboard = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]); // Категорії призначені адміном
   const [allCategories, setAllCategories] = useState([]); // Всі категорії
-  const [selectedCategories, setSelectedCategories] = useState([]); // Вибрані категорії (assigned + додаткові)
-  const [additionalCategories, setAdditionalCategories] = useState([]); // Додаткові категорії з localStorage
   const [expandedOtherCategories, setExpandedOtherCategories] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -70,17 +66,14 @@ const ClientDashboard = () => {
         console.error('Error loading cart:', e);
       }
     }
-    // Load selected categories from localStorage
-    const savedSelectedCategories = localStorage.getItem('selectedCategories');
-    if (savedSelectedCategories) {
-      try {
-        const parsed = JSON.parse(savedSelectedCategories);
-        setSelectedCategories(parsed);
-      } catch (e) {
-        console.error('Error loading selected categories:', e);
-      }
-    }
   }, []);
+
+  // Set default selected category to first assigned category
+  useEffect(() => {
+    if (categories.length > 0 && selectedCategory === null) {
+      setSelectedCategory(categories[0].id);
+    }
+  }, [categories]);
 
   useEffect(() => {
     const fetchRates = async () => {
@@ -149,60 +142,9 @@ const ClientDashboard = () => {
     try {
       const allResponse = await axios.get(`${API_URL}/client/categories/all`);
       setAllCategories(allResponse.data);
-      
-      // Отримуємо призначені категорії
-      const assignedResponse = await axios.get(`${API_URL}/client/categories`);
-      const assignedIds = assignedResponse.data.map(c => c.id);
-      
-      // Отримуємо додаткові категорії з localStorage
-      const savedAdditional = localStorage.getItem('additionalCategories');
-      let additionalIds = [];
-      if (savedAdditional) {
-        try {
-          additionalIds = JSON.parse(savedAdditional);
-        } catch (e) {
-          console.error('Error parsing additional categories:', e);
-        }
-      }
-      
-      // Початковий вибір = призначені категорії + додаткові
-      const initialSelection = [...assignedIds, ...additionalIds.filter(id => !assignedIds.includes(id))];
-      setSelectedCategories(initialSelection);
-      setAdditionalCategories(additionalIds);
-      
-      // Зберігаємо початковий вибір якщо його ще немає
-      const savedSelected = localStorage.getItem('selectedCategories');
-      if (!savedSelected) {
-        localStorage.setItem('selectedCategories', JSON.stringify(initialSelection));
-      }
     } catch (error) {
       console.error('Error fetching all categories:', error);
     }
-  };
-
-  const handleCategoryToggle = (categoryId) => {
-    const assignedIds = categories.map(c => c.id);
-    const isAssigned = assignedIds.includes(categoryId);
-    
-    setSelectedCategories(prev => {
-      const newSelection = prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId];
-      
-      // Зберігаємо вибір в localStorage
-      localStorage.setItem('selectedCategories', JSON.stringify(newSelection));
-      
-      // Якщо це не призначена категорія, зберігаємо як додаткову
-      if (!isAssigned) {
-        const newAdditional = newSelection.includes(categoryId)
-          ? [...additionalCategories, categoryId].filter((id, index, arr) => arr.indexOf(id) === index)
-          : additionalCategories.filter(id => id !== categoryId);
-        setAdditionalCategories(newAdditional);
-        localStorage.setItem('additionalCategories', JSON.stringify(newAdditional));
-      }
-      
-      return newSelection;
-    });
   };
 
   const handleLogout = () => {
@@ -254,19 +196,10 @@ const ClientDashboard = () => {
 
   const cartItemsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Filter products by selected categories
-  const filteredProducts = products.filter(p => {
-    // Якщо вибрано конкретну категорію (старий спосіб), фільтруємо по ній
-    if (selectedCategory) {
-      return p.category_id === selectedCategory;
-    }
-    // Якщо вибрано категорії через чекбокси, фільтруємо по ним
-    if (selectedCategories.length > 0) {
-      return selectedCategories.includes(p.category_id);
-    }
-    // Якщо нічого не вибрано, показуємо всі доступні товари
-    return true;
-  });
+  // Filter products by selected category
+  const filteredProducts = selectedCategory 
+    ? products.filter(p => p.category_id === selectedCategory)
+    : products;
 
   const groupedProducts = filteredProducts.reduce((acc, product) => {
     if (!acc[product.category_name]) {
@@ -304,108 +237,56 @@ const ClientDashboard = () => {
         <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
           Категорії
         </Typography>
-        <Typography variant="body2" sx={{ color: '#5a7a8a', mt: 0.5, fontSize: '0.75rem' }}>
-          Оберіть категорії для відображення
-        </Typography>
       </Box>
       <Divider />
       <List>
-        <ListItem disablePadding>
-          <ListItemButton
-            selected={selectedCategory === null && selectedCategories.length === 0}
-            onClick={() => {
-              setSelectedCategory(null);
-              // Якщо натиснуто "Всі товари", вибираємо всі категорії
-              if (allCategories.length > 0) {
-                const allIds = allCategories.map(c => c.id);
-                setSelectedCategories(allIds);
-                localStorage.setItem('selectedCategories', JSON.stringify(allIds));
-              }
-            }}
-            sx={{
-              '&.Mui-selected': {
-                backgroundColor: '#e3f2fd',
-                '&:hover': {
-                  backgroundColor: '#bbdefb',
-                },
-              },
-            }}
-          >
-            <ListItemText 
-              primary="Всі товари" 
-              primaryTypographyProps={{
-                fontWeight: selectedCategory === null && selectedCategories.length === 0 ? 600 : 400
-              }}
-            />
-            <Chip 
-              label={products.length} 
-              size="small" 
-              color="primary"
-              variant={selectedCategory === null && selectedCategories.length === 0 ? "filled" : "outlined"}
-            />
-          </ListItemButton>
-        </ListItem>
-        <Divider />
+        {/* Перша призначена категорія зверху */}
+        {categories.length > 0 && (() => {
+          const firstCategory = categories[0];
+          const categoryProductsCount = products.filter(p => p.category_id === firstCategory.id).length;
+          const isSelected = selectedCategory === firstCategory.id;
+          
+          return (
+            <ListItem disablePadding>
+              <ListItemButton
+                selected={isSelected}
+                onClick={() => setSelectedCategory(firstCategory.id)}
+                sx={{
+                  '&.Mui-selected': {
+                    backgroundColor: '#e3f2fd',
+                    '&:hover': {
+                      backgroundColor: '#bbdefb',
+                    },
+                  },
+                  '&:hover': {
+                    backgroundColor: '#f5f5f5',
+                  },
+                }}
+              >
+                <ListItemText 
+                  primary={firstCategory.name}
+                  primaryTypographyProps={{
+                    fontWeight: isSelected ? 600 : 400,
+                    color: isSelected ? 'primary.main' : 'text.primary'
+                  }}
+                />
+                <Chip 
+                  label={categoryProductsCount} 
+                  size="small" 
+                  color={isSelected ? "primary" : "default"}
+                  variant={isSelected ? "filled" : "outlined"}
+                  sx={{ ml: 1 }}
+                />
+              </ListItemButton>
+            </ListItem>
+          );
+        })()}
         
-        {/* Призначені категорії (за замовчуванням) */}
-        {categories.length > 0 && (
-          <>
-            <Box sx={{ px: 2, py: 1 }}>
-              <Typography variant="caption" sx={{ color: '#5a7a8a', fontWeight: 500 }}>
-                Призначені категорії
-              </Typography>
-            </Box>
-            {categories.map((category) => {
-              const isSelected = selectedCategories.includes(category.id);
-              const categoryProductsCount = products.filter(p => p.category_id === category.id).length;
-              
-              return (
-                <ListItem key={category.id} disablePadding>
-                  <ListItemButton
-                    onClick={() => {
-                      handleCategoryToggle(category.id);
-                      setSelectedCategory(null);
-                    }}
-                    sx={{
-                      '&:hover': {
-                        backgroundColor: '#f5f5f5',
-                      },
-                    }}
-                  >
-                    <ListItemIcon sx={{ minWidth: 40 }}>
-                      <Checkbox
-                        edge="start"
-                        checked={isSelected}
-                        tabIndex={-1}
-                        disableRipple
-                        sx={{ p: 0.5 }}
-                      />
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary={category.name}
-                      primaryTypographyProps={{
-                        fontWeight: isSelected ? 600 : 400,
-                        color: isSelected ? 'primary.main' : 'text.primary'
-                      }}
-                    />
-                    <Chip 
-                      label={categoryProductsCount} 
-                      size="small" 
-                      color={isSelected ? "primary" : "default"}
-                      variant={isSelected ? "filled" : "outlined"}
-                      sx={{ ml: 1 }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              );
-            })}
-          </>
-        )}
-        
-        {/* Інші категорії (розгорнуте меню) */}
+        {/* Інші категорії (включаючи інші призначені) */}
         {(() => {
           const assignedIds = categories.map(c => c.id);
-          const otherCategories = allCategories.filter(c => !assignedIds.includes(c.id));
+          // Всі категорії крім першої призначеної
+          const otherCategories = allCategories.filter(c => c.id !== (categories[0]?.id));
           
           if (otherCategories.length === 0) return null;
           
@@ -442,32 +323,27 @@ const ClientDashboard = () => {
               <Collapse in={expandedOtherCategories} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {otherCategories.map((category) => {
-                    const isSelected = selectedCategories.includes(category.id);
                     const categoryProductsCount = products.filter(p => p.category_id === category.id).length;
+                    const isSelected = selectedCategory === category.id;
                     
                     return (
                       <ListItem key={category.id} disablePadding>
                         <ListItemButton
-                          onClick={() => {
-                            handleCategoryToggle(category.id);
-                            setSelectedCategory(null);
-                          }}
+                          selected={isSelected}
+                          onClick={() => setSelectedCategory(category.id)}
                           sx={{
                             pl: 4,
+                            '&.Mui-selected': {
+                              backgroundColor: '#e3f2fd',
+                              '&:hover': {
+                                backgroundColor: '#bbdefb',
+                              },
+                            },
                             '&:hover': {
                               backgroundColor: '#f5f5f5',
                             },
                           }}
                         >
-                          <ListItemIcon sx={{ minWidth: 40 }}>
-                            <Checkbox
-                              edge="start"
-                              checked={isSelected}
-                              tabIndex={-1}
-                              disableRipple
-                              sx={{ p: 0.5 }}
-                            />
-                          </ListItemIcon>
                           <ListItemText 
                             primary={category.name}
                             primaryTypographyProps={{
