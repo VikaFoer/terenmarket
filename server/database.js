@@ -172,6 +172,28 @@ const createTables = () => {
               console.log('unit column added/verified');
             }
           });
+          // Add price currency and separate EUR/UAH prices
+          db.run(`ALTER TABLE products ADD COLUMN price_currency TEXT DEFAULT 'EUR'`, (alterErr) => {
+            if (alterErr && !alterErr.message.includes('duplicate column')) {
+              console.error('Error adding price_currency column:', alterErr);
+            } else {
+              console.log('price_currency column added/verified');
+            }
+          });
+          db.run(`ALTER TABLE products ADD COLUMN cost_price_eur REAL`, (alterErr) => {
+            if (alterErr && !alterErr.message.includes('duplicate column')) {
+              console.error('Error adding cost_price_eur column:', alterErr);
+            } else {
+              console.log('cost_price_eur column added/verified');
+            }
+          });
+          db.run(`ALTER TABLE products ADD COLUMN cost_price_uah REAL`, (alterErr) => {
+            if (alterErr && !alterErr.message.includes('duplicate column')) {
+              console.error('Error adding cost_price_uah column:', alterErr);
+            } else {
+              console.log('cost_price_uah column added/verified');
+            }
+          });
         }
       });
 

@@ -63,6 +63,9 @@ router.get('/products', async (req, res) => {
         p.image_url,
         p.cost_price,
         p.unit,
+        p.price_currency,
+        p.cost_price_eur,
+        p.cost_price_uah,
         c.name as category_name,
         c.id as category_id,
         COALESCE(cpc.coefficient, 1.0) as coefficient
@@ -78,15 +81,31 @@ router.get('/products', async (req, res) => {
       // Calculate prices with EUR rate
       const productsWithPrices = products.map(product => {
         const coefficient = product.coefficient || 1.0;
-        // cost_price is in EUR, multiply by EUR rate and coefficient
-        const priceInUAH = eurRate 
-          ? (product.cost_price * eurRate * coefficient)
-          : (product.cost_price * coefficient); // Fallback if rate not available
+        
+        // Determine base price in EUR
+        let basePriceEur = null;
+        if (product.cost_price_eur !== null && product.cost_price_eur !== undefined) {
+          basePriceEur = product.cost_price_eur;
+        } else if (product.price_currency === 'EUR' && product.cost_price) {
+          basePriceEur = product.cost_price;
+        } else if (product.price_currency === 'UAH' && product.cost_price_uah && eurRate) {
+          // Convert UAH to EUR if needed
+          basePriceEur = product.cost_price_uah / eurRate;
+        } else if (product.cost_price) {
+          // Fallback to old cost_price
+          basePriceEur = product.cost_price;
+        }
+        
+        // Calculate final price in UAH
+        const priceInUAH = basePriceEur && eurRate
+          ? (basePriceEur * eurRate * coefficient)
+          : (product.cost_price_uah ? product.cost_price_uah * coefficient : (basePriceEur || product.cost_price || 0) * coefficient);
         
         return {
           ...product,
-          cost_price_eur: product.cost_price, // Original price in EUR
-          price: priceInUAH, // Final price in UAH (EUR * rate * coefficient)
+          cost_price_eur: basePriceEur || product.cost_price_eur || product.cost_price,
+          cost_price_uah: product.cost_price_uah || null,
+          price: priceInUAH, // Final price in UAH
           eur_rate: eurRate // Include rate for reference
         };
       });

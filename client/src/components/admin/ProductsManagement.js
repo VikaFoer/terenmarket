@@ -50,6 +50,9 @@ const ProductsManagement = () => {
     cost_price: '',
     image_url: '',
     unit: 'шт',
+    price_currency: 'EUR',
+    cost_price_eur: '',
+    cost_price_uah: '',
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
@@ -123,6 +126,9 @@ const ProductsManagement = () => {
         cost_price: product.cost_price,
         image_url: product.image_url || '',
         unit: product.unit || 'шт',
+        price_currency: product.price_currency || 'EUR',
+        cost_price_eur: product.cost_price_eur !== null && product.cost_price_eur !== undefined ? product.cost_price_eur : '',
+        cost_price_uah: product.cost_price_uah !== null && product.cost_price_uah !== undefined ? product.cost_price_uah : '',
       });
       setImagePreview(product.image_url || null);
       setSelectedImageFile(null);
@@ -134,6 +140,9 @@ const ProductsManagement = () => {
         cost_price: '',
         image_url: '',
         unit: 'шт',
+        price_currency: 'EUR',
+        cost_price_eur: '',
+        cost_price_uah: '',
       });
       setImagePreview(null);
       setSelectedImageFile(null);
@@ -152,6 +161,9 @@ const ProductsManagement = () => {
       cost_price: '',
       image_url: '',
       unit: 'шт',
+      price_currency: 'EUR',
+      cost_price_eur: '',
+      cost_price_uah: '',
     });
     setImagePreview(null);
     setSelectedImageFile(null);
@@ -252,17 +264,19 @@ const ProductsManagement = () => {
     }
 
     try {
+      const submitData = {
+        ...formData,
+        cost_price: parseFloat(formData.cost_price) || 0,
+        price_currency: formData.price_currency || 'EUR',
+        cost_price_eur: formData.cost_price_eur ? parseFloat(formData.cost_price_eur) : null,
+        cost_price_uah: formData.cost_price_uah ? parseFloat(formData.cost_price_uah) : null,
+      };
+      
       if (editingProduct) {
-        await axios.put(`${API_URL}/admin/products/${editingProduct.id}`, {
-          ...formData,
-          cost_price: parseFloat(formData.cost_price) || 0,
-        });
+        await axios.put(`${API_URL}/admin/products/${editingProduct.id}`, submitData);
         setSuccess('Продукт оновлено успішно');
       } else {
-        await axios.post(`${API_URL}/admin/products`, {
-          ...formData,
-          cost_price: parseFloat(formData.cost_price) || 0,
-        });
+        await axios.post(`${API_URL}/admin/products`, submitData);
         setSuccess('Продукт створено успішно');
       }
       fetchProducts();
@@ -561,17 +575,55 @@ const ProductsManagement = () => {
               ))}
             </Select>
           </FormControl>
-          <TextField
-            fullWidth
-            label="Собівартість"
-            type="number"
-            value={formData.cost_price}
-            onChange={(e) =>
-              setFormData({ ...formData, cost_price: e.target.value })
-            }
-            margin="normal"
-            inputProps={{ step: '0.01', min: '0' }}
-          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Валюта початкової ціни</InputLabel>
+              <Select
+                value={formData.price_currency}
+                onChange={(e) =>
+                  setFormData({ ...formData, price_currency: e.target.value })
+                }
+                label="Валюта початкової ціни"
+              >
+                <MenuItem value="EUR">Євро (EUR)</MenuItem>
+                <MenuItem value="UAH">Гривня (UAH)</MenuItem>
+              </Select>
+            </FormControl>
+            <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+              <TextField
+                fullWidth
+                label="Ціна в євро (€)"
+                type="number"
+                value={formData.cost_price_eur}
+                onChange={(e) =>
+                  setFormData({ ...formData, cost_price_eur: e.target.value })
+                }
+                inputProps={{ step: '0.01', min: '0' }}
+                helperText="Введіть ціну в євро"
+              />
+              <TextField
+                fullWidth
+                label="Ціна в гривнях (₴)"
+                type="number"
+                value={formData.cost_price_uah}
+                onChange={(e) =>
+                  setFormData({ ...formData, cost_price_uah: e.target.value })
+                }
+                inputProps={{ step: '0.01', min: '0' }}
+                helperText="Введіть ціну в гривнях"
+              />
+            </Box>
+            <TextField
+              fullWidth
+              label="Собівартість (застаріле поле)"
+              type="number"
+              value={formData.cost_price}
+              onChange={(e) =>
+                setFormData({ ...formData, cost_price: e.target.value })
+              }
+              margin="normal"
+              inputProps={{ step: '0.01', min: '0' }}
+              helperText="Використовується для сумісності, краще використовувати поля вище"
+            />
           <FormControl fullWidth margin="normal">
             <InputLabel>Одиниця вимірювання</InputLabel>
             <Select

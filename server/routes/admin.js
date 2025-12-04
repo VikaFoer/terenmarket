@@ -211,7 +211,7 @@ router.get('/products/:id', (req, res) => {
 
 // Create new product
 router.post('/products', (req, res) => {
-  const { name, category_id, cost_price, image_url, unit } = req.body;
+  const { name, category_id, cost_price, image_url, unit, price_currency, cost_price_eur, cost_price_uah } = req.body;
   
   if (!name || !category_id) {
     return res.status(400).json({ error: 'Name and category are required' });
@@ -219,9 +219,15 @@ router.post('/products', (req, res) => {
 
   const database = db.getDb();
   
+  // Use new fields if provided, otherwise fallback to cost_price
+  const priceCurrency = price_currency || 'EUR';
+  const priceEur = cost_price_eur !== undefined ? cost_price_eur : (priceCurrency === 'EUR' ? (cost_price || 0) : null);
+  const priceUah = cost_price_uah !== undefined ? cost_price_uah : (priceCurrency === 'UAH' ? (cost_price || 0) : null);
+  const fallbackPrice = cost_price || 0;
+  
   database.run(
-    'INSERT INTO products (name, category_id, cost_price, image_url, unit) VALUES (?, ?, ?, ?, ?)',
-    [name, category_id, cost_price || 0, image_url || null, unit || 'шт'],
+    'INSERT INTO products (name, category_id, cost_price, image_url, unit, price_currency, cost_price_eur, cost_price_uah) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    [name, category_id, fallbackPrice, image_url || null, unit || 'шт', priceCurrency, priceEur, priceUah],
     function(err) {
       if (err) {
         return res.status(500).json({ error: err.message });
@@ -233,14 +239,20 @@ router.post('/products', (req, res) => {
 
 // Update product
 router.put('/products/:id', (req, res) => {
-  const { name, category_id, cost_price, image_url, unit } = req.body;
+  const { name, category_id, cost_price, image_url, unit, price_currency, cost_price_eur, cost_price_uah } = req.body;
   const productId = req.params.id;
   
   const database = db.getDb();
   
+  // Use new fields if provided, otherwise fallback to cost_price
+  const priceCurrency = price_currency || 'EUR';
+  const priceEur = cost_price_eur !== undefined ? cost_price_eur : (priceCurrency === 'EUR' ? (cost_price || 0) : null);
+  const priceUah = cost_price_uah !== undefined ? cost_price_uah : (priceCurrency === 'UAH' ? (cost_price || 0) : null);
+  const fallbackPrice = cost_price || 0;
+  
   database.run(
-    'UPDATE products SET name = ?, category_id = ?, cost_price = ?, image_url = ?, unit = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-    [name, category_id, cost_price || 0, image_url || null, unit || 'шт', productId],
+    'UPDATE products SET name = ?, category_id = ?, cost_price = ?, image_url = ?, unit = ?, price_currency = ?, cost_price_eur = ?, cost_price_uah = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+    [name, category_id, fallbackPrice, image_url || null, unit || 'шт', priceCurrency, priceEur, priceUah, productId],
     function(err) {
       if (err) {
         return res.status(500).json({ error: err.message });
