@@ -737,7 +737,7 @@ const ClientDashboard = () => {
                                   objectFit: 'cover',
                                   display: 'block',
                                   // Add blur only for generated SVG images
-                                  filter: isGeneratedSVG ? 'blur(2px)' : 'none'
+                                  filter: isGeneratedSVG ? 'blur(4px)' : 'none'
                                 }}
                                 loading="lazy"
                                 onError={(e) => {
@@ -752,14 +752,14 @@ const ClientDashboard = () => {
                                   const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="${bgColor}"/><text x="50%" y="50%" font-family="Arial" font-size="22" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text></svg>`;
                                   e.target.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
                                   // Add blur for fallback SVG
-                                  e.target.style.filter = 'blur(2px)';
+                                  e.target.style.filter = 'blur(4px)';
                                 }}
                               />
                             );
                           })()}
                         </Box>
                           <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                            <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: 'white', textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
+                            <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: 'white', textShadow: '0 4px 8px rgba(0, 0, 0, 0.5)' }}>
                               {product.name}
                             </Typography>
                             
@@ -815,10 +815,10 @@ const ClientDashboard = () => {
                                           justifyContent: 'space-between',
                                           alignItems: 'center'
                                         }}>
-                                          <Typography variant="body2" sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)' }}>
+                                          <Typography variant="body2" sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
                                             Ціна в євро:
                                           </Typography>
-                                          <Typography variant="body2" sx={{ fontWeight: 500, color: 'white', textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)' }}>
+                                          <Typography variant="body2" sx={{ fontWeight: 500, color: 'white', textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
                                             {((product.cost_price_eur || product.cost_price || 0) * (product.coefficient || 1.0)).toFixed(2)} €
                                           </Typography>
                                         </Box>
@@ -828,10 +828,10 @@ const ClientDashboard = () => {
                                         justifyContent: 'space-between',
                                         alignItems: 'center'
                                       }}>
-                                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)' }}>
+                                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
                                           Ваша ціна:
                                         </Typography>
-                                        <Typography variant="h6" sx={{ fontWeight: 600, color: 'white', textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 600, color: 'white', textShadow: '0 4px 8px rgba(0, 0, 0, 0.5)' }}>
                                           {product.price ? product.price.toFixed(2) : '0.00'} грн
                                         </Typography>
                                       </Box>
@@ -861,7 +861,7 @@ const ClientDashboard = () => {
                                           inputProps={{ min: 0, style: { width: '50px', textAlign: 'center' } }}
                                           sx={{ width: 70 }}
                                         />
-                                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', ml: 0.5, textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)' }}>
+                                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', ml: 0.5, textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
                                           {product.unit || 'шт'}
                                         </Typography>
                                         <IconButton
@@ -871,7 +871,7 @@ const ClientDashboard = () => {
                                         >
                                           <AddIcon />
                                         </IconButton>
-                                        <Typography variant="body2" sx={{ ml: 'auto', fontWeight: 600, color: 'white', textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)' }}>
+                                        <Typography variant="body2" sx={{ ml: 'auto', fontWeight: 600, color: 'white', textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
                                           {(product.price * quantity).toFixed(2)} грн
                                         </Typography>
                                       </Box>
