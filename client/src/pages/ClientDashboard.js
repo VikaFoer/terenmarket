@@ -778,6 +778,11 @@ const ClientDashboard = () => {
                                 }
                                 
                                 // Has price - show price and cart functionality
+                                // Check if category is "Каталоги кольору" to hide EUR price
+                                const isColorCatalogCategory = product.category_name && 
+                                  (product.category_name.toLowerCase().includes('каталог') || 
+                                   product.category_name.toLowerCase().includes('каталоги'));
+                                
                                 return (
                                   <>
                                     <Box sx={{ 
@@ -786,18 +791,20 @@ const ClientDashboard = () => {
                                       gap: 0.5,
                                       mb: 2
                                     }}>
-                                      <Box sx={{ 
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center'
-                                      }}>
-                                        <Typography variant="body2" sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)' }}>
-                                          Ціна в євро:
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ fontWeight: 500, color: 'white' }}>
-                                          {((product.cost_price_eur || product.cost_price || 0) * (product.coefficient || 1.0)).toFixed(2)} €
-                                        </Typography>
-                                      </Box>
+                                      {!isColorCatalogCategory && (
+                                        <Box sx={{ 
+                                          display: 'flex',
+                                          justifyContent: 'space-between',
+                                          alignItems: 'center'
+                                        }}>
+                                          <Typography variant="body2" sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)' }}>
+                                            Ціна в євро:
+                                          </Typography>
+                                          <Typography variant="body2" sx={{ fontWeight: 500, color: 'white' }}>
+                                            {((product.cost_price_eur || product.cost_price || 0) * (product.coefficient || 1.0)).toFixed(2)} €
+                                          </Typography>
+                                        </Box>
+                                      )}
                                       <Box sx={{ 
                                         display: 'flex',
                                         justifyContent: 'space-between',
