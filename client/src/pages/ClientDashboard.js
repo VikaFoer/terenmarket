@@ -861,7 +861,7 @@ const ClientDashboard = () => {
                                           inputProps={{ min: 0, style: { width: '50px', textAlign: 'center' } }}
                                           sx={{ width: 70 }}
                                         />
-                                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', ml: 0.5 }}>
+                                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', ml: 0.5, textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)' }}>
                                           {product.unit || 'шт'}
                                         </Typography>
                                         <IconButton
@@ -871,7 +871,7 @@ const ClientDashboard = () => {
                                         >
                                           <AddIcon />
                                         </IconButton>
-                                        <Typography variant="body2" sx={{ ml: 'auto', fontWeight: 600 }}>
+                                        <Typography variant="body2" sx={{ ml: 'auto', fontWeight: 600, color: 'white', textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)' }}>
                                           {(product.price * quantity).toFixed(2)} грн
                                         </Typography>
                                       </Box>
