@@ -2,11 +2,19 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+// Use Railway volume path if available, otherwise use local path
+// This ensures uploaded images persist across deployments
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..');
+const uploadsDir = path.join(DATA_DIR, 'uploads', 'images');
+
 // Створюємо папку для зображень, якщо її немає
-const uploadsDir = path.join(__dirname, '../uploads/images');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log('Created uploads directory:', uploadsDir);
+  console.log('Using DATA_DIR:', DATA_DIR);
+} else {
+  console.log('Uploads directory already exists:', uploadsDir);
+  console.log('Using DATA_DIR:', DATA_DIR);
 }
 
 // Налаштування зберігання файлів

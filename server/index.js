@@ -60,11 +60,23 @@ db.init()
     app.use('/api/greetings', greetingsRoutes);
     app.use('/api/analytics', analyticsRoutes);
     
-    // Serve uploaded images
-    const uploadsPath = path.join(__dirname, 'uploads', 'images');
+    // Serve uploaded images from Volume (persistent storage)
+    // Use DATA_DIR if available (Railway Volume), otherwise use local path
+    const DATA_DIR = process.env.DATA_DIR || path.join(__dirname);
+    const uploadsPath = path.join(DATA_DIR, 'uploads', 'images');
+    
+    // Ensure uploads directory exists
+    if (!fs.existsSync(uploadsPath)) {
+      fs.mkdirSync(uploadsPath, { recursive: true });
+      console.log('Created uploads directory:', uploadsPath);
+    }
+    
     if (fs.existsSync(uploadsPath)) {
       app.use('/api/uploads/images', express.static(uploadsPath));
       console.log('✅ Uploaded images served from:', uploadsPath);
+      console.log('✅ Using DATA_DIR:', DATA_DIR);
+    } else {
+      console.warn('⚠️ Uploads directory does not exist:', uploadsPath);
     }
     
     console.log('✅ API routes registered');

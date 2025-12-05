@@ -554,12 +554,17 @@ router.delete('/products/:id/image', (req, res) => {
       }
       
       // Видаляємо файл з диску, якщо він існує
+      // Use DATA_DIR if available (Railway Volume), otherwise use local path
+      const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..');
       if (product.image_url && product.image_url.startsWith('/api/uploads/images/')) {
         const filename = path.basename(product.image_url);
-        const filePath = path.join(__dirname, '../uploads/images', filename);
+        const filePath = path.join(DATA_DIR, 'uploads', 'images', filename);
         
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
+          console.log('Deleted image file:', filePath);
+        } else {
+          console.warn('Image file not found for deletion:', filePath);
         }
       }
       
