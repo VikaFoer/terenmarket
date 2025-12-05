@@ -266,8 +266,63 @@ const ClientDashboard = () => {
       bgColor = colors[colorIndex];
     }
     
-    // Create SVG data URL - fallback when no image_url
-    const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="${bgColor}"/><text x="50%" y="50%" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text></svg>`;
+    // Create a lighter/darker version for gradient
+    const hexToRgb = (hex) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    };
+    
+    const rgbToHex = (r, g, b) => {
+      return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    };
+    
+    const rgb = hexToRgb(bgColor);
+    let gradientStart, gradientEnd;
+    
+    if (rgb) {
+      // Create a slightly lighter and darker version for subtle gradient
+      const lighten = (r, g, b, amount = 15) => {
+        return {
+          r: Math.min(255, r + amount),
+          g: Math.min(255, g + amount),
+          b: Math.min(255, b + amount)
+        };
+      };
+      
+      const darken = (r, g, b, amount = 15) => {
+        return {
+          r: Math.max(0, r - amount),
+          g: Math.max(0, g - amount),
+          b: Math.max(0, b - amount)
+        };
+      };
+      
+      const light = lighten(rgb.r, rgb.g, rgb.b);
+      const dark = darken(rgb.r, rgb.g, rgb.b);
+      
+      gradientStart = rgbToHex(light.r, light.g, light.b);
+      gradientEnd = rgbToHex(dark.r, dark.g, dark.b);
+    } else {
+      // Fallback if color parsing fails
+      gradientStart = bgColor;
+      gradientEnd = bgColor;
+    }
+    
+    // Create SVG data URL with gradient - fallback when no image_url
+    const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grad-${product.id || 'default'}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${gradientStart};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${gradientEnd};stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <rect width="400" height="300" fill="url(#grad-${product.id || 'default'})"/>
+      <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text>
+    </svg>`;
     
     return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
   };
