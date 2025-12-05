@@ -119,35 +119,48 @@ const createTables = () => {
         }
         console.log('Categories table created/verified');
         
-        // Insert default categories
-        const categories = [
-          'Хімічна сировина',
-          'Колоранти',
-          'Брукер Оптікс (БІЧ)',
-          'Колірувальне обладнання',
-          'Фільтри',
-          'Брукер АХС',
-          'Лабораторка',
-          'Роботи/автоматизація',
-          'Каталоги кольору'
-        ];
-        
-        console.log('Inserting default categories...');
-        const stmt = db.prepare('INSERT OR IGNORE INTO categories (name) VALUES (?)');
-        categories.forEach(cat => {
-          stmt.run(cat, (err) => {
-            if (err) {
-              console.error(`Error inserting category ${cat}:`, err);
-            } else {
-              console.log(`Category inserted: ${cat}`);
-            }
-          });
-        });
-        stmt.finalize((err) => {
+        // Insert default categories ONLY if database is empty (first time initialization)
+        db.get('SELECT COUNT(*) as count FROM categories', (err, result) => {
           if (err) {
-            console.error('Error finalizing categories statement:', err);
+            console.error('Error checking categories count:', err);
+            // Continue anyway
+            return;
+          }
+          
+          // Only insert default categories if table is empty
+          if (result.count === 0) {
+            console.log('Database is empty, inserting default categories...');
+            const categories = [
+              'Хімічна сировина',
+              'Колоранти',
+              'Брукер Оптікс (БІЧ)',
+              'Колірувальне обладнання',
+              'Фільтри',
+              'Брукер АХС',
+              'Лабораторка',
+              'Роботи/автоматизація',
+              'Каталоги кольору'
+            ];
+            
+            const stmt = db.prepare('INSERT INTO categories (name) VALUES (?)');
+            categories.forEach(cat => {
+              stmt.run(cat, (err) => {
+                if (err) {
+                  console.error(`Error inserting category ${cat}:`, err);
+                } else {
+                  console.log(`Category inserted: ${cat}`);
+                }
+              });
+            });
+            stmt.finalize((err) => {
+              if (err) {
+                console.error('Error finalizing categories statement:', err);
+              } else {
+                console.log('Default categories insertion completed');
+              }
+            });
           } else {
-            console.log('Categories insertion completed');
+            console.log(`Database already has ${result.count} categories, skipping default insertion`);
           }
         });
       });
