@@ -66,6 +66,7 @@ router.get('/products', async (req, res) => {
         p.price_currency,
         p.cost_price_eur,
         p.cost_price_uah,
+        p.card_color,
         c.name as category_name,
         c.id as category_id,
         COALESCE(cpc.coefficient, 1.0) as coefficient

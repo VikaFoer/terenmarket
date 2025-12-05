@@ -211,7 +211,7 @@ router.get('/products/:id', (req, res) => {
 
 // Create new product
 router.post('/products', (req, res) => {
-  const { name, category_id, cost_price, image_url, unit, price_currency, cost_price_eur, cost_price_uah } = req.body;
+  const { name, category_id, cost_price, image_url, unit, price_currency, cost_price_eur, cost_price_uah, card_color } = req.body;
   
   if (!name || !category_id) {
     return res.status(400).json({ error: 'Name and category are required' });
@@ -226,8 +226,8 @@ router.post('/products', (req, res) => {
   const fallbackPrice = cost_price || 0;
   
   database.run(
-    'INSERT INTO products (name, category_id, cost_price, image_url, unit, price_currency, cost_price_eur, cost_price_uah) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-    [name, category_id, fallbackPrice, image_url || null, unit || 'шт', priceCurrency, priceEur, priceUah],
+    'INSERT INTO products (name, category_id, cost_price, image_url, unit, price_currency, cost_price_eur, cost_price_uah, card_color) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [name, category_id, fallbackPrice, image_url || null, unit || 'шт', priceCurrency, priceEur, priceUah, card_color || null],
     function(err) {
       if (err) {
         return res.status(500).json({ error: err.message });
@@ -239,7 +239,7 @@ router.post('/products', (req, res) => {
 
 // Update product
 router.put('/products/:id', (req, res) => {
-  const { name, category_id, cost_price, image_url, unit, price_currency, cost_price_eur, cost_price_uah } = req.body;
+  const { name, category_id, cost_price, image_url, unit, price_currency, cost_price_eur, cost_price_uah, card_color } = req.body;
   const productId = req.params.id;
   
   const database = db.getDb();
@@ -251,8 +251,8 @@ router.put('/products/:id', (req, res) => {
   const fallbackPrice = cost_price || 0;
   
   database.run(
-    'UPDATE products SET name = ?, category_id = ?, cost_price = ?, image_url = ?, unit = ?, price_currency = ?, cost_price_eur = ?, cost_price_uah = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-    [name, category_id, fallbackPrice, image_url || null, unit || 'шт', priceCurrency, priceEur, priceUah, productId],
+    'UPDATE products SET name = ?, category_id = ?, cost_price = ?, image_url = ?, unit = ?, price_currency = ?, cost_price_eur = ?, cost_price_uah = ?, card_color = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+    [name, category_id, fallbackPrice, image_url || null, unit || 'шт', priceCurrency, priceEur, priceUah, card_color || null, productId],
     function(err) {
       if (err) {
         return res.status(500).json({ error: err.message });

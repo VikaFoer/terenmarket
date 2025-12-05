@@ -206,6 +206,14 @@ const createTables = () => {
               console.log('cost_price_uah column added/verified');
             }
           });
+          // Add card_color column for SVG background color
+          db.run(`ALTER TABLE products ADD COLUMN card_color TEXT`, (alterErr) => {
+            if (alterErr && !alterErr.message.includes('duplicate column')) {
+              console.error('Error adding card_color column:', alterErr);
+            } else {
+              console.log('card_color column added/verified');
+            }
+          });
         }
       });
 

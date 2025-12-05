@@ -53,6 +53,7 @@ const ProductsManagement = () => {
     price_currency: 'EUR',
     cost_price_eur: '',
     cost_price_uah: '',
+    card_color: '',
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedImageFile, setSelectedImageFile] = useState(null);
@@ -129,6 +130,7 @@ const ProductsManagement = () => {
         price_currency: product.price_currency || 'EUR',
         cost_price_eur: product.cost_price_eur !== null && product.cost_price_eur !== undefined ? product.cost_price_eur : '',
         cost_price_uah: product.cost_price_uah !== null && product.cost_price_uah !== undefined ? product.cost_price_uah : '',
+        card_color: product.card_color || '',
       });
       setImagePreview(product.image_url || null);
       setSelectedImageFile(null);
@@ -143,6 +145,7 @@ const ProductsManagement = () => {
         price_currency: 'EUR',
         cost_price_eur: '',
         cost_price_uah: '',
+        card_color: '',
       });
       setImagePreview(null);
       setSelectedImageFile(null);
@@ -164,6 +167,7 @@ const ProductsManagement = () => {
       price_currency: 'EUR',
       cost_price_eur: '',
       cost_price_uah: '',
+      card_color: '',
     });
     setImagePreview(null);
     setSelectedImageFile(null);
@@ -650,6 +654,38 @@ const ProductsManagement = () => {
               <MenuItem value="т">т</MenuItem>
             </Select>
           </FormControl>
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <Typography variant="subtitle2" gutterBottom>
+              Колір картки (якщо немає зображення)
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <input
+                type="color"
+                value={formData.card_color || '#FF6B6B'}
+                onChange={(e) =>
+                  setFormData({ ...formData, card_color: e.target.value })
+                }
+                style={{
+                  width: '60px',
+                  height: '40px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                }}
+              />
+              <TextField
+                label="Колір (HEX)"
+                value={formData.card_color || ''}
+                onChange={(e) =>
+                  setFormData({ ...formData, card_color: e.target.value })
+                }
+                placeholder="#FF6B6B"
+                size="small"
+                sx={{ flex: 1 }}
+                helperText="Використовується для фону SVG картки, якщо зображення не завантажено"
+              />
+            </Box>
+          </Box>
           <Box sx={{ mt: 2, mb: 2 }}>
             <Typography variant="subtitle2" gutterBottom>
               Зображення товару

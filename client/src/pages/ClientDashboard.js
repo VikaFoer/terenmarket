@@ -250,13 +250,21 @@ const ClientDashboard = () => {
     
     // Fallback: Generate SVG image if no image_url
     const productName = product.name;
-    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3', '#FFD93D', '#6BCB77', '#4D96FF', '#9B59B6', '#E74C3C', '#3498DB', '#1ABC9C', '#E67E22'];
-    let hash = 0;
-    for (let i = 0; i < productName.length; i++) {
-      hash = productName.charCodeAt(i) + ((hash << 5) - hash);
+    
+    // Use card_color if set, otherwise generate color from product name hash
+    let bgColor;
+    if (product.card_color && product.card_color.trim() !== '') {
+      bgColor = product.card_color;
+    } else {
+      // Generate color from product name hash
+      const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3', '#FFD93D', '#6BCB77', '#4D96FF', '#9B59B6', '#E74C3C', '#3498DB', '#1ABC9C', '#E67E22'];
+      let hash = 0;
+      for (let i = 0; i < productName.length; i++) {
+        hash = productName.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const colorIndex = Math.abs(hash) % colors.length;
+      bgColor = colors[colorIndex];
     }
-    const colorIndex = Math.abs(hash) % colors.length;
-    const bgColor = colors[colorIndex];
     
     // Create SVG data URL - fallback when no image_url
     const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="${bgColor}"/><text x="50%" y="50%" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text></svg>`;
