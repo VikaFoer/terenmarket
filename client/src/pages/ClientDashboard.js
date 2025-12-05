@@ -804,7 +804,57 @@ const ClientDashboard = () => {
                                     hash = productName.charCodeAt(i) + ((hash << 5) - hash);
                                   }
                                   const bgColor = colors[Math.abs(hash) % colors.length];
-                                  const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="${bgColor}"/><text x="50%" y="50%" font-family="Arial" font-size="22" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text></svg>`;
+                                  
+                                  // Create gradient for fallback SVG
+                                  const hexToRgb = (hex) => {
+                                    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                                    return result ? {
+                                      r: parseInt(result[1], 16),
+                                      g: parseInt(result[2], 16),
+                                      b: parseInt(result[3], 16)
+                                    } : null;
+                                  };
+                                  
+                                  const rgbToHex = (r, g, b) => {
+                                    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                                  };
+                                  
+                                  const rgb = hexToRgb(bgColor);
+                                  let gradientStart, gradientEnd;
+                                  
+                                  if (rgb) {
+                                    const lighten = (r, g, b, amount = 15) => ({
+                                      r: Math.min(255, r + amount),
+                                      g: Math.min(255, g + amount),
+                                      b: Math.min(255, b + amount)
+                                    });
+                                    
+                                    const darken = (r, g, b, amount = 15) => ({
+                                      r: Math.max(0, r - amount),
+                                      g: Math.max(0, g - amount),
+                                      b: Math.max(0, b - amount)
+                                    });
+                                    
+                                    const light = lighten(rgb.r, rgb.g, rgb.b);
+                                    const dark = darken(rgb.r, rgb.g, rgb.b);
+                                    
+                                    gradientStart = rgbToHex(light.r, light.g, light.b);
+                                    gradientEnd = rgbToHex(dark.r, dark.g, dark.b);
+                                  } else {
+                                    gradientStart = bgColor;
+                                    gradientEnd = bgColor;
+                                  }
+                                  
+                                  const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                      <linearGradient id="grad-fallback-${product.id || 'default'}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:${gradientStart};stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:${gradientEnd};stop-opacity:1" />
+                                      </linearGradient>
+                                    </defs>
+                                    <rect width="400" height="300" fill="url(#grad-fallback-${product.id || 'default'})"/>
+                                    <text x="50%" y="50%" font-family="Arial" font-size="22" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text>
+                                  </svg>`;
                                   e.target.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
                                   // Add blur for fallback SVG
                                   e.target.style.filter = 'blur(4px)';
