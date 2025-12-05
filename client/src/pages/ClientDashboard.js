@@ -321,7 +321,7 @@ const ClientDashboard = () => {
         </linearGradient>
       </defs>
       <rect width="400" height="300" fill="url(#grad-${product.id || 'default'})"/>
-      <text x="50%" y="15%" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle" style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);">${productName}</text>
+      <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle" style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);">${productName}</text>
     </svg>`;
     
     return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
@@ -851,7 +851,7 @@ const ClientDashboard = () => {
                                       </linearGradient>
                                     </defs>
                                     <rect width="400" height="300" fill="url(#grad-fallback-${product.id || 'default'})"/>
-                                    <text x="50%" y="15%" font-family="Arial" font-size="22" fill="white" text-anchor="middle" dominant-baseline="middle" style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);">${productName}</text>
+                                    <text x="50%" y="50%" font-family="Arial" font-size="22" fill="white" text-anchor="middle" dominant-baseline="middle" style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);">${productName}</text>
                                   </svg>`;
                                   e.target.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
                                 }}
