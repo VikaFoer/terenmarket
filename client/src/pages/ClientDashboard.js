@@ -724,32 +724,42 @@ const ClientDashboard = () => {
                             position: 'relative'
                           }}
                         >
-                          <img
-                            src={getProductImage(product)}
-                            alt={product.name}
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                              display: 'block'
-                            }}
-                            loading="lazy"
-                            onError={(e) => {
-                              // Fallback SVG if external image fails
-                              const productName = product.name;
-                              const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181'];
-                              let hash = 0;
-                              for (let i = 0; i < productName.length; i++) {
-                                hash = productName.charCodeAt(i) + ((hash << 5) - hash);
-                              }
-                              const bgColor = colors[Math.abs(hash) % colors.length];
-                              const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="${bgColor}"/><text x="50%" y="50%" font-family="Arial" font-size="22" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text></svg>`;
-                              e.target.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
-                            }}
-                          />
+                          {(() => {
+                            const imageSrc = getProductImage(product);
+                            const isGeneratedSVG = !product.image_url || product.image_url.trim() === '' || imageSrc.startsWith('data:image/svg+xml');
+                            return (
+                              <img
+                                src={imageSrc}
+                                alt={product.name}
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'cover',
+                                  display: 'block',
+                                  // Add blur only for generated SVG images
+                                  filter: isGeneratedSVG ? 'blur(2px)' : 'none'
+                                }}
+                                loading="lazy"
+                                onError={(e) => {
+                                  // Fallback SVG if external image fails
+                                  const productName = product.name;
+                                  const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181'];
+                                  let hash = 0;
+                                  for (let i = 0; i < productName.length; i++) {
+                                    hash = productName.charCodeAt(i) + ((hash << 5) - hash);
+                                  }
+                                  const bgColor = colors[Math.abs(hash) % colors.length];
+                                  const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="${bgColor}"/><text x="50%" y="50%" font-family="Arial" font-size="22" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text></svg>`;
+                                  e.target.src = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+                                  // Add blur for fallback SVG
+                                  e.target.style.filter = 'blur(2px)';
+                                }}
+                              />
+                            );
+                          })()}
                         </Box>
                           <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                            <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: 'white' }}>
+                            <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, color: 'white', textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
                               {product.name}
                             </Typography>
                             
@@ -805,10 +815,10 @@ const ClientDashboard = () => {
                                           justifyContent: 'space-between',
                                           alignItems: 'center'
                                         }}>
-                                          <Typography variant="body2" sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)' }}>
+                                          <Typography variant="body2" sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)' }}>
                                             Ціна в євро:
                                           </Typography>
-                                          <Typography variant="body2" sx={{ fontWeight: 500, color: 'white' }}>
+                                          <Typography variant="body2" sx={{ fontWeight: 500, color: 'white', textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)' }}>
                                             {((product.cost_price_eur || product.cost_price || 0) * (product.coefficient || 1.0)).toFixed(2)} €
                                           </Typography>
                                         </Box>
@@ -818,10 +828,10 @@ const ClientDashboard = () => {
                                         justifyContent: 'space-between',
                                         alignItems: 'center'
                                       }}>
-                                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+                                        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 2px rgba(0, 0, 0, 0.5)' }}>
                                           Ваша ціна:
                                         </Typography>
-                                        <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
+                                        <Typography variant="h6" sx={{ fontWeight: 600, color: 'white', textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>
                                           {product.price ? product.price.toFixed(2) : '0.00'} грн
                                         </Typography>
                                       </Box>
