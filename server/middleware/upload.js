@@ -17,6 +17,14 @@ if (!fs.existsSync(uploadsDir)) {
   console.log('Using DATA_DIR:', DATA_DIR);
 }
 
+// Warning if DATA_DIR is not set
+if (!process.env.DATA_DIR) {
+  console.warn('⚠️  WARNING: DATA_DIR environment variable is not set!');
+  console.warn('⚠️  Uploaded images will be stored in ephemeral filesystem.');
+  console.warn('⚠️  Images will be LOST after each deployment!');
+  console.warn('⚠️  Please set up Railway Volume and configure DATA_DIR variable.');
+}
+
 // Налаштування зберігання файлів
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

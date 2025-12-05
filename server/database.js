@@ -18,6 +18,18 @@ console.log('OLD_DB_PATH:', OLD_DB_PATH);
 console.log('DATA_DIR exists:', fs.existsSync(DATA_DIR));
 console.log('DB_PATH exists:', fs.existsSync(DB_PATH));
 console.log('OLD_DB_PATH exists:', fs.existsSync(OLD_DB_PATH));
+
+// Warning if DATA_DIR is not set (using default path - data will be lost on redeploy)
+if (!process.env.DATA_DIR) {
+  console.warn('⚠️  WARNING: DATA_DIR environment variable is not set!');
+  console.warn('⚠️  Database and uploaded files will be stored in ephemeral filesystem.');
+  console.warn('⚠️  Data will be LOST after each deployment!');
+  console.warn('⚠️  Please set up Railway Volume and configure DATA_DIR variable.');
+  console.warn('⚠️  See RAILWAY_VOLUME_SETUP.md for instructions.');
+} else {
+  console.log('✅ DATA_DIR is set to:', process.env.DATA_DIR);
+  console.log('✅ Data will persist across deployments (if Volume is configured correctly)');
+}
 console.log('=============================');
 
 // Ensure data directory exists
