@@ -18,15 +18,25 @@ const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
 // Trust proxy - Railway uses HTTPS proxy
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
-// Middleware to ensure HTTPS URLs for static assets
+// Middleware to ensure HTTPS URLs for static assets and handle Railway proxy
 app.use((req, res, next) => {
-  // If request is HTTPS, ensure all responses use HTTPS
-  if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
+  // Railway sets x-forwarded-proto header
+  const isHttps = req.secure || 
+                  req.headers['x-forwarded-proto'] === 'https' ||
+                  req.headers['x-forwarded-proto'] === 'https, http';
+  
+  if (isHttps) {
     // Set protocol for static assets
     req.protocol = 'https';
   }
+  
+  // Set security headers
+  if (isHttps) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+  
   next();
 });
 
