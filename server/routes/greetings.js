@@ -140,6 +140,7 @@ router.get('/:category/products', (req, res) => {
       p.id,
       p.name,
       p.image_url,
+      p.card_color,
       c.name as category_name
     FROM products p
     JOIN categories c ON p.category_id = c.id

@@ -147,43 +147,97 @@ const GreetingPage = () => {
     }
   };
 
-  // Generate SVG image for product (більш акуратний дизайн)
+  // Generate SVG image for product - use card_color from database if available
   const getProductImage = (product) => {
-    const productName = product.name;
-    // Використовуємо більш приглушені, професійні кольори
-    const gradients = [
-      ['#667eea', '#764ba2'],
-      ['#f093fb', '#f5576c'],
-      ['#4facfe', '#00f2fe'],
-      ['#43e97b', '#38f9d7'],
-      ['#fa709a', '#fee140'],
-      ['#30cfd0', '#330867'],
-      ['#a8edea', '#fed6e3'],
-      ['#ff9a9e', '#fecfef'],
-      ['#ffecd2', '#fcb69f'],
-      ['#ff8a80', '#ea4c89'],
-    ];
-    
-    let hash = 0;
-    for (let i = 0; i < productName.length; i++) {
-      hash = productName.charCodeAt(i) + ((hash << 5) - hash);
+    // If product has image_url, use it
+    if (product.image_url && product.image_url.trim() !== '') {
+      if (product.image_url.startsWith('http://') || product.image_url.startsWith('https://')) {
+        return product.image_url;
+      }
+      if (product.image_url.startsWith('/api/')) {
+        return product.image_url;
+      }
+      if (!product.image_url.startsWith('/')) {
+        return `/api/${product.image_url}`;
+      }
+      return product.image_url;
     }
-    const gradientIndex = Math.abs(hash) % gradients.length;
-    const [color1, color2] = gradients[gradientIndex];
     
-    // Створюємо більш акуратний SVG з градієнтом
-    const svg = `
-      <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="grad${hash}" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:${color1};stop-opacity:1" />
-            <stop offset="100%" style="stop-color:${color2};stop-opacity:1" />
-          </linearGradient>
-        </defs>
-        <rect width="400" height="300" fill="url(#grad${hash})"/>
-        <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="white" text-anchor="middle" dominant-baseline="middle" opacity="0.95">${productName}</text>
-      </svg>
-    `;
+    // Fallback: Generate SVG image if no image_url
+    const productName = product.name;
+    
+    // Use card_color if set, otherwise generate color from product name hash
+    let bgColor;
+    if (product.card_color && product.card_color.trim() !== '') {
+      bgColor = product.card_color;
+    } else {
+      // Generate color from product name hash
+      const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3', '#FFD93D', '#6BCB77', '#4D96FF', '#9B59B6', '#E74C3C', '#3498DB', '#1ABC9C', '#E67E22'];
+      let hash = 0;
+      for (let i = 0; i < productName.length; i++) {
+        hash = productName.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const colorIndex = Math.abs(hash) % colors.length;
+      bgColor = colors[colorIndex];
+    }
+    
+    // Create a lighter/darker version for gradient
+    const hexToRgb = (hex) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    };
+    
+    const rgbToHex = (r, g, b) => {
+      return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    };
+    
+    const rgb = hexToRgb(bgColor);
+    let gradientStart, gradientEnd;
+    
+    if (rgb) {
+      // Create a slightly lighter and darker version for subtle gradient
+      const lighten = (r, g, b, amount = 15) => {
+        return {
+          r: Math.min(255, r + amount),
+          g: Math.min(255, g + amount),
+          b: Math.min(255, b + amount)
+        };
+      };
+      
+      const darken = (r, g, b, amount = 15) => {
+        return {
+          r: Math.max(0, r - amount),
+          g: Math.max(0, g - amount),
+          b: Math.max(0, b - amount)
+        };
+      };
+      
+      const light = lighten(rgb.r, rgb.g, rgb.b);
+      const dark = darken(rgb.r, rgb.g, rgb.b);
+      
+      gradientStart = rgbToHex(light.r, light.g, light.b);
+      gradientEnd = rgbToHex(dark.r, dark.g, dark.b);
+    } else {
+      // Fallback if color parsing fails
+      gradientStart = bgColor;
+      gradientEnd = bgColor;
+    }
+    
+    // Create SVG data URL with gradient - fallback when no image_url
+    const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="grad-${product.id || 'default'}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:${gradientStart};stop-opacity:1" />
+          <stop offset="100%" style="stop-color:${gradientEnd};stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <rect width="400" height="300" fill="url(#grad-${product.id || 'default'})"/>
+      <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle" style="text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);">${productName}</text>
+    </svg>`;
     
     return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
   };
