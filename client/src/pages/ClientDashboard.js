@@ -229,8 +229,26 @@ const ClientDashboard = () => {
     return acc;
   }, {});
 
-  // Generate SVG image for product (завжди працює)
+  // Get product image - use image_url if available, otherwise generate SVG
   const getProductImage = (product) => {
+    // If product has image_url, use it
+    if (product.image_url && product.image_url.trim() !== '') {
+      // If it's already a full URL, use it as is
+      if (product.image_url.startsWith('http://') || product.image_url.startsWith('https://')) {
+        return product.image_url;
+      }
+      // If it's a relative path starting with /api/, use it as is (will be resolved by the server)
+      if (product.image_url.startsWith('/api/')) {
+        return product.image_url;
+      }
+      // Otherwise, prepend /api/ if it doesn't start with /
+      if (!product.image_url.startsWith('/')) {
+        return `/api/${product.image_url}`;
+      }
+      return product.image_url;
+    }
+    
+    // Fallback: Generate SVG image if no image_url
     const productName = product.name;
     const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#95E1D3', '#F38181', '#AA96DA', '#FCBAD3', '#FFD93D', '#6BCB77', '#4D96FF', '#9B59B6', '#E74C3C', '#3498DB', '#1ABC9C', '#E67E22'];
     let hash = 0;
@@ -240,7 +258,7 @@ const ClientDashboard = () => {
     const colorIndex = Math.abs(hash) % colors.length;
     const bgColor = colors[colorIndex];
     
-    // Create SVG data URL - це завжди працює
+    // Create SVG data URL - fallback when no image_url
     const svg = `<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="300" fill="${bgColor}"/><text x="50%" y="50%" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">${productName}</text></svg>`;
     
     return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
