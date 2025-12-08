@@ -17,11 +17,27 @@ import {
   AccordionDetails,
   Alert,
   CircularProgress,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import QrCodeIcon from '@mui/icons-material/QrCode';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SettingsIcon from '@mui/icons-material/Settings';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
@@ -56,39 +72,72 @@ const categoryMapping = {
 
 const QRPagesManagement = () => {
   const [categoriesData, setCategoriesData] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
+  const [qrPageCategories, setQrPageCategories] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [selectedQrPage, setSelectedQrPage] = useState(null);
+  const [selectedCategoryToAdd, setSelectedCategoryToAdd] = useState('');
 
   useEffect(() => {
-    fetchQRPagesData();
+    fetchAllData();
   }, []);
 
-  const fetchQRPagesData = async () => {
+  const fetchAllData = async () => {
     setLoading(true);
     setError('');
     
     try {
-      // Отримуємо дані для кожної категорії паралельно
+      // Отримуємо всі категорії
+      const categoriesResponse = await axios.get(`${API_URL}/admin/categories`);
+      setAllCategories(categoriesResponse.data || []);
+      
+      // Отримуємо призначені категорії для QR-сторінок
+      const qrPagesResponse = await axios.get(`${API_URL}/admin/qr-pages`);
+      setQrPageCategories(qrPagesResponse.data || {});
+      
+      // Отримуємо товари для кожної QR-сторінки
+      await fetchQRPagesData(qrPagesResponse.data || {});
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setError('Не вдалося завантажити дані');
+      setLoading(false);
+    }
+  };
+
+  const fetchQRPagesData = async (qrCategories = null) => {
+    const categoriesMap = qrCategories || qrPageCategories;
+    
+    try {
+      // Отримуємо дані для кожної QR-сторінки паралельно
       const promises = Object.keys(categoryMapping).map(async (urlKey) => {
-        const [categoryName, url] = categoryMapping[urlKey];
+        const [defaultCategoryName, url] = categoryMapping[urlKey];
         try {
           const response = await axios.get(`${API_URL}/greetings/${urlKey}/products`);
+          const assignedCategories = categoriesMap[urlKey] || [];
+          
           return {
             urlKey,
-            categoryName,
+            defaultCategoryName,
             url,
             products: response.data || [],
-            fullUrl: `https://${url}`
+            fullUrl: `https://${url}`,
+            assignedCategories: assignedCategories.map(cat => ({
+              id: cat.category_id,
+              name: cat.category_name
+            }))
           };
         } catch (err) {
           console.error(`Error fetching products for ${urlKey}:`, err);
           return {
             urlKey,
-            categoryName,
+            defaultCategoryName,
             url,
             products: [],
             fullUrl: `https://${url}`,
-            error: err.message
+            error: err.message,
+            assignedCategories: []
           };
         }
       });
@@ -101,6 +150,57 @@ const QRPagesManagement = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOpenCategoryDialog = (urlKey) => {
+    setSelectedQrPage(urlKey);
+    setCategoryDialogOpen(true);
+  };
+
+  const handleCloseCategoryDialog = () => {
+    setCategoryDialogOpen(false);
+    setSelectedQrPage(null);
+    setSelectedCategoryToAdd('');
+  };
+
+  const handleAddCategory = async () => {
+    if (!selectedQrPage || !selectedCategoryToAdd) return;
+    
+    try {
+      await axios.post(`${API_URL}/admin/qr-pages/${selectedQrPage}/categories`, {
+        category_id: parseInt(selectedCategoryToAdd)
+      });
+      
+      // Оновлюємо дані
+      await fetchAllData();
+      handleCloseCategoryDialog();
+    } catch (err) {
+      console.error('Error adding category:', err);
+      alert('Помилка додавання категорії: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
+  const handleRemoveCategory = async (urlKey, categoryId) => {
+    if (!window.confirm('Ви впевнені, що хочете видалити цю категорію з QR-сторінки?')) {
+      return;
+    }
+    
+    try {
+      await axios.delete(`${API_URL}/admin/qr-pages/${urlKey}/categories/${categoryId}`);
+      
+      // Оновлюємо дані
+      await fetchAllData();
+    } catch (err) {
+      console.error('Error removing category:', err);
+      alert('Помилка видалення категорії: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
+  const getAvailableCategories = () => {
+    if (!selectedQrPage) return [];
+    
+    const assignedCategoryIds = (qrPageCategories[selectedQrPage] || []).map(cat => cat.category_id);
+    return allCategories.filter(cat => !assignedCategoryIds.includes(cat.id));
   };
 
   if (loading) {
@@ -131,7 +231,7 @@ const QRPagesManagement = () => {
         <Button
           variant="outlined"
           startIcon={<RefreshIcon />}
-          onClick={fetchQRPagesData}
+          onClick={fetchAllData}
           disabled={loading}
         >
           Оновити
@@ -139,41 +239,89 @@ const QRPagesManagement = () => {
       </Box>
 
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Перегляд товарів, які відображаються на кожній QR-сторінці
+        Управління категоріями та перегляд товарів на кожній QR-сторінці
       </Typography>
 
       <Grid container spacing={3}>
-        {categoriesData.map((category) => (
-          <Grid item xs={12} key={category.urlKey}>
+        {categoriesData.map((qrPage) => (
+          <Grid item xs={12} key={qrPage.urlKey}>
             <Accordion defaultExpanded>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    {category.categoryName}
+                    {qrPage.url}
                   </Typography>
                   <Chip 
-                    label={`${category.products.length} товарів`} 
+                    label={`${qrPage.products.length} товарів`} 
                     color="primary" 
                     size="small"
                   />
+                  {qrPage.assignedCategories.length > 0 && (
+                    <Chip 
+                      label={`${qrPage.assignedCategories.length} категорій`} 
+                      color="secondary" 
+                      size="small"
+                    />
+                  )}
                   <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Link 
-                      href={category.fullUrl} 
+                      href={qrPage.fullUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      sx={{ fontSize: '0.875rem' }}
+                      sx={{ fontSize: '0.875rem', mr: 1 }}
                     >
-                      {category.url}
+                      Відкрити сторінку
                     </Link>
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenCategoryDialog(qrPage.urlKey);
+                      }}
+                      color="primary"
+                    >
+                      <SettingsIcon />
+                    </IconButton>
                   </Box>
                 </Box>
               </AccordionSummary>
               <AccordionDetails>
-                {category.error ? (
-                  <Alert severity="warning">
-                    Помилка завантаження товарів: {category.error}
+                {/* Список призначених категорій */}
+                {qrPage.assignedCategories.length > 0 ? (
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                      Призначені категорії:
+                    </Typography>
+                    <List dense>
+                      {qrPage.assignedCategories.map((cat) => (
+                        <ListItem key={cat.id}>
+                          <ListItemText primary={cat.name} />
+                          <ListItemSecondaryAction>
+                            <IconButton
+                              edge="end"
+                              size="small"
+                              onClick={() => handleRemoveCategory(qrPage.urlKey, cat.id)}
+                              color="error"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </ListItemSecondaryAction>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                ) : (
+                  <Alert severity="info" sx={{ mb: 2 }}>
+                    На цій QR-сторінці не призначено жодної категорії. Використовується дефолтна категорія.
                   </Alert>
-                ) : category.products.length === 0 ? (
+                )}
+
+                {/* Товари */}
+                {qrPage.error ? (
+                  <Alert severity="warning">
+                    Помилка завантаження товарів: {qrPage.error}
+                  </Alert>
+                ) : qrPage.products.length === 0 ? (
                   <Alert severity="info">
                     На цій QR-сторінці поки немає товарів
                   </Alert>
@@ -184,16 +332,24 @@ const QRPagesManagement = () => {
                         <TableRow>
                           <TableCell>ID</TableCell>
                           <TableCell>Назва товару</TableCell>
+                          <TableCell>Категорія</TableCell>
                           <TableCell>Зображення</TableCell>
                           <TableCell>Колір картки</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {category.products.map((product) => (
+                        {qrPage.products.map((product) => (
                           <TableRow key={product.id}>
                             <TableCell>{product.id}</TableCell>
                             <TableCell sx={{ fontWeight: 500 }}>
                               {product.name}
+                            </TableCell>
+                            <TableCell>
+                              <Chip 
+                                label={product.category_name} 
+                                size="small"
+                                variant="outlined"
+                              />
                             </TableCell>
                             <TableCell>
                               {product.image_url ? (
@@ -243,9 +399,49 @@ const QRPagesManagement = () => {
           </Grid>
         ))}
       </Grid>
-      </Box>
-    );
-  };
+
+      {/* Діалог додавання категорії */}
+      <Dialog open={categoryDialogOpen} onClose={handleCloseCategoryDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          Додати категорію до QR-сторінки
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 2 }}>
+            <FormControl fullWidth>
+              <InputLabel>Категорія</InputLabel>
+              <Select
+                value={selectedCategoryToAdd}
+                onChange={(e) => setSelectedCategoryToAdd(e.target.value)}
+                label="Категорія"
+              >
+                {getAvailableCategories().map((cat) => (
+                  <MenuItem key={cat.id} value={cat.id.toString()}>
+                    {cat.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {getAvailableCategories().length === 0 && (
+              <Alert severity="info" sx={{ mt: 2 }}>
+                Всі категорії вже призначені до цієї QR-сторінки
+              </Alert>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseCategoryDialog}>Скасувати</Button>
+          <Button 
+            onClick={handleAddCategory} 
+            variant="contained"
+            disabled={!selectedCategoryToAdd}
+            startIcon={<AddIcon />}
+          >
+            Додати
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+};
 
 export default QRPagesManagement;
-

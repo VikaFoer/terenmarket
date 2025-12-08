@@ -1010,5 +1010,116 @@ router.get('/db-diagnostics', (req, res) => {
   });
 });
 
+// ========== QR PAGES MANAGEMENT ==========
+
+// Get all QR pages with their assigned categories
+router.get('/qr-pages', (req, res) => {
+  const database = db.getDb();
+  
+  database.all(`
+    SELECT 
+      qpc.qr_page_url,
+      qpc.category_id,
+      c.name as category_name,
+      qpc.id as mapping_id
+    FROM qr_page_categories qpc
+    JOIN categories c ON qpc.category_id = c.id
+    ORDER BY qpc.qr_page_url, c.name
+  `, (err, mappings) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    
+    // Group by QR page URL
+    const qrPages = {};
+    mappings.forEach(mapping => {
+      if (!qrPages[mapping.qr_page_url]) {
+        qrPages[mapping.qr_page_url] = [];
+      }
+      qrPages[mapping.qr_page_url].push({
+        category_id: mapping.category_id,
+        category_name: mapping.category_name,
+        mapping_id: mapping.mapping_id
+      });
+    });
+    
+    res.json(qrPages);
+  });
+});
+
+// Get categories for a specific QR page
+router.get('/qr-pages/:url/categories', (req, res) => {
+  const database = db.getDb();
+  const { url } = req.params;
+  
+  database.all(`
+    SELECT 
+      qpc.category_id,
+      c.name as category_name,
+      qpc.id as mapping_id
+    FROM qr_page_categories qpc
+    JOIN categories c ON qpc.category_id = c.id
+    WHERE qpc.qr_page_url = ?
+    ORDER BY c.name
+  `, [url], (err, categories) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(categories);
+  });
+});
+
+// Add category to QR page
+router.post('/qr-pages/:url/categories', (req, res) => {
+  const database = db.getDb();
+  const { url } = req.params;
+  const { category_id } = req.body;
+  
+  if (!category_id) {
+    return res.status(400).json({ error: 'category_id is required' });
+  }
+  
+  database.run(
+    'INSERT OR IGNORE INTO qr_page_categories (qr_page_url, category_id) VALUES (?, ?)',
+    [url, category_id],
+    function(err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (this.changes === 0) {
+        return res.status(409).json({ error: 'Category already assigned to this QR page' });
+      }
+      res.json({ 
+        success: true, 
+        message: 'Category added to QR page',
+        id: this.lastID 
+      });
+    }
+  );
+});
+
+// Remove category from QR page
+router.delete('/qr-pages/:url/categories/:categoryId', (req, res) => {
+  const database = db.getDb();
+  const { url, categoryId } = req.params;
+  
+  database.run(
+    'DELETE FROM qr_page_categories WHERE qr_page_url = ? AND category_id = ?',
+    [url, categoryId],
+    function(err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ error: 'Mapping not found' });
+      }
+      res.json({ 
+        success: true, 
+        message: 'Category removed from QR page' 
+      });
+    }
+  );
+});
+
 module.exports = router;
 

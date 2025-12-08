@@ -342,6 +342,62 @@ const createTables = () => {
             }
           });
           
+          // QR page categories table (which categories are displayed on which QR page)
+          db.run(`CREATE TABLE IF NOT EXISTS qr_page_categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            qr_page_url TEXT NOT NULL,
+            category_id INTEGER NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+            UNIQUE(qr_page_url, category_id)
+          )`, (err) => {
+            if (err) {
+              console.error('Error creating qr_page_categories table:', err);
+            } else {
+              console.log('QRPageCategories table created/verified');
+              
+              // Insert default mappings if table is empty
+              db.get('SELECT COUNT(*) as count FROM qr_page_categories', (err, result) => {
+                if (!err && result.count === 0) {
+                  console.log('QR page categories table is empty. Inserting default mappings...');
+                  const defaultMappings = [
+                    ['colorant', 'Колоранти'],
+                    ['mix', 'Колірувальне обладнання'],
+                    ['bruker-o', 'Брукер Оптікс (БІЧ)'],
+                    ['axs', 'Брукер АХС'],
+                    ['filter', 'Фільтри'],
+                    ['lab', 'Лабораторка']
+                  ];
+                  
+                  // Get category IDs
+                  db.all('SELECT id, name FROM categories', (err, categories) => {
+                    if (!err && categories) {
+                      const categoryMap = {};
+                      categories.forEach(cat => {
+                        categoryMap[cat.name] = cat.id;
+                      });
+                      
+                      const stmt = db.prepare('INSERT INTO qr_page_categories (qr_page_url, category_id) VALUES (?, ?)');
+                      defaultMappings.forEach(([url, categoryName]) => {
+                        const categoryId = categoryMap[categoryName];
+                        if (categoryId) {
+                          stmt.run([url, categoryId], (err) => {
+                            if (err) {
+                              console.error(`Error inserting QR mapping ${url} -> ${categoryName}:`, err);
+                            } else {
+                              console.log(`QR mapping inserted: ${url} -> ${categoryName}`);
+                            }
+                          });
+                        }
+                      });
+                      stmt.finalize();
+                    }
+                  });
+                }
+              });
+            }
+          });
+          
           // Analytics tables
           db.run(`CREATE TABLE IF NOT EXISTS analytics_sessions (
             id TEXT PRIMARY KEY,

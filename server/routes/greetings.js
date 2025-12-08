@@ -130,27 +130,68 @@ router.get('/:category/products', (req, res) => {
   const { category } = req.params;
   const database = db.getDb();
   
-  const categoryName = categoryMapping[category];
-  if (!categoryName) {
-    return res.status(404).json({ error: 'Category not found' });
-  }
-  
+  // Get categories assigned to this QR page from database
   database.all(`
-    SELECT 
-      p.id,
-      p.name,
-      p.image_url,
-      p.card_color,
+    SELECT DISTINCT
+      c.id as category_id,
       c.name as category_name
-    FROM products p
-    JOIN categories c ON p.category_id = c.id
-    WHERE c.name = ?
-    ORDER BY p.name
-  `, [categoryName], (err, products) => {
+    FROM qr_page_categories qpc
+    JOIN categories c ON qpc.category_id = c.id
+    WHERE qpc.qr_page_url = ?
+  `, [category], (err, assignedCategories) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
-    res.json(products);
+    
+    // If no categories assigned, fall back to old mapping for backward compatibility
+    if (assignedCategories.length === 0) {
+      const categoryName = categoryMapping[category];
+      if (!categoryName) {
+        return res.status(404).json({ error: 'Category not found' });
+      }
+      
+      database.all(`
+        SELECT 
+          p.id,
+          p.name,
+          p.image_url,
+          p.card_color,
+          c.name as category_name
+        FROM products p
+        JOIN categories c ON p.category_id = c.id
+        WHERE c.name = ?
+        ORDER BY c.name, p.name
+      `, [categoryName], (err, products) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        res.json(products);
+      });
+      return;
+    }
+    
+    // Get products from all assigned categories
+    const categoryIds = assignedCategories.map(cat => cat.category_id);
+    const placeholders = categoryIds.map(() => '?').join(',');
+    
+    database.all(`
+      SELECT 
+        p.id,
+        p.name,
+        p.image_url,
+        p.card_color,
+        c.name as category_name,
+        c.id as category_id
+      FROM products p
+      JOIN categories c ON p.category_id = c.id
+      WHERE c.id IN (${placeholders})
+      ORDER BY c.name, p.name
+    `, categoryIds, (err, products) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      res.json(products);
+    });
   });
 });
 
