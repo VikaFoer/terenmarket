@@ -465,7 +465,9 @@ db.init()
             path.join(__dirname, '..', '..', 'client', 'build'), // Alternative path
             path.join(process.cwd(), 'build'),              // If build is in root
             '/home/tecsa/tecsamarket.com.ua/www/client/build', // Production server path
-            path.join('/home/tecsa/tecsamarket.com.ua/www', 'client', 'build') // Alternative production path
+            path.join('/home/tecsa/tecsamarket.com.ua/www', 'client', 'build'), // Alternative production path
+            '/opt/render/project/src/client/build', // Render.com path
+            path.join('/opt/render/project/src', 'client', 'build') // Render.com alternative path
           ];
           
           let buildPath = null;
