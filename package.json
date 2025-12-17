@@ -9,8 +9,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && nodemon index.js",
     "client": "cd client && npm start",
-    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
-    "restore-railway": "node restore-railway-db.js"
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install"
   },
   "keywords": [],
   "author": "",

@@ -1,17 +1,103 @@
+# Dependencies
 node_modules/
 client/node_modules/
 server/node_modules/
-*.log
-.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Environment variables
 .env
+.env.local
+.env.*.local
 server/.env
 client/.env.local
 client/.env
-server/database.sqlite
+
+# Build outputs (dev builds - not needed in production)
 build/
 dist/
+*.map
+
+# Database files (production uses MySQL or Volume storage)
+server/database.sqlite
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads (should be in Volume storage in production)
+server/uploads/
+uploads/
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.tmp
+*.swp
+*.swo
+*~
+
+# Cache directories
+.cache/
+**/.cache/
+.npm/
+.eslintcache
+.parcel-cache/
+.next/
+.nuxt/
+.vuepress/dist/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Test files
+coverage/
+.nyc_output/
+*.test.js.snap
+
+# Temporary files
 clients_products_prices.xlsx
 imported_credentials.txt
-logo.png
-server/uploads/
+server/database_export.json
+
+# Video files (keep only bg-video.mp4 in client/public)
+bgv.mp4
+"BG video.mp4"
+
+# Test images
+"Fon line_*.png"
+
+# Git
+.git/
+.gitignore.bak
+
+# Docker
+.dockerignore.bak
+
+# Redis dump (if using Redis)
+dump.rdb
+*.rdb
+
+# PM2
+.pm2/
 

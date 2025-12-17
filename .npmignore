@@ -1,0 +1,92 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Dependencies (will be installed by npm)
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+server/.env
+client/.env.local
+client/.env
+
+# Build outputs
+build/
+dist/
+*.map
+
+# Development files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Documentation
+*.md
+!README.md
+
+# Test files
+coverage/
+.nyc_output/
+*.test.js
+*.test.js.snap
+*.spec.js
+
+# Cache
+.cache/
+**/.cache/
+.npm/
+.eslintcache
+.parcel-cache/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.tmp
+*.swp
+*.swo
+*~
+
+# Temporary files
+clients_products_prices.xlsx
+imported_credentials.txt
+server/database_export.json
+
+# Database
+server/database.sqlite
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads
+server/uploads/
+uploads/
+
+# Redis dump
+dump.rdb
+*.rdb
+
+# PM2
+.pm2/
+

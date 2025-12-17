@@ -269,8 +269,8 @@ const ProductsManagement = () => {
 
     try {
       const submitData = {
-        ...formData,
-        cost_price: parseFloat(formData.cost_price) || 0,
+          ...formData,
+          cost_price: parseFloat(formData.cost_price) || 0,
         price_currency: formData.price_currency || 'EUR',
         cost_price_eur: formData.cost_price_eur ? parseFloat(formData.cost_price_eur) : null,
         cost_price_uah: formData.cost_price_uah ? parseFloat(formData.cost_price_uah) : null,
@@ -627,16 +627,16 @@ const ProductsManagement = () => {
                 helperText="Введіть ціну в гривнях"
               />
             </Box>
-            <TextField
-              fullWidth
+          <TextField
+            fullWidth
               label="Собівартість (застаріле поле)"
-              type="number"
-              value={formData.cost_price}
-              onChange={(e) =>
-                setFormData({ ...formData, cost_price: e.target.value })
-              }
-              margin="normal"
-              inputProps={{ step: '0.01', min: '0' }}
+            type="number"
+            value={formData.cost_price}
+            onChange={(e) =>
+              setFormData({ ...formData, cost_price: e.target.value })
+            }
+            margin="normal"
+            inputProps={{ step: '0.01', min: '0' }}
               helperText="Використовується для сумісності, краще використовувати поля вище"
             />
           <FormControl fullWidth margin="normal">

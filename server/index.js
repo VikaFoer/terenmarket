@@ -13,6 +13,34 @@ const managerRoutes = require('./routes/manager');
 const greetingsRoutes = require('./routes/greetings');
 const analyticsRoutes = require('./routes/analytics');
 
+// Cleanup scheduler (only in production)
+let cleanupScheduler = null;
+if (process.env.NODE_ENV === 'production' && process.env.ENABLE_CLEANUP !== 'false') {
+  try {
+    const cron = require('node-cron');
+    
+    // Run cleanup daily at 2 AM UTC
+    cleanupScheduler = cron.schedule('0 2 * * *', () => {
+      console.log('[Cleanup] Starting scheduled cleanup...');
+      try {
+        const cleanupScript = require('./scripts/cleanup');
+        // Run the main cleanup function
+        cleanupScript.main();
+        console.log('[Cleanup] Scheduled cleanup completed');
+      } catch (err) {
+        console.error('[Cleanup] Error during scheduled cleanup:', err.message);
+      }
+    }, {
+      scheduled: true,
+      timezone: "UTC"
+    });
+    
+    console.log('✅ Cleanup scheduler enabled (runs daily at 2 AM UTC)');
+  } catch (err) {
+    console.warn('⚠️  node-cron not available, cleanup scheduler disabled. Install with: npm install node-cron');
+  }
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL;

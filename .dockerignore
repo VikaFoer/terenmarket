@@ -1,0 +1,120 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Dependencies (will be installed in container)
+node_modules/
+client/node_modules/
+server/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files (should be set via environment variables)
+.env
+.env.local
+.env.*.local
+server/.env
+client/.env.local
+client/.env
+
+# Build outputs (will be built in container)
+build/
+dist/
+*.map
+
+# Development files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Documentation (not needed in production)
+*.md
+!README.md
+ANALYTICS_VISION.md
+CLIENT_CREDENTIALS.md
+DATABASE_SETUP.md
+DESIGN_CHANGES.md
+LOCAL_SETUP.md
+MANAGER_API_INTEGRATION.md
+MYSQL_MIGRATION.md
+OPTIMIZATION_NOTES.md
+RESTORE_DATA_GUIDE.md
+
+# Test files
+coverage/
+.nyc_output/
+*.test.js
+*.test.js.snap
+*.spec.js
+
+# Cache
+.cache/
+**/.cache/
+.npm/
+.eslintcache
+.parcel-cache/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.tmp
+*.swp
+*.swo
+*~
+
+# Temporary files
+clients_products_prices.xlsx
+imported_credentials.txt
+server/database_export.json
+
+# Video files (keep only bg-video.mp4)
+bgv.mp4
+"BG video.mp4"
+
+# Test images
+"Fon line_*.png"
+
+# Database (will be in Volume or external DB)
+server/database.sqlite
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads (should be in Volume)
+server/uploads/
+uploads/
+
+# Redis dump
+dump.rdb
+*.rdb
+
+# PM2
+.pm2/
+
+# Railway specific
+railway.json
+nixpacks.toml
+
+# Scripts (keep only production scripts)
+server/scripts/
+!server/scripts/exportDatabase.js
+!server/scripts/importDatabase.js
+

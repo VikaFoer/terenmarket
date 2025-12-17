@@ -12,7 +12,8 @@
     "add-test-products": "node scripts/addTestProducts.js",
     "migrate-categories": "node scripts/migrateCategories.js",
     "export-db": "node scripts/exportDatabase.js",
-    "import-db": "node scripts/importDatabase.js"
+    "import-db": "node scripts/importDatabase.js",
+    "cleanup": "node scripts/cleanup.js"
   },
   "dependencies": {
     "axios": "^1.13.2",
@@ -22,6 +23,8 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.6.5",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.9.7",
     "sqlite3": "^5.1.6",
     "xlsx": "^0.18.5"
