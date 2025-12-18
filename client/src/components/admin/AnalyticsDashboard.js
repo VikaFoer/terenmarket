@@ -44,7 +44,7 @@ const AnalyticsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [stats, setStats] = useState(null);
-  const [dateRange, setDateRange] = useState('7'); // days
+  const [dateRange, setDateRange] = useState('all'); // 'all' or days
 
   useEffect(() => {
     fetchStats();
@@ -53,16 +53,24 @@ const AnalyticsDashboard = () => {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const endDate = new Date().toISOString().split('T')[0];
-      const startDate = format(subDays(new Date(), parseInt(dateRange)), 'yyyy-MM-dd');
+      
+      // Якщо вибрано "all" - не використовувати фільтр дат
+      const params = {};
+      if (dateRange !== 'all') {
+        const endDate = new Date().toISOString().split('T')[0];
+        const startDate = format(subDays(new Date(), parseInt(dateRange)), 'yyyy-MM-dd');
+        params.startDate = startDate;
+        params.endDate = endDate;
+      }
 
       const response = await axios.get(`${API_URL}/analytics/stats`, {
-        params: { startDate, endDate },
+        params,
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
 
+      console.log('Analytics stats received:', response.data);
       setStats(response.data);
       setError('');
     } catch (err) {
@@ -118,6 +126,7 @@ const AnalyticsDashboard = () => {
             label="Період"
             onChange={(e) => setDateRange(e.target.value)}
           >
+            <MenuItem value="all">Всі дані</MenuItem>
             <MenuItem value="7">Останні 7 днів</MenuItem>
             <MenuItem value="30">Останні 30 днів</MenuItem>
             <MenuItem value="90">Останні 90 днів</MenuItem>

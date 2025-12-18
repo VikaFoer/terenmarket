@@ -5,7 +5,7 @@ module.exports = {
   apps: [{
     name: 'smartmarket',
     script: './server/index.js',
-    cwd: '/home/tecsa/tecsamarket.com.ua/www',
+    cwd: '/home/tecsa/tecsamarket.com.ua',
     instances: 1,
     exec_mode: 'fork',
     env: {
