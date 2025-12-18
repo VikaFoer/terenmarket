@@ -11,7 +11,7 @@ jobs:
       - name: rsync deploy
         uses: burnett01/rsync-deployments@7.0.2
         with:
-          switches: -avzr --delete --exclude='node_modules' --exclude='.git' --exclude='build' --exclude='dist' --exclude='.env' --exclude='*.log' --exclude='.pm2' --exclude='server/database.sqlite' --exclude='server/uploads' --exclude='*.md' --exclude='.github'
+          switches: -avzr --delete --exclude='node_modules' --exclude='.git' --exclude='dist' --exclude='.env' --exclude='*.log' --exclude='.pm2' --exclude='server/database.sqlite' --exclude='server/uploads' --exclude='*.md' --exclude='.github' --exclude='client/node_modules' --exclude='server/node_modules'
           path: .
           remote_host: ${{ secrets.REMOTE_HOST }}
           remote_user: ${{ secrets.REMOTE_USER }}
