@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const db = require('./database');
 const authRoutes = require('./routes/auth');
@@ -42,7 +42,7 @@ if (process.env.NODE_ENV === 'production' && process.env.ENABLE_CLEANUP !== 'fal
 }
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
 // Trust proxy - Railway uses HTTPS proxy
