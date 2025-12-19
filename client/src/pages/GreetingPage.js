@@ -18,7 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { trackPageView, trackQRGreetingView, trackEmailSignup, trackExpandProducts, trackScrollDepth, trackTimeOnPage } from '../utils/analytics';
 
-const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
+const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3000/api');
 
 const GreetingPage = () => {
   const location = useLocation();

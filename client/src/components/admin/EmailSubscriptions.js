@@ -26,7 +26,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import axios from 'axios';
 import AnalyticsDashboard from './AnalyticsDashboard';
 
-const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:5000/api');
+const API_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3000/api');
 
 const categoryNames = {
   'colorant': 'Колоранти',
